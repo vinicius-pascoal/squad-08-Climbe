@@ -1,0 +1,236 @@
+# Climbe
+
+Uma aplicação web full-stack moderna construída com Vue.js, Express.js e MySQL, projetada para gestão empresarial e relacionamento com clientes.
+
+## 🚀 Visão Geral do Projeto
+
+Climbe é uma plataforma abrangente de gestão empresarial que oferece:
+
+- **Gestão de Usuários**: Sistema completo de autenticação e autorização com permissões baseadas em funções
+- **Gestão de Empresas**: Perfis completos de empresas com informações de contato e rastreamento de serviços
+- **Sistema de Propostas**: Criar, gerenciar e acompanhar propostas comerciais
+- **Gestão de Contratos**: Gerenciar contratos com relatórios integrados e gestão de planilhas
+- **Agendador de Reuniões**: Agendar e gerenciar reuniões com participantes e acompanhamento de pautas
+- **Gestão de Documentos**: Fazer upload, validar e gerenciar documentos de empresas
+- **Sistema de Notificações**: Notificações em tempo real para usuários
+- **Relatórios**: Gerar e gerenciar relatórios em PDF para contratos
+
+### Stack Tecnológica
+
+**Frontend:**
+
+- Vue.js 3 com TypeScript
+- Vue Router para navegação
+- Tailwind CSS para estilização
+- Vite para ferramentas de build
+
+**Backend:**
+
+- Node.js com Express.js
+- TypeScript para segurança de tipos
+- Prisma ORM para gestão de banco de dados
+- Banco de dados MySQL 8.0
+
+**Infraestrutura:**
+
+- Docker & Docker Compose para containerização
+- Turbo para gestão de monorepo
+- Builds Docker multi-estágio para otimização de produção
+
+## 📋 Pré-requisitos
+
+Antes de executar este projeto, certifique-se de ter instalado:
+
+- [Docker](https://docs.docker.com/get-docker/) (versão 20.10 ou superior)
+- [Docker Compose](https://docs.docker.com/compose/install/) (versão 2.0 ou superior)
+- [Node.js](https://nodejs.org/) (versão 22 ou superior) - apenas se executar sem Docker
+
+## 🛠️ Configuração de Desenvolvimento
+
+### Início Rápido
+
+1. **Clone o repositório:**
+
+   ```bash
+   git clone <repository-url>
+   cd climbe-turbo-fixed-v2
+   ```
+
+2. **Configure as variáveis de ambiente:**
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   Edite o arquivo `.env` com suas credenciais de banco de dados preferidas, se necessário.
+
+3. **Inicie o ambiente de desenvolvimento:**
+
+   ```bash
+   docker compose --profile dev up -d
+   ```
+
+4. **Acesse a aplicação:**
+   - Frontend: http://localhost:5173
+   - API Backend: http://localhost:3000/api/health
+   - Banco de dados: localhost:3306
+
+### Fluxo de Desenvolvimento
+
+A configuração de desenvolvimento inclui:
+
+- **Hot reload** para frontend e backend
+- **Migrações automáticas do banco de dados** na inicialização
+- **Monitoramento de arquivos** com polling para compatibilidade multiplataforma
+- **Geração do Prisma Client** e sincronização do banco de dados
+
+### Scripts Auxiliares de Desenvolvimento
+
+Para conveniência, fornecemos scripts auxiliares para gerenciar tarefas comuns de desenvolvimento:
+
+```bash
+# Iniciar ambiente de desenvolvimento
+./scripts/dev.sh start
+
+# Visualizar logs da aplicação
+./scripts/dev.sh logs
+
+# Executar migração do banco de dados
+./scripts/dev.sh migrate add_new_feature
+
+# Abrir shell da aplicação
+./scripts/dev.sh shell
+
+# Verificar saúde dos serviços
+./scripts/health-check.sh
+
+# Ver todos os comandos disponíveis
+./scripts/dev.sh help
+```
+
+### Parando o Ambiente de Desenvolvimento
+
+```bash
+docker compose --profile dev down
+```
+
+Para também remover volumes (dados do banco):
+
+```bash
+docker compose --profile dev down -v
+```
+
+## 🗄️ Gestão do Banco de Dados
+
+### Migrações do Banco de Dados
+
+O projeto usa Prisma para gestão do banco de dados. Aqui estão os comandos essenciais:
+
+#### Executando Migrações em Desenvolvimento
+
+```bash
+# Aplicar migrações pendentes
+docker compose --profile dev exec app-dev \
+  npx prisma migrate dev --schema apps/backend/prisma/schema.prisma --name <nome-da-migracao>
+
+# Resetar banco de dados (ATENÇÃO: Isso irá deletar todos os dados)
+docker compose --profile dev exec app-dev \
+  npx prisma migrate reset --schema apps/backend/prisma/schema.prisma
+```
+
+## 🚀 Deploy de Produção
+
+### Construindo e Executando em Produção
+
+1. **Certifique-se de que as variáveis de ambiente estão configuradas:**
+
+   ```bash
+   cp .env.example .env
+   # Edite .env com valores de produção
+   ```
+
+2. **Construa e inicie os containers de produção:**
+
+   ```bash
+   docker compose --profile prod up -d --build
+   ```
+
+3. **Verifique o deploy:**
+   - Aplicação: http://localhost:3000
+   - Verificação de saúde: http://localhost:3000/api/health
+
+### Detalhes do Ambiente de Produção
+
+A configuração de produção inclui:
+
+- **Build Docker multi-estágio** para tamanho de imagem otimizado
+- **Migrações automáticas do banco de dados** na inicialização
+- **Servir arquivos estáticos** do servidor Express
+- **Build otimizado para produção** do Vue.js
+
+### Comandos de Produção
+
+```bash
+# Visualizar logs
+docker compose --profile prod logs -f
+
+# Parar ambiente de produção
+docker compose --profile prod down
+
+# Reconstruir e reiniciar
+docker compose --profile prod up -d --build --force-recreate
+```
+
+## 📁 Estrutura do Projeto
+
+```
+climbe-turbo-fixed-v2/
+├── apps/
+│   ├── backend/                 # Servidor API Express.js
+│   │   ├── src/
+│   │   │   └── index.ts        # Arquivo principal do servidor
+│   │   ├── prisma/
+│   │   │   └── schema.prisma   # Schema do banco de dados
+│   │   └── package.json
+│   └── frontend/               # Aplicação Vue.js
+│       ├── src/
+│       │   ├── views/          # Componentes/páginas Vue
+│       │   ├── router/         # Configuração do Vue Router
+│       │   └── main.ts         # Ponto de entrada da aplicação
+│       └── package.json
+├── docker-compose.yml          # Configuração dos serviços Docker
+├── Dockerfile                  # Imagem Docker de produção
+├── turbo.json                  # Configuração do monorepo Turbo
+└── package.json               # Configuração do pacote raiz
+```
+
+## 🔍 Scripts Disponíveis
+
+### Scripts do Nível Raiz
+
+```bash
+npm run dev      # Iniciar frontend e backend em desenvolvimento
+npm run build    # Construir ambas aplicações para produção
+npm run lint     # Executar linting em todos os pacotes
+npm run format   # Formatar código em todos os pacotes
+```
+
+### Scripts do Backend
+
+```bash
+cd apps/backend
+npm run dev      # Iniciar backend em modo desenvolvimento
+npm run build    # Construir backend para produção
+npm run start    # Iniciar backend de produção
+```
+
+### Scripts do Frontend
+
+```bash
+cd apps/frontend
+npm run dev      # Iniciar servidor de desenvolvimento do frontend
+npm run build    # Construir frontend para produção
+npm run typecheck # Executar verificação de tipos TypeScript
+```
+`
+Para ajuda adicional ou dúvidas, por favor abra uma issue no repositório.

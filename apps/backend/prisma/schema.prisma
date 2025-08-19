@@ -1,0 +1,205 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id                 Int                   @id @default(autoincrement()) @map("id_usuario")
+  nomeCompleto       String                @map("nome_completo") @db.VarChar(255)
+  cargoId            Int?                  @map("cargo_id")
+  cpf                String                @db.Char(14)
+  email              String                @db.VarChar(255)
+  contato            String?               @db.VarChar(50)
+  situacao           String?               @db.VarChar(255)
+  senhaHash          String                @map("senha_hash") @db.Char(60)
+  cargo              Cargo?                @relation(fields: [cargoId], references: [id])
+  propostas          Proposta[]
+  notificacoes       Notificacao[]
+  participantes      ParticipanteReuniao[]
+  documentosAnalista Documento[]           @relation("Documento_Analista")
+  usuarioPermissoes  UsuarioPermissao[]
+
+  @@index([cargoId])
+  @@map("usuarios")
+}
+
+model Cargo {
+  id        Int       @id @default(autoincrement()) @map("id_cargo")
+  nomeCargo String    @map("nome_cargo") @db.VarChar(255)
+  usuarios  Usuario[]
+
+  @@map("cargos")
+}
+
+model Permissao {
+  id        Int                @id @default(autoincrement()) @map("id_permissao")
+  descricao String             @db.VarChar(255)
+  usuarios  UsuarioPermissao[]
+
+  @@map("permissoes")
+}
+
+model UsuarioPermissao {
+  usuarioId   Int
+  permissaoId Int
+  usuario     Usuario   @relation(fields: [usuarioId], references: [id])
+  permissao   Permissao @relation(fields: [permissaoId], references: [id])
+
+  @@id([usuarioId, permissaoId])
+  @@index([usuarioId])
+  @@index([permissaoId])
+  @@map("usuario_permissoes")
+}
+
+model Empresa {
+  id                   Int              @id @default(autoincrement()) @map("id_empresa")
+  razaoSocial          String           @map("razao_social") @db.VarChar(255)
+  nomeFantasia         String?          @map("nome_fantasia") @db.VarChar(255)
+  cnpj                 String           @db.Char(18)
+  logradouro           String?          @db.VarChar(255)
+  numero               String?          @db.VarChar(255)
+  bairro               String?          @db.VarChar(255)
+  cidade               String?          @db.VarChar(255)
+  uf                   String?          @db.VarChar(255)
+  cep                  String?          @db.VarChar(255)
+  telefone             String?          @db.VarChar(255)
+  email                String?          @db.VarChar(255)
+  representanteCpf     String?          @map("representante_cpf") @db.Char(14)
+  representanteContato String?          @map("representante_contato") @db.VarChar(50)
+  propostas            Proposta[]
+  reunioes             Reuniao[]
+  documentos           Documento[]
+  servicos             EmpresaServico[]
+
+  @@map("empresas")
+}
+
+model Servico {
+  id       Int              @id @default(autoincrement()) @map("id_servico")
+  nome     String           @db.VarChar(255)
+  empresas EmpresaServico[]
+
+  @@map("servicos")
+}
+
+model EmpresaServico {
+  empresaId Int     @map("id_empresa")
+  servicoId Int     @map("id_servico")
+  empresa   Empresa @relation(fields: [empresaId], references: [id])
+  servico   Servico @relation(fields: [servicoId], references: [id])
+
+  @@id([empresaId, servicoId])
+  @@index([servicoId])
+  @@map("empresa_servico")
+}
+
+model Proposta {
+  id          Int        @id @default(autoincrement()) @map("id_proposta")
+  empresaId   Int        @map("empresa_id")
+  usuarioId   Int        @map("usuario_id")
+  status      String?    @db.VarChar(255)
+  dataCriacao DateTime   @map("data_criacao")
+  empresa     Empresa    @relation(fields: [empresaId], references: [id])
+  usuario     Usuario    @relation(fields: [usuarioId], references: [id])
+  contratos   Contrato[]
+
+  @@index([empresaId])
+  @@index([usuarioId])
+  @@map("propostas")
+}
+
+model Contrato {
+  id         Int         @id @default(autoincrement()) @map("id_contrato")
+  propostaId Int         @map("proposta_id")
+  dataInicio DateTime    @map("data_inicio")
+  dataFim    DateTime?   @map("data_fim")
+  status     String?     @db.VarChar(255)
+  proposta   Proposta    @relation(fields: [propostaId], references: [id])
+  planilhas  Planilha[]
+  relatorios Relatorio[]
+
+  @@index([propostaId])
+  @@map("contratos")
+}
+
+model Planilha {
+  id                    Int      @id @default(autoincrement()) @map("id_planilha")
+  contratoId            Int      @map("contrato_id")
+  urlGoogleSheets       String?  @map("url_google_sheets") @db.VarChar(255)
+  bloqueada             Boolean?
+  permissaoVisualizacao String?  @map("permissao_visualizacao") @db.VarChar(255)
+  contrato              Contrato @relation(fields: [contratoId], references: [id])
+
+  @@index([contratoId])
+  @@map("planilhas")
+}
+
+model Relatorio {
+  id         Int       @id @default(autoincrement()) @map("id_relatorio")
+  contratoId Int       @map("contrato_id")
+  urlPdf     String?   @map("url_pdf") @db.VarChar(255)
+  dataEnvio  DateTime? @map("data_envio")
+  contrato   Contrato  @relation(fields: [contratoId], references: [id])
+
+  @@index([contratoId])
+  @@map("relatorios")
+}
+
+model Reuniao {
+  id            Int                   @id @default(autoincrement()) @map("id_reuniao")
+  titulo        String?               @db.VarChar(255)
+  empresaId     Int                   @map("empresa_id")
+  data          DateTime              @db.Date
+  hora          DateTime              @db.Time(0)
+  presencial    Boolean?
+  local         String?               @db.VarChar(255)
+  pauta         String?               @db.Text
+  status        String?               @db.VarChar(255)
+  empresa       Empresa               @relation(fields: [empresaId], references: [id])
+  participantes ParticipanteReuniao[]
+
+  @@index([empresaId])
+  @@map("reunioes")
+}
+
+model ParticipanteReuniao {
+  reuniaoId Int     @map("id_reuniao")
+  usuarioId Int     @map("id_usuario")
+  reuniao   Reuniao @relation(fields: [reuniaoId], references: [id])
+  usuario   Usuario @relation(fields: [usuarioId], references: [id])
+
+  @@id([reuniaoId, usuarioId])
+  @@index([usuarioId])
+  @@map("participantes_reuniao")
+}
+
+model Notificacao {
+  id        Int       @id @default(autoincrement()) @map("id_notificacao")
+  usuarioId Int       @map("id_usuario")
+  mensagem  String?   @db.VarChar(255)
+  dataEnvio DateTime? @map("data_envio")
+  tipo      String?   @db.VarChar(255)
+  usuario   Usuario   @relation(fields: [usuarioId], references: [id])
+
+  @@index([usuarioId])
+  @@map("notificacoes")
+}
+
+model Documento {
+  id            Int      @id @default(autoincrement()) @map("id_documento")
+  empresaId     Int      @map("empresa_id")
+  tipoDocumento String   @map("tipo_documento") @db.VarChar(255)
+  url           String   @db.VarChar(255)
+  validado      String?  @db.VarChar(255)
+  analistaId    Int?     @map("analista_id")
+  empresa       Empresa  @relation(fields: [empresaId], references: [id])
+  analista      Usuario? @relation("Documento_Analista", fields: [analistaId], references: [id])
+
+  @@index([empresaId])
+  @@index([analistaId])
+  @@map("documentos")
+}
