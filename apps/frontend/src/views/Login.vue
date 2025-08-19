@@ -151,27 +151,6 @@ const login = async () => {
     setTimeout(() => (btnStatus.value = "idle"), 4000)
   }
 }
-
-const signup = async () => {
-  loading.value = true
-  btnStatus.value = "loading"
-  try {
-    const res = await fetch("http://localhost:3000/api/auth/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ fullName: fullName.value, email: email.value, password: password.value }),
-    })
-    if (!res.ok) throw new Error(`Status ${res.status}`)
-    btnStatus.value = "success"
-    setTimeout(() => (showSignup.value = false), 2000)
-  } catch (err) {
-    console.error("Signup falhou:", err)
-    btnStatus.value = "error"
-  } finally {
-    loading.value = false
-    setTimeout(() => (btnStatus.value = "idle"), 4000)
-  }
-}
 </script>
 
 <style scoped>
