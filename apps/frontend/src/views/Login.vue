@@ -16,7 +16,7 @@
     <div v-else class="relative w-screen h-screen overflow-hidden">
       <video autoplay muted loop playsinline
         class="absolute inset-0 w-full h-full object-cover brightness-50 blur-[1px]">
-        <source src="/apps/frontend/public/videos/climbeVideo.mp4" type="video/mp4" />
+        <source src="../../public/videos/climbeVideo.mp4" type="video/mp4" />
       </video>
 
       <div class="absolute inset-0 bg-gradient-to-br from-black/40 via-black/20 to-black/50"></div>
@@ -25,7 +25,7 @@
         <div
           class="relative bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 sm:p-12 max-w-4xl w-full flex flex-col items-center gap-6 shadow-2xl overflow-hidden">
           <!-- Logo -->
-          <img src="/apps/frontend/public/img/climbe-logo.png" alt="Logo"
+          <img src="../../public/img/climbe-logo.png" alt="Logo"
             class="max-w-[140px] drop-shadow-lg hover:scale-105 transition" />
 
           <p class="text-2xl sm:text-3xl font-semibold text-white drop-shadow-md">Portal do Sócio.</p>
