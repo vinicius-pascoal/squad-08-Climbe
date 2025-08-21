@@ -13,18 +13,18 @@
       <div class=" flex flex-col items-center justify-center space-x-36-5 px-5">
         <div>
           <img src="../../public/img/climbe-logo.png" alt="climb" class="h-20 mb-6" />
-          <h2 class="text-white text-xl font-medium mb-6 mx-auto text-center">Portal do Sócio.</h2>
+          <h2 class="text-white text-3xl font-medium mb-6 mx-auto text-center">Portal do Sócio.</h2>
         </div>
         <div class="flex items-center justify-between w-full">
           <div class="w-1/2 flex flex-col items-center">
             <input type="email" placeholder="Digite seu email" v-model="email"
-              class="w-full h-20 px-4 py-3 mb-4 rounded-lg border border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-cyan-400" />
+              class="w-full h-20 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-cyan-400" />
 
             <input type="password" placeholder="Digite sua senha" v-model="password"
-              class="w-full h-20 px-4 py-3 mb-6 rounded-lg border border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-cyan-400" />
+              class="w-full h-20 px-4 py-3 mb-6 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-cyan-400" />
 
             <button @click="login"
-              class="w-full h-20 py-3 rounded-lg font-semibold text-white bg-neutral-500/20 hover:bg-cyan-500 transition">
+              class="w-full h-20 py-3 rounded-lg border-2 text-xl border-neutral-700 font-semibold text-white bg-neutral-500/20 hover:bg-cyan-500 hover:border-cyan-300 transition">
               ACESSAR
             </button>
 
