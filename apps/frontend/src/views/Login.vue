@@ -14,7 +14,6 @@
         <img src="../../public/img/climbe-logo.png" alt="climb" class="h-10 mb-6" />
 
         <h2 class="text-white text-xl font-medium mb-6">Portal do Sócio.</h2>
-
         <input type="email" placeholder="Digite seu email" v-model="email"
           class="w-full px-4 py-3 mb-4 rounded-lg border border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-cyan-400" />
 
