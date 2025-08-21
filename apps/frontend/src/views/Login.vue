@@ -8,9 +8,9 @@
 
     <!-- Card principal -->
     <div
-      class="relative z-10 flex w-4/5 h-4/5 max-w-5xl max-h-5xl rounded-2xl bg-white/3 border-2 border-neutral-700 backdrop-blur-md shadow-lg overflow-hidden">
+      class="relative z-10 flex w-4/5 h-4/5 max-w-5xl max-h-5xl rounded-2xl bg-white/3 border-2 border-neutral-700 backdrop-blur-md shadow-lg overflow-hidden animate-fadeInUp">
       <!-- Coluna Login -->
-      <div class=" flex flex-col items-center justify-center space-x-36-5 px-5">
+      <div class=" flex flex-col items-center justify-center space-x-36-5 px-5 overlay-content ">
         <div>
           <img src="../../public/img/climbe-logo.png" alt="climb" class="h-20 mb-6" />
           <h2 class="text-white text-3xl font-medium mb-6 mx-auto text-center">Portal do Sócio.</h2>
@@ -93,6 +93,46 @@ onMounted(() => {
   75% {
     opacity: 0;
   }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.5);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+
+  100% {
+    left: 100%;
+  }
+}
+
+.overlay-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.1),
+      transparent);
+  animation: shimmer 3s infinite;
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 2s ease-out forwards;
 }
 
 .animate-blink {
