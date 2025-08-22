@@ -42,7 +42,7 @@
           </div>
 
           <!-- Divider gradiente -->
-          <div class="w-[4px] h-4/5 bg-gradient-to-br from-cyan-400 via-transparent to-purple-400 mx-5"></div>
+          <div class="w-[4px] h-4/5 bg-gradient-to-br from-cyan-400 via-transparent to-transparent mx-5"></div>
 
           <!-- Coluna Texto com animação -->
           <div class="w-1/2 flex items-center justify-center p-10">
