@@ -13,31 +13,33 @@
       <div class=" flex flex-col items-center justify-center space-x-36-5 px-5 overlay-content ">
         <div>
           <img src="../../public/img/climbe-logo.png" alt="climb" class="h-20 mb-6" />
-          <h2 class="text-white text-3xl font-medium mb-6 mx-auto text-center">Portal do Sócio.</h2>
+          <h2 class="text-white text-3xl font-medium mb-6 mx-auto text-center">Cadastro.</h2>
         </div>
         <div class="flex items-center w-full">
           <div class="w-1/2 flex flex-col items-center">
+
+            <input type="text" placeholder="Digite seu nome" v-model="nome"
+              class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-cyan-400" />
+
+            <input type="text" placeholder="Digite seu cpf" v-model="cpf"
+              class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-cyan-400" />
+
             <input type="email" placeholder="Digite seu email" v-model="email"
               class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-cyan-400" />
 
             <input type="password" placeholder="Digite sua senha" v-model="password"
               class="w-full h-15 px-4 py-3 mb-6 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-cyan-400" />
 
+
             <div class="flex items-center justify-between w-full mb-4 gap-2">
               <button @click="login"
                 class="w-full h-15 py-3 rounded-lg border-2 text-xl  border-cyan-300  font-semibold text-white  bg-cyan-500 hover:bg-neutral-500/20 hover:border-neutral-700 transition ">
-                Acessar
-              </button>
-
-              <button @click="login"
-                class="w-full h-15 py-3 rounded-lg border-2 text-xl  border-neutral-300  font-semibold text-black  bg-neutral-100 hover:bg-neutral-500/20 hover:border-neutral-700 transition text-center flex items-center justify-center gap-2">
-                <img src="https://www.vectorlogo.zone/logos/google/google-icon.svg" class="h-6" />
-                <span>Google</span>
+                Cadastrar
               </button>
             </div>
             <p class="text-white text-sm mt-4">
-              É sócio e ainda não tem acesso?
-              <a href="/cadastro" class="text-purple-400 hover:underline">Clique aqui</a>
+              É sócio e ja tem acesso?
+              <a href="/" class="text-purple-400 hover:underline">Clique aqui</a>
             </p>
           </div>
 
