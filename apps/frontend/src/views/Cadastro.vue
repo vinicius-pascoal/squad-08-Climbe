@@ -28,7 +28,16 @@
               class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-cyan-400" />
 
             <input type="password" placeholder="Digite sua senha" v-model="password"
-              class="w-full h-15 px-4 py-3 mb-6 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-cyan-400" />
+              class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-cyan-400" />
+
+            <select name="" id="cargos"
+              class="w-full h-15 px-4 py-3 mb-6 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-cyan-400 ">
+              <option value="" disabled selected>Selecione seu cargo</option>
+              <option value="instrutor">Instrutor</option>
+              <option value="administrador">Administrador</option>
+              <option value="atendente">Atendente</option>
+
+            </select>
 
 
             <div class="flex items-center justify-between w-full mb-4 gap-2">
