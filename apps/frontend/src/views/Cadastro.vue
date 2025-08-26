@@ -19,19 +19,19 @@
           <div class="w-1/2 flex flex-col items-center">
 
             <input type="text" placeholder="Digite seu nome" v-model="nome"
-              class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-cyan-400" />
+              class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary" />
 
             <input type="text" placeholder="Digite seu cpf" v-model="cpf"
-              class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-cyan-400" />
+              class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary" />
 
             <input type="email" placeholder="Digite seu email" v-model="email"
-              class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-cyan-400" />
+              class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary" />
 
             <input type="password" placeholder="Digite sua senha" v-model="password"
-              class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-cyan-400" />
+              class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary" />
 
             <select name="" id="cargos"
-              class="w-full h-15 px-4 py-3 mb-6 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-cyan-400 ">
+              class="w-full h-15 px-4 py-3 mb-6 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:text-primary">
               <option value="" disabled selected>Selecione seu cargo</option>
               <option value="instrutor">Instrutor</option>
               <option value="administrador">Administrador</option>
@@ -42,7 +42,7 @@
 
             <div class="flex items-center justify-between w-full mb-4 gap-2">
               <button @click="login"
-                class="w-full h-15 py-3 rounded-lg border-2 text-xl  border-cyan-300  font-semibold text-white  bg-cyan-500 hover:bg-neutral-500/20 hover:border-neutral-700 transition ">
+                class="w-full h-15 py-3 rounded-lg border-2 text-xl  border-primary font-semibold text-white  bg-secondary hover:bg-neutral-500/20 hover:border-neutral-700 transition ">
                 Cadastrar
               </button>
             </div>
@@ -53,13 +53,13 @@
           </div>
 
           <!-- Divider gradiente -->
-          <div class="w-[4px] h-4/5 bg-gradient-to-br from-cyan-400 via-transparent to-transparent mx-5"></div>
+          <div class="w-[4px] h-4/5 bg-gradient-to-br from-primary via-transparent to-transparent mx-5"></div>
 
           <!-- Coluna Texto com animação -->
           <div class="w-1/2 flex items-center justify-center p-10">
             <h2 class="text-white text-4xl font-bold w-full h-full text-center font-bold text-6xl">
               {{ typedText }}
-              <span class="border-r-4 border-cyan-600 animate-blink ml-1"></span>
+              <span class="border-r-4 border-primary animate-blink ml-1"></span>
             </h2>
           </div>
         </div>
