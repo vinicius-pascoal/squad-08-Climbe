@@ -16,7 +16,7 @@
           <h2 class="text-white text-3xl font-medium mb-6 mx-auto text-center">Portal do Sócio.</h2>
         </div>
         <div class="flex items-center w-full">
-          <div class="w-1/2 flex flex-col items-center">
+          <div class="sm:w-1/2 flex flex-col items-center">
             <input type="email" placeholder="Digite seu email" v-model="email"
               class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary" />
 
@@ -42,10 +42,12 @@
           </div>
 
           <!-- Divider gradiente -->
-          <div class="w-[4px] h-4/5 bg-gradient-to-br from-primary via-transparent to-transparent mx-5"></div>
+          <div
+            class="w-[4px] h-4/5 bg-gradient-to-br from-primary via-transparent to-transparent mx-5 hidden sm:block ">
+          </div>
 
           <!-- Coluna Texto com animação -->
-          <div class="w-1/2 flex items-center justify-center p-10">
+          <div class="w-1/2 flex items-center justify-center p-10 hidden sm:block ">
             <h2 class="text-white text-4xl font-bold w-full h-full text-center font-bold text-6xl">
               {{ typedText }}
               <span class="border-r-4 border-primary animate-blink ml-1"></span>
