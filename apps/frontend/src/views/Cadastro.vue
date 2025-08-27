@@ -8,7 +8,7 @@
 
     <!-- Card principal -->
     <div
-      class="relative z-10 flex w-4/5 h-4/5 max-w-5xl max-h-5xl rounded-2xl bg-neutral-600/50 border-2 border-neutral-700 backdrop-blur-sm shadow-lg overflow-hidden animate-fadeInUp">
+      class="relative z-10 flex w-4/5 h-4/5 max-w-5xl max-h-5xl rounded-2xl bg-neutral-600/50 border-2 border-neutral-700 backdrop-blur-sm shadow-lg overflow-hidden animate-fadeInUp justify-center align-middle">
       <!-- Coluna Login -->
       <div class=" flex flex-col items-center justify-center space-x-36-5 px-5 overlay-content ">
         <div>
