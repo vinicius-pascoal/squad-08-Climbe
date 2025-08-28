@@ -1,15 +1,6 @@
 {
-  "name": "@climbe/backend",
+  "name": "backend",
   "private": true,
-<<<<<<< Updated upstream
-  "type": "module",
-  "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "build": "tsc -p tsconfig.build.json",
-    "start": "node dist/server.js",
-    "prisma:generate": "prisma generate --schema prisma/schema.prisma",
-    "prisma:deploy": "prisma migrate deploy --schema prisma/schema.prisma"
-=======
   "type": "commonjs",
   "main": "dist/server.js",
   "scripts": {
@@ -19,34 +10,25 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy",
     "prisma:push": "prisma db push"
->>>>>>> Stashed changes
   },
   "dependencies": {
-    "@prisma/client": "^5.17.0",
-    "cors": "^2.8.5",
-<<<<<<< Updated upstream
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2",
-    "express-async-errors": "^3.1.1",
-    "jsonwebtoken": "^9.0.2",
-    "zod": "^3.23.8",
-    "bcryptjs": "^2.4.3"
-=======
-    "express": "^4.19.2",
+    "@prisma/client": "^5.22.0",
     "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.2",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.5",
+    "express": "^4.19.2",
     "express-async-errors": "^3.1.1",
+    "jsonwebtoken": "^9.0.2",
     "zod": "^3.23.8"
->>>>>>> Stashed changes
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/jsonwebtoken": "^9.0.6",
-    "@types/node": "^20.12.12",
+    "@types/node": "^22.0.0",
+    "prisma": "^5.22.0",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.5.4",
-    "prisma": "^5.17.0"
+    "typescript": "^5.5.0"
   }
 }
