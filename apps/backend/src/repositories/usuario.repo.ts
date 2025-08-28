@@ -7,13 +7,7 @@ export const usuarioRepo = {
   },
   findByEmailOrCpf(username: string) {
     return prisma.usuario.findFirst({
-<<<<<<< Updated upstream
-      where: {
-        OR: [{ email: username.toLowerCase() }, { cpf: username }],
-      },
-=======
       where: { OR: [{ email: username.toLowerCase() }, { cpf: username }] },
->>>>>>> Stashed changes
     });
   },
   findById(id: number) {

@@ -1,8 +1,4 @@
-<<<<<<< Updated upstream
-import { Request, Response, NextFunction } from 'express';
-=======
 import { NextFunction, Request, Response } from 'express';
->>>>>>> Stashed changes
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env';
 
