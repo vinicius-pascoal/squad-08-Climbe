@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-center justify-center h-screen bg-cover bg-center">
     <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover">
-      <source src="../../public/videos/climbeVideo.mp4" type="video/mp4" />
+      <source src="/videos/climbeVideo.mp4" type="video/mp4" />
     </video>
     <!-- Overlay para escurecer -->
     <div class="absolute inset-0 bg-black/50"></div>
@@ -12,7 +12,7 @@
       <!-- Coluna Login -->
       <div class=" flex flex-col items-center justify-center space-x-36-5 px-5 overlay-content ">
         <div>
-          <img src="../../public/img/climbe-logo.png" alt="climb" class="h-20 mb-6" />
+          <img src="/img/climbe-logo.png" alt="climb" class="h-20 mb-6" />
           <h2 class="text-white text-3xl font-medium mb-6 mx-auto text-center">Cadastro.</h2>
         </div>
         <div class="flex items-center w-full">
