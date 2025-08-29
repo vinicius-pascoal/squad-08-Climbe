@@ -59,6 +59,17 @@ case "$1" in
         print_info "Banco de dados: localhost:3306"
         ;;
 
+    "setup")
+        print_header "Configurando Ambiente de Desenvolvimento"
+        print_info "Instalando dependências..."
+        docker compose --profile dev exec app-dev bash -c "npm install"
+        print_info "Aplicando migrações..."
+        docker compose --profile dev exec app-dev bash -c "npx prisma generate --schema apps/backend/prisma/schema.prisma && npx prisma db push --schema apps/backend/prisma/schema.prisma"
+        print_info "Executando seed..."
+        docker compose --profile dev exec app-dev bash -c "npx prisma db seed --schema apps/backend/prisma/schema.prisma"
+        print_success "Configuração concluída!"
+        ;;
+
     "stop"|"down")
         print_header "Parando Ambiente de Desenvolvimento"
         docker compose --profile dev down
