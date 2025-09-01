@@ -10,13 +10,15 @@ export const app = express();
 app.use(cors());
 app.use(express.json());
 
+import './middlewares/drive';
+
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
 
 app.use('/api/auth', authRouter);
 app.use('/api/usuarios', usuarioRouter);
 
 // servir frontend estático (vite build)
-const distDir = path.resolve(__dirname, '../../frontend/dist');
+const distDir = path.resolve(__dirname, '../../frontend');
 app.use(express.static(distDir));
 app.get('*', (_req, res) => res.sendFile(path.join(distDir, 'index.html')));
 
