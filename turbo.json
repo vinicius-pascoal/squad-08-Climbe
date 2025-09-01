@@ -1,5 +1,8 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": [
+    ".env"
+  ],
   "tasks": {
     "dev": {
       "cache": false,
@@ -15,6 +18,18 @@
       ]
     },
     "lint": {},
-    "format": {}
+    "format": {},
+    "prisma:generate": {
+      "outputs": []
+    },
+    "prisma:migrate": {
+      "outputs": []
+    },
+    "prisma:push": {
+      "outputs": []
+    },
+    "prisma:seed": {
+      "outputs": []
+    }
   }
 }
