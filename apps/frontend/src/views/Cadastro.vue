@@ -86,6 +86,10 @@ const login = () => {
   router.push("/dashboard")
 }
 
+const loginGoogle = () => {
+  window.location.href = "http://localhost:3000/login";
+}
+
 // Texto animado
 const fullText = "A melhor empresa precisa dos melhores orientadores"
 const typedText = ref("")

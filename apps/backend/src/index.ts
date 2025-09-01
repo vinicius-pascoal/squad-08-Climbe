@@ -3,9 +3,13 @@ import cors from "cors";
 import path from "path";
 import { PrismaClient } from "@prisma/client";
 
+import { setupOAuth } from "./modules/drive"
+
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+setupOAuth(app);
 
 const prisma = new PrismaClient();
 
