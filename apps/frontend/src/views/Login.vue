@@ -24,7 +24,7 @@
               class="w-full h-15 px-4 py-3 mb-6 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary" />
 
             <div class="flex items-center justify-between w-full mb-4 gap-2">
-              <button @click="login"
+              <button @click="login" :disabled="loading"
                 class="w-full h-15 py-3 rounded-lg border-2 text-xl  border-primary  font-semibold text-white  bg-secondary hover:bg-neutral-500/20 hover:border-neutral-700 transition ">
                 Acessar
               </button>
@@ -60,34 +60,50 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue"
-import { useRouter } from "vue-router"
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { loginApi } from "../services/auth";
 
-const router = useRouter()
-const email = ref("")
-const password = ref("")
+const router = useRouter();
+const email = ref("");
+const password = ref("");
+const error = ref<string | null>(null);
+const loading = ref(false);
 
-const login = () => {
-  console.log("Email:", email.value, "Senha:", password.value)
-  router.push("/dashboard")
+async function login() {
+  error.value = null;
+  loading.value = true;
+  try {
+    const res = await loginApi({ username: email.value, password: password.value });
+    localStorage.setItem('access_token', res.access_token);
+    localStorage.setItem('user', JSON.stringify(res.user));
+    router.push("/dashboard");
+  } catch (e: any) {
+    if (e?.status === 403) error.value = "Seu cadastro está pendente de aprovação.";
+    else if (e?.status === 400) error.value = "Credenciais inválidas.";
+    else error.value = e?.message || "Falha ao autenticar.";
+  } finally {
+    loading.value = false;
+  }
 }
 
 // Texto animado
-const fullText = "A melhor empresa precisa dos melhores orientadores"
-const typedText = ref("")
+const fullText = "A melhor empresa precisa dos melhores orientadores";
+const typedText = ref("");
 
 onMounted(() => {
-  let index = 0
+  let index = 0;
   const typingInterval = setInterval(() => {
     if (index < fullText.length) {
-      typedText.value += fullText[index]
-      index++
+      typedText.value += fullText[index];
+      index++;
     } else {
-      clearInterval(typingInterval)
+      clearInterval(typingInterval);
     }
-  }, 50) // 50ms por letra, ajuste para mais rápido/lento
-})
+  }, 50);
+});
 </script>
+
 
 <style>
 @keyframes blink {
