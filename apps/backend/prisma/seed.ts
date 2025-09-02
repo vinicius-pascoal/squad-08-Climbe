@@ -11,7 +11,6 @@ async function ensureCargo(nomeCargo: string) {
 }
 
 async function main() {
-  // 1) Garante os cargos básicos (ajuste a lista se quiser)
   const cargosBase = [
     'Compliance',
     'CEO',

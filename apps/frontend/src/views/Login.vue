@@ -23,6 +23,8 @@
             <input type="password" placeholder="Digite sua senha" v-model="password"
               class="w-full h-15 px-4 py-3 mb-6 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary" />
 
+            <p v-if="error" class=" text-red-500 mb-2 text-xl font-bold animate-shake-rotate ">{{ error }}</p>
+
             <div class="flex items-center justify-between w-full mb-4 gap-2">
               <button @click="login" :disabled="loading"
                 class="w-full h-15 py-3 rounded-lg border-2 text-xl  border-primary  font-semibold text-white  bg-secondary hover:bg-neutral-500/20 hover:border-neutral-700 transition ">
@@ -142,6 +144,30 @@ onMounted(() => {
   }
 }
 
+@keyframes shake-rotate {
+
+  10%,
+  90% {
+    transform: rotate(-1.5deg);
+  }
+
+  20%,
+  80% {
+    transform: rotate(1.5deg);
+  }
+
+  30%,
+  50%,
+  70% {
+    transform: rotate(-2.5deg);
+  }
+
+  40%,
+  60% {
+    transform: rotate(2.5deg);
+  }
+}
+
 .overlay-content::before {
   content: '';
   position: absolute;
@@ -162,5 +188,9 @@ onMounted(() => {
 
 .animate-blink {
   animation: blink 1s infinite;
+}
+
+.animate-shake-rotate {
+  animation: shake-rotate 1s;
 }
 </style>
