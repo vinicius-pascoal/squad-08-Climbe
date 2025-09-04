@@ -69,7 +69,7 @@ const password = ref("")
 
 const login = () => {
   console.log("Email:", email.value, "Senha:", password.value)
-  router.push("/dashboard")
+  router.push("/home")
 }
 
 // Texto animado
