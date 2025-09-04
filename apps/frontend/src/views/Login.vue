@@ -31,7 +31,7 @@
                 Acessar
               </button>
 
-              <button @click="login"
+              <button @click="loginGoogle"
                 class="w-full h-15 py-3 rounded-lg border-2 text-xl  border-neutral-300  font-semibold text-black  bg-neutral-100 hover:bg-neutral-500/20 hover:border-neutral-700 transition text-center flex items-center justify-center gap-2">
                 <img src="https://www.vectorlogo.zone/logos/google/google-icon.svg" class="h-6" />
                 <span>Google</span>
@@ -87,6 +87,10 @@ async function login() {
   } finally {
     loading.value = false;
   }
+}
+
+const loginGoogle = () => {
+  window.location.href = "http://localhost:3000/login";
 }
 
 // Texto animado
