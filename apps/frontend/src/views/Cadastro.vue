@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-center justify-center h-screen bg-cover bg-center">
     <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover">
-      <source src="../../public/videos/climbeVideo.mp4" type="video/mp4" />
+      <source src="/videos/climbeVideo.mp4" type="video/mp4" />
     </video>
     <!-- Overlay para escurecer -->
     <div class="absolute inset-0 bg-black/50"></div>
@@ -12,22 +12,22 @@
       <!-- Coluna Login -->
       <div class=" flex flex-col items-center justify-center space-x-36-5 px-5 overlay-content ">
         <div>
-          <img src="../../public/img/climbe-logo.png" alt="climb" class="h-20 mb-6" />
+          <img src="/img/climbe-logo.png" alt="climb" class="h-20 mb-6" />
           <h2 class="text-white text-3xl font-medium mb-6 mx-auto text-center">Cadastro.</h2>
         </div>
         <div class="flex items-center w-full">
           <div class="sm:w-1/2 flex flex-col items-center">
 
-            <input type="text" placeholder="Digite seu nome" v-model="nome"
+            <input type="text" placeholder="Digite seu nome"
               class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary" />
 
-            <input type="text" placeholder="Digite seu cpf" v-model="cpf"
+            <input type="text" placeholder="Digite seu cpf"
               class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary" />
 
             <input type="email" placeholder="Digite seu email" v-model="email"
               class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary" />
 
-            <input type="text" placeholder="Digite seu contato" v-model="contato"
+            <input type="text" placeholder="Digite seu contato"
               class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary" />
 
             <input type="password" placeholder="Digite sua senha" v-model="password"
@@ -84,6 +84,10 @@ const password = ref("")
 const login = () => {
   console.log("Email:", email.value, "Senha:", password.value)
   router.push("/dashboard")
+}
+
+const loginGoogle = () => {
+  window.location.href = "http://localhost:3000/login";
 }
 
 // Texto animado

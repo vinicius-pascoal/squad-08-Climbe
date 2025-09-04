@@ -1,4 +1,5 @@
 <template>
+
   <div class="home-dashboard-grid">
 
     <!-- Widget do Calendário (Área 1) -->
@@ -197,3 +198,4 @@ const addActivity = (newActivity) => {
   flex: 1.5;
 }
 </style>
+

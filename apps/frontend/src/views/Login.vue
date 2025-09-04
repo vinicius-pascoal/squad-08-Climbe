@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-center justify-center h-screen bg-cover bg-center">
     <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover">
-      <source src="../../public/videos/climbeVideo.mp4" type="video/mp4" />
+      <source src="/videos/climbeVideo.mp4" type="video/mp4" />
     </video>
     <!-- Overlay para escurecer -->
     <div class="absolute inset-0 bg-black/50"></div>
@@ -12,7 +12,7 @@
       <!-- Coluna Login -->
       <div class=" flex flex-col items-center justify-center space-x-36-5 px-5 overlay-content ">
         <div>
-          <img src="../../public/img/climbe-logo.png" alt="climb" class="h-20 mb-6" />
+          <img src="/img/climbe-logo.png" alt="climb" class="h-20 mb-6" />
           <h2 class="text-white text-3xl font-medium mb-6 mx-auto text-center">Portal do Sócio.</h2>
         </div>
         <div class="flex items-center w-full">
@@ -23,13 +23,15 @@
             <input type="password" placeholder="Digite sua senha" v-model="password"
               class="w-full h-15 px-4 py-3 mb-6 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary" />
 
+            <p v-if="error" class=" text-red-500 mb-2 text-xl font-bold animate-shake-rotate ">{{ error }}</p>
+
             <div class="flex items-center justify-between w-full mb-4 gap-2">
-              <button @click="login"
+              <button @click="login" :disabled="loading"
                 class="w-full h-15 py-3 rounded-lg border-2 text-xl  border-primary  font-semibold text-white  bg-secondary hover:bg-neutral-500/20 hover:border-neutral-700 transition ">
                 Acessar
               </button>
 
-              <button @click="login"
+              <button @click="loginGoogle"
                 class="w-full h-15 py-3 rounded-lg border-2 text-xl  border-neutral-300  font-semibold text-black  bg-neutral-100 hover:bg-neutral-500/20 hover:border-neutral-700 transition text-center flex items-center justify-center gap-2">
                 <img src="https://www.vectorlogo.zone/logos/google/google-icon.svg" class="h-6" />
                 <span>Google</span>
@@ -60,34 +62,54 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue"
-import { useRouter } from "vue-router"
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { loginApi } from "../services/auth";
 
-const router = useRouter()
-const email = ref("")
-const password = ref("")
+const router = useRouter();
+const email = ref("");
+const password = ref("");
+const error = ref<string | null>(null);
+const loading = ref(false);
 
-const login = () => {
-  console.log("Email:", email.value, "Senha:", password.value)
-  router.push("/home")
+async function login() {
+  error.value = null;
+  loading.value = true;
+  try {
+    const res = await loginApi({ username: email.value, password: password.value });
+    localStorage.setItem('access_token', res.access_token);
+    localStorage.setItem('user', JSON.stringify(res.user));
+    router.push("/Home");
+  } catch (e: any) {
+    if (e?.status === 403) error.value = "Seu cadastro está pendente de aprovação.";
+    else if (e?.status === 400) error.value = "Credenciais inválidas.";
+    else error.value = e?.message || "Falha ao autenticar.";
+  } finally {
+    loading.value = false;
+  }
+}
+
+const loginGoogle = () => {
+  window.location.href = "http://localhost:3000/login";
 }
 
 // Texto animado
-const fullText = "A melhor empresa precisa dos melhores orientadores"
-const typedText = ref("")
+const fullText = "A melhor empresa precisa dos melhores orientadores";
+const typedText = ref("");
 
 onMounted(() => {
-  let index = 0
+  let index = 0;
   const typingInterval = setInterval(() => {
     if (index < fullText.length) {
-      typedText.value += fullText[index]
-      index++
+      typedText.value += fullText[index];
+      index++;
     } else {
-      clearInterval(typingInterval)
+      clearInterval(typingInterval);
     }
-  }, 50) // 50ms por letra, ajuste para mais rápido/lento
-})
+  }, 50);
+});
 </script>
+
 
 <style>
 @keyframes blink {
@@ -126,6 +148,30 @@ onMounted(() => {
   }
 }
 
+@keyframes shake-rotate {
+
+  10%,
+  90% {
+    transform: rotate(-1.5deg);
+  }
+
+  20%,
+  80% {
+    transform: rotate(1.5deg);
+  }
+
+  30%,
+  50%,
+  70% {
+    transform: rotate(-2.5deg);
+  }
+
+  40%,
+  60% {
+    transform: rotate(2.5deg);
+  }
+}
+
 .overlay-content::before {
   content: '';
   position: absolute;
@@ -146,5 +192,9 @@ onMounted(() => {
 
 .animate-blink {
   animation: blink 1s infinite;
+}
+
+.animate-shake-rotate {
+  animation: shake-rotate 1s;
 }
 </style>
