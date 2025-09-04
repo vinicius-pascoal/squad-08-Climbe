@@ -71,7 +71,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 type NavItem = {
   label: string
@@ -99,6 +99,15 @@ function toggleSidebar() {
   localStorage.setItem(props.storageKey!, collapsed.value ? '1' : '0')
 }
 
+
+const router = useRouter();
+
+function logout() {
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('user');
+
+  router.replace('/');
+}
 
 </script>
 
