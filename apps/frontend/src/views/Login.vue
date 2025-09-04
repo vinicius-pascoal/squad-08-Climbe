@@ -79,7 +79,7 @@ async function login() {
     const res = await loginApi({ username: email.value, password: password.value });
     localStorage.setItem('access_token', res.access_token);
     localStorage.setItem('user', JSON.stringify(res.user));
-    router.push("/dashboard");
+    router.push("/Home");
   } catch (e: any) {
     if (e?.status === 403) error.value = "Seu cadastro está pendente de aprovação.";
     else if (e?.status === 400) error.value = "Credenciais inválidas.";
