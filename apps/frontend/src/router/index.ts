@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
+
 // Importando as views para as rotas
 const routes = [
   { path: '/', component: () => import('../views/Login.vue') },
@@ -25,5 +26,6 @@ router.beforeEach((to, _from, next) => {
   }
   next();
 });
+
 
 export default router;
