@@ -14,8 +14,8 @@
       <nav class="relative flex-1 mt-20">
         <ul class="menu px-2 ">
           <li v-for="(item, i) in items" :key="item.to" class=" relative ">
-            <RouterLink :to="item.to" class=" flex items-center px-3 overflow-hidden text-center"
-              :class="{ 'border-l-4 border-white': isActive(item), 'py-3': collapsed, 'py-6': !collapsed }"
+            <RouterLink :to="item.to" class=" flex items-center px-3 overflow-hidden text-center py-6"
+              :class="{ 'border-l-4 border-white': isActive(item) }"
               :aria-current="isActive(item) ? 'page' : undefined">
               <div class="relative flex items-center justify-center w-8 h-8 ">
                 <img :src="item.icon" alt="Ícone" class=" min-w-6 h-6" />
@@ -32,7 +32,7 @@
     </div>
 
     <!-- Sidebar Expandida (Labels + Logo) -->
-    <div v-if="!collapsed" class="bg-sidebar text-white duration-300 rounded-e-xl w-80">
+    <div v-if="!collapsed" class="bg-sidebar text-white duration-300 rounded-e-xl w-60">
       <div class="px-7 py-5 overflow-hidden">
         <slot name="logo">
           <img src="/img/logoBranca.png" class="" alt="climbe" />
@@ -40,23 +40,23 @@
       </div>
       <div class="icon-bar p-2">
         <nav class="relative flex-1">
-          <ul class="menu px-2 space-y-1">
+          <ul class="menu px-2 ">
             <li v-for="(item, i) in items" :key="item.to" class="menu-item group relative">
-              <div class="h-3 bg-sidebar " :class="{ 'bordaT ': isActive(item) }"></div>
+              <div class="h-3 bg-sidebar bordaT " :class="{ 'bordaT ': isActive(item) }"></div>
               <RouterLink :to="item.to"
-                class="menu-link flex items-center gap-3 rounded-full px-3 py-3 overflow-hidden text-center"
+                class="menu-link flex items-center gap-3 rounded-full px-3 py-3 overflow-hidden text-center h-16"
                 :class="{ 'ativo': isActive(item) }" :aria-current="isActive(item) ? 'page' : undefined">
                 <span v-if="!collapsed" class="nav-label font-bold text-xl whitespace-nowrap">
                   {{ item.label }}
                 </span>
               </RouterLink>
-              <div class="h-3 bg-sidebar " :class="{ 'bordaB ': isActive(item) }"></div>
+              <div class="h-3 bg-sidebar bordaB " :class="{ 'bordaB ': isActive(item) }"></div>
             </li>
           </ul>
         </nav>
       </div>
 
-      <div class="mb-4 flex items-center gap-3 px-3 mt-40">
+      <div class="mb-4 flex items-center gap-3 px-3 footer">
         <button @click="logout" class="flex items-center gap-3 w-full py-2 px-3 hover:bg-white/20 rounded-xl">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -134,17 +134,23 @@ function logout() {
   animation: largura 0.7s ease-in-out;
 }
 
+.menu-link:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
 .bordaT {
   border-bottom-right-radius: 50px;
   position: relative;
-  top: 5px;
+  top: 10px;
+  height: 10px;
   width: calc(100% + 1rem);
 }
 
 .bordaB {
   border-top-right-radius: 50px;
   position: relative;
-  bottom: 5px;
+  bottom: 10px;
+  height: 10px;
   width: calc(100% + 1rem);
 }
 
@@ -158,5 +164,11 @@ function logout() {
 
 .collapse-thumb:hover {
   background: #f3f3f3;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
 }
 </style>
