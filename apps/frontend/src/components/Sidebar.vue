@@ -14,8 +14,9 @@
       <nav class="relative flex-1 mt-20">
         <ul class="menu px-2 ">
           <li v-for="(item, i) in items" :key="item.to" class=" relative ">
-            <RouterLink :to="item.to" class=" flex items-center px-3 overflow-hidden text-center py-6"
-              :class="{ 'border-l-4 border-white': isActive(item) }"
+            <RouterLink :to="item.to"
+              class=" flex items-center px-3 overflow-hidden text-center my-7 first-of-type:mt-0 h-14 relative -left-2  "
+              :class="{ 'border-l-4 border-white ': isActive(item) }"
               :aria-current="isActive(item) ? 'page' : undefined">
               <div class="relative flex items-center justify-center w-8 h-8 ">
                 <img :src="item.icon" alt="Ícone" class=" min-w-6 h-6" />
@@ -24,7 +25,7 @@
           </li>
         </ul>
       </nav>
-      <div class="p-3 hover:bg-white/10 flex justify-center">
+      <div class=" hover:bg-white/10 flex justify-center mb-5 ">
         <button>
           <img src="/icones/config.svg" alt="">
         </button>
@@ -32,7 +33,7 @@
     </div>
 
     <!-- Sidebar Expandida (Labels + Logo) -->
-    <div v-if="!collapsed" class="bg-sidebar text-white duration-300 rounded-e-xl w-60">
+    <div v-if="!collapsed" class="bg-sidebar text-white duration-300 rounded-e-xl w-60 shadow-xl">
       <div class="px-7 py-5 overflow-hidden">
         <slot name="logo">
           <img src="/img/logoBranca.png" class="" alt="climbe" />
@@ -131,7 +132,7 @@ function logout() {
   border-bottom-right-radius: 0;
   border-top-right-radius: 0;
   box-shadow: 3px 5px 10px -2px rgba(0, 0, 0, 0.75) inset;
-  animation: largura 0.7s ease-in-out;
+  animation: largura 0.5s ease-in-out;
 }
 
 .menu-link:hover {
