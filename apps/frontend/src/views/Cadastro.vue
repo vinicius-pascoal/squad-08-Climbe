@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center justify-center h-screen bg-cover bg-center">
+  <div class="flex items-center justify-center h-full bg-cover bg-center">
     <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover">
       <source src="/videos/climbeVideo.mp4" type="video/mp4" />
     </video>
@@ -75,20 +75,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue"
-import { useRouter } from "vue-router"
-
-const router = useRouter()
-const email = ref("")
-const password = ref("")
-
-const login = () => {
-  console.log("Email:", email.value, "Senha:", password.value)
-  router.push("/dashboard")
-}
-
-const loginGoogle = () => {
-  window.location.href = "http://localhost:3000/login";
-}
 
 // Texto animado
 const fullText = "A melhor empresa precisa dos melhores orientadores"

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center justify-center h-screen bg-cover bg-center">
+  <div class="flex items-center justify-center h-full bg-cover bg-center">
     <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover">
       <source src="/videos/climbeVideo.mp4" type="video/mp4" />
     </video>
