@@ -1,6 +1,9 @@
 <template>
   <aside class="relative min-h-screen flex sombraTexto" :class="{ collapsed }" role="navigation">
     <div class="h-full bg-secondary flex flex-col justify-between w-14 shadow-lg">
+      <button v-if="collapsed">
+        <img src="/img/logoCircular.svg" class="w-14 h-14 absolute left-20 top-3" alt="climbe" />
+      </button>
       <button @click="toggleSidebar" class="p-3 hover:bg-white/10">
         <svg v-if="!collapsed" class="w-6 h-6 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"
           xmlns="http://www.w3.org/2000/svg">

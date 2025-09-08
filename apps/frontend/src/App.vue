@@ -38,6 +38,22 @@ watchEffect(() => {
     <Sidebar v-if="showSidebar" :items="items" />
 
     <main class="flex-1 bg-gray-100 min-h-screen p-6">
+      <div v-if="showSidebar" class="flex justify-end mb-4">
+        <div>
+          <button class="px-2 py-2 w-10 h-10 ">
+            <img src="../public/img/chat.svg" alt="">
+          </button>
+          <button class="px-2 py-2 w-10 h-10 ">
+            <img src="../public/img/acessibilidade.svg" alt="">
+          </button>
+          <button class="px-2 py-2 w-10 h-10 ">
+            <img src="../public/img/duvida.svg" alt="">
+          </button>
+        </div>
+        <div class="">
+          <img src="../public/img/usuario.svg" alt="Avatar" class="w-10 h-10 rounded-full ml-4" />
+        </div>
+      </div>
       <RouterView />
     </main>
   </div>
