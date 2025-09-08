@@ -23,7 +23,7 @@
             <input type="password" placeholder="Digite sua senha" v-model="password"
               class="w-full h-15 px-4 py-3 mb-6 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary" />
 
-            <p v-if="error" class=" text-red-500 mb-2 text-xl font-bold animate-shake-rotate ">{{ error }}</p>
+            <p v-if="error" class=" text-red-500 mb-2 text-xl font-bold ">{{ error }}</p>
 
             <div class="flex items-center justify-between w-full mb-4 gap-2">
               <button @click="login" :disabled="loading"

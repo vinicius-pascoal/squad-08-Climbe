@@ -6,7 +6,7 @@
     <div class="absolute inset-0 bg-black/50"></div>
 
     <div
-      class="relative z-10 flex w-4/5 h-4/5 max-w-5xl max-h-5xl rounded-2xl bg-neutral-600/50 border-2 border-neutral-700 backdrop-blur-sm shadow-lg overflow-hidden animate-fadeInUp justify-center align-middle">
+      class="relative z-10 flex w-4/5 h-full max-w-5xl max-h-5xl rounded-2xl bg-neutral-600/50 border-2 border-neutral-700 backdrop-blur-sm shadow-lg overflow-hidden animate-fadeInUp justify-center align-middle">
 
       <div class=" flex flex-col items-center justify-center space-x-36-5 px-5 overlay-content ">
 
@@ -41,15 +41,14 @@
               </option>
             </select>
 
+            <p v-if="error" class="text-red-500 mb-2 text-xl font-bold  text-center">{{ error }}</p>
+
             <div class="flex items-center justify-between w-full mb-4 gap-2">
               <button @click="register" :disabled="loading"
                 class="w-full h-15 py-3 rounded-lg border-2 text-xl border-primary font-semibold text-white bg-secondary hover:bg-neutral-500/20 hover:border-neutral-700 transition disabled:opacity-60">
                 {{ loading ? 'Cadastrando...' : 'Cadastrar' }}
               </button>
             </div>
-
-            <p v-if="error" class="text-red-400 text-sm mt-2 text-center">{{ error }}</p>
-            <p v-if="success" class="text-green-400 text-sm mt-2 text-center">{{ success }}</p>
 
             <p class="text-white text-sm mt-4">
               É sócio e já tem acesso?
