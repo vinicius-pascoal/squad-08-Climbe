@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-
+import GestaoUsuario from '../views/GestaoUsuario.vue';
 
 // Importando as views para as rotas
 const routes = [
