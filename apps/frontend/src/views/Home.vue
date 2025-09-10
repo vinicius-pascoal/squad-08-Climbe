@@ -138,7 +138,7 @@ const addActivity = (newActivity) => {
   grid-template-rows: auto auto auto;
   grid-template-areas:
     "calendar calendar main-agenda main-agenda"
-    "stats stats stats stats"
+    "stats stats main-agenda main-agenda"
     "history history actions actions";
   gap: 1.5rem;
   padding: 2rem;

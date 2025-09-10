@@ -10,12 +10,19 @@ defineEmits(['click']);
 
 <style scoped>
 .add-event-button {
-  background-color: #4CAF50;
+  background-image: linear-gradient(to right, #34D399, #26A69A);
   color: white;
-  padding: 10px 15px;
+  padding: 12px 20px;
   border: none;
   cursor: pointer;
   border-radius: 100px; 
-  box-shadow: 4px 5px 9px rgba(0, 0, 0, 0.25);
+  font-weight: bold;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.add-event-button:hover {
+  transform: translateY(-2px); 
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
 </style>

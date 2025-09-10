@@ -128,10 +128,15 @@ const selectDate = (date) => {
   cursor: pointer;
   position: relative;
   border-radius: 10px;
+  transition: background-color 0.2s ease;
+}
+
+.day:not(.selected):hover {
+  background-color: #f0f0f0;
 }
 
 .day.other-month .day-number {
-  color: white;
+  color: #ccc;
 }
 
 .day-number {
