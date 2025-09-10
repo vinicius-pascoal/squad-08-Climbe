@@ -1,6 +1,6 @@
 <template>
   <button class="add-event-button" @click="$emit('click')">
-    Adicionar Evento
+    Adicionar Tarefa
   </button>
 </template>
 
@@ -10,15 +10,16 @@ defineEmits(['click']);
 
 <style scoped>
 .add-event-button {
-  background-image: linear-gradient(to right, #34D399, #26A69A);
+  background-image: linear-gradient(to right, #1DEFD6, #16C3AF, #0E9989);
   color: white;
   padding: 12px 20px;
   border: none;
   cursor: pointer;
   border-radius: 100px; 
-  font-weight: bold;
+  font-weight: 800;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  letter-spacing: 1px;
 }
 
 .add-event-button:hover {
