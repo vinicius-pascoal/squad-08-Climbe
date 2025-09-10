@@ -1,41 +1,49 @@
 <script>
 import Card from '../components/cardUsers.vue';
+import { http } from '../lib/http'; // ← usa o wrapper centralizado
 
 export default {
   name: 'GestaoUsuario',
   components: { Card },
   data() {
     return {
+      // dados
       users: [],
       cargos: [],
       cargoMap: {},
+
       loading: false,
       error: null,
 
+      // busca e filtros
       searchTerm: '',
       showFilters: false,
       filters: {
-        status: '',
-        cargoId: ''
+        status: '',   // 'ativo' | 'pendente' | 'inativo' | ''
+        cargoId: ''   // number | ''
       },
 
-
+      // paginação
       page: 1,
-      pageSize: 5
+      pageSize: 5,
     };
   },
+
   computed: {
     filteredUsers() {
       const term = this.searchTerm.trim().toLowerCase();
 
       return this.users.filter(u => {
+        // busca por nome/e-mail
         const nome = (u.nomeCompleto || '').toLowerCase();
         const email = (u.email || '').toLowerCase();
         const matchesTerm = !term || nome.includes(term) || email.includes(term);
 
+        // filtro de status (situacao → status)
         const status = this.mapSituacao(u.situacao);
         const matchesStatus = !this.filters.status || status === this.filters.status;
 
+        // filtro de cargo (aceita u.cargo.id ou u.cargoId)
         const cargoId = (u.cargo && u.cargo.id) ?? u.cargoId ?? null;
         const matchesCargo = !this.filters.cargoId || Number(this.filters.cargoId) === Number(cargoId);
 
@@ -48,40 +56,51 @@ export default {
     paginatedUsers() {
       const start = (this.page - 1) * this.pageSize;
       return this.filteredUsers.slice(start, start + this.pageSize);
+    },
+  },
+
+  watch: {
+    searchTerm() {
+      this.page = 1;
+    },
+    filters: {
+      deep: true,
+      handler() {
+        this.page = 1;
+      }
     }
   },
+
   methods: {
     async fetchUsers() {
       try {
         this.loading = true;
         this.error = null;
 
-        const headers = { 'Content-Type': 'application/json' };
-        const token = localStorage.getItem('access_token');
-        if (token) headers['Authorization'] = `Bearer ${token}`;
-
-        const res = await fetch('/api/usuarios', { headers });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data?.error || 'Falha ao carregar usuários');
+        // Esperado: [{ id, nomeCompleto, email, situacao, cargoId, cargo?: { id, nomeCargo } }]
+        const data = await http('/api/usuarios');
         this.users = Array.isArray(data) ? data : [];
         this.page = 1;
       } catch (e) {
+        // http() já trata 401 com redirect; aqui só exibe msg
         this.error = e?.message || 'Erro ao carregar usuários';
       } finally {
         this.loading = false;
       }
     },
+
     async fetchCargos() {
       try {
-        const res = await fetch('/api/cargos');
-        const data = await res.json();
-        if (!res.ok) throw new Error(data?.error || 'Falha ao carregar cargos');
+        // Esperado: [{ id, nomeCargo }]
+        const data = await http('/api/cargos');
         this.cargos = Array.isArray(data) ? data : [];
+        // monta mapa id → nomeCargo (fallback para 'nome')
         this.cargoMap = this.cargos.reduce((acc, c) => {
           acc[c.id] = c.nomeCargo || c.nome || '';
           return acc;
         }, {});
       } catch (e) {
+        // silencioso; filtros continuam funcionais sem cargos
         this.cargos = [];
         this.cargoMap = {};
         console.warn('Falha ao carregar cargos:', e?.message || e);
@@ -101,11 +120,12 @@ export default {
       return id ? (this.cargoMap[id] || '—') : '—';
     },
 
-    //TODO ajustar quando tivermos o campo de permissões
+    // TODO: ajustar quando o backend expor permissões
     getPermissao(_user) {
       return '—';
     },
 
+    // UI: filtros
     toggleFilters() {
       this.showFilters = !this.showFilters;
     },
@@ -120,6 +140,7 @@ export default {
       this.showFilters = false;
     },
 
+    // paginação
     goToPage(p) {
       if (p >= 1 && p <= this.totalPages) this.page = p;
     },
@@ -130,26 +151,30 @@ export default {
       if (this.page < this.totalPages) this.page += 1;
     },
 
+    // ações
     openCadastro() {
       this.$router.push('/cadastro');
     },
 
+    // fecha dropdown ao clicar fora
     handleClickOutside(e) {
       const dropdown = this.$refs.filtersDropdown;
       const button = this.$refs.filtersBtn;
       if (!dropdown || !button) return;
       const clickedOutside = !dropdown.contains(e.target) && !button.contains(e.target);
       if (clickedOutside) this.showFilters = false;
-    }
+    },
   },
+
   mounted() {
     this.fetchUsers();
     this.fetchCargos();
     document.addEventListener('click', this.handleClickOutside);
   },
+
   beforeUnmount() {
     document.removeEventListener('click', this.handleClickOutside);
-  }
+  },
 };
 </script>
 
@@ -168,6 +193,7 @@ export default {
         class="cadastro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-[#CAD8FD] border border-[#3B67D0] text-white rounded-lg px-4 py-2 hover cursor-pointer ml-16" />
     </div>
 
+    <!-- Dropdown de filtros -->
     <div v-if="showFilters" ref="filtersDropdown"
       class="absolute z-50 mt-2 bg-white rounded-lg shadow-[0_8px_24px_rgba(0,0,0,0.12)] border border-gray-200 w-[320px] p-4"
       style="top: 90px;">
