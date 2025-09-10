@@ -37,3 +37,10 @@ const onUpdateActivity = (updatedActivity) => {
   emit('update-activity', updatedActivity);
 };
 </script>
+
+<style scoped>
+.activity-list{
+  max-height: 170px;
+  overflow-y: auto;
+  }
+</style>
