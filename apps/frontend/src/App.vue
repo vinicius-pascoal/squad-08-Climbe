@@ -21,6 +21,7 @@ const items = [
   { label: 'Propostas', to: '/propostas', icon: propostas },
   { label: 'Empresas', to: '/empresas', icon: empresas },
   { label: 'Auditoria', to: '/auditoria', icon: auditoria },
+  { label: 'Auth', to: '/auth' }, //usado para a autenticação do google
 ]
 
 const route = useRoute()
@@ -28,8 +29,8 @@ const route = useRoute()
 const showSidebar = ref(true)
 
 watchEffect(() => {
-  const excludedRoutes = ['/', '/cadastro']
-  showSidebar.value = !excludedRoutes.includes(route.path)
+  const excludedRoutes = ['/', '/cadastro', '/auth']
+  showSidebar.value = !excludedRoutes.includes(route.path?.toLowerCase())
 })
 </script>
 

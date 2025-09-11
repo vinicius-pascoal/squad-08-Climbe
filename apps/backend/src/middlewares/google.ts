@@ -13,7 +13,7 @@ app.get("/login", (req:Request, res:Response) => {
 	const url = oauth2Client.generateAuthUrl({
 		access_type: "offline",
 		prompt: "consent",
-		scope: ["https://www.googleapis.com/auth/drive.readonly"],
+		scope: ["https://www.googleapis.com/auth/userinfo.email"/*, "https://www.googleapis.com/auth/drive.readonly"*/],
 	});
 	res.redirect(url);
 });
@@ -22,20 +22,47 @@ app.get("/oauth2callback", async (req:Request, res:Response) => {
 	const code = req.query.code as string;
 	if (!code) return res.send("Nenhum código foi encontrado.");
 
-	const { tokens } = await oauth2Client.getToken(code);
+	try {
+		const { tokens } = await oauth2Client.getToken(code);
 
-	// Pegar access e refresh tokens
-	console.log("Access Token:", tokens.access_token);
-	console.log("Refresh Token:", tokens.refresh_token);
-	oauth2Client.setCredentials({
-		access_token: tokens.access_token,
-		refresh_token: tokens.refresh_token
-	});
+		// Pegar access e refresh tokens
+		//console.log("Access Token:", tokens.access_token);
+		//console.log("Refresh Token:", tokens.refresh_token);
+		oauth2Client.setCredentials(tokens);
+		const oauth2 = google.oauth2({
+			auth: oauth2Client,
+			version: "v2",
+		});
+		
+		// Pegar informações do usuário baseado no access token do google
+		const access_token = tokens.access_token;
+		const r = await fetch('http://localhost:3000/api/auth/google', {
+			method: 'POST',
+			body: JSON.stringify({
+				grant_type: 'google',
+				access_token: access_token
+			}),
+			headers: new Headers({'Content-Type': 'application/json'})});
 
-	//res.redirect('/');
+		const text = await r.text();
+		const data = text ? JSON.parse(text) : null;
 
-	const planilha = await getFileTextByName("Pasta1.csv", process.env.DRIVE_FOLDERID!, oauth2Client);
-	res.send(planilha);
+		if (!r.ok) {
+			const message = (data && (data.error || data.message)) || r.statusText || 'Erro na requisição';
+			const err: any = new Error(message);
+			(err as any).status = r.status;
+			(err as any).data = data;
+			throw err;
+		}
+		res.redirect(`http://localhost:5173/auth?access_token=${tokens.access_token}&user=${encodeURIComponent(JSON.stringify(data.user))}`);
+
+		/*const planilha = await getFileTextByName("Pasta1.csv", process.env.DRIVE_FOLDERID!, oauth2Client);
+		res.send(planilha);*/
+	} catch (e: any) {
+		if (e?.status === 403) res.send("Seu cadastro está pendente de aprovação.");
+		else if (e?.status === 400) res.send("Credenciais inválidas.");
+		else res.send(e?.message || "Falha ao autenticar.");
+	}
 });
 
 async function getFileTextByName(fileName:string, folderId:string, auth:OAuth2Client):Promise<string | null> {
