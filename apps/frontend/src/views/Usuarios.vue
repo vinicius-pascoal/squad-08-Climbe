@@ -1,13 +1,13 @@
 <script>
 import Card from '../components/cardUsers.vue';
-import { http } from '../lib/http'; // ← usa o wrapper centralizado
+import { http } from '../lib/http';
 
 export default {
   name: 'GestaoUsuario',
   components: { Card },
+
   data() {
     return {
-      // dados
       users: [],
       cargos: [],
       cargoMap: {},
@@ -15,35 +15,28 @@ export default {
       loading: false,
       error: null,
 
-      // busca e filtros
       searchTerm: '',
       showFilters: false,
-      filters: {
-        status: '',   // 'ativo' | 'pendente' | 'inativo' | ''
-        cargoId: ''   // number | ''
-      },
+      filters: { status: '', cargoId: '' },
 
-      // paginação
       page: 1,
       pageSize: 5,
+
+      statusLoading: {}, // { [userId]: boolean }
     };
   },
 
   computed: {
     filteredUsers() {
       const term = this.searchTerm.trim().toLowerCase();
-
       return this.users.filter(u => {
-        // busca por nome/e-mail
         const nome = (u.nomeCompleto || '').toLowerCase();
         const email = (u.email || '').toLowerCase();
         const matchesTerm = !term || nome.includes(term) || email.includes(term);
 
-        // filtro de status (situacao → status)
         const status = this.mapSituacao(u.situacao);
         const matchesStatus = !this.filters.status || status === this.filters.status;
 
-        // filtro de cargo (aceita u.cargo.id ou u.cargoId)
         const cargoId = (u.cargo && u.cargo.id) ?? u.cargoId ?? null;
         const matchesCargo = !this.filters.cargoId || Number(this.filters.cargoId) === Number(cargoId);
 
@@ -60,15 +53,8 @@ export default {
   },
 
   watch: {
-    searchTerm() {
-      this.page = 1;
-    },
-    filters: {
-      deep: true,
-      handler() {
-        this.page = 1;
-      }
-    }
+    searchTerm() { this.page = 1; },
+    filters: { deep: true, handler() { this.page = 1; } }
   },
 
   methods: {
@@ -76,31 +62,24 @@ export default {
       try {
         this.loading = true;
         this.error = null;
-
-        // Esperado: [{ id, nomeCompleto, email, situacao, cargoId, cargo?: { id, nomeCargo } }]
         const data = await http('/api/usuarios');
         this.users = Array.isArray(data) ? data : [];
         this.page = 1;
       } catch (e) {
-        // http() já trata 401 com redirect; aqui só exibe msg
         this.error = e?.message || 'Erro ao carregar usuários';
       } finally {
         this.loading = false;
       }
     },
-
     async fetchCargos() {
       try {
-        // Esperado: [{ id, nomeCargo }]
         const data = await http('/api/cargos');
         this.cargos = Array.isArray(data) ? data : [];
-        // monta mapa id → nomeCargo (fallback para 'nome')
         this.cargoMap = this.cargos.reduce((acc, c) => {
           acc[c.id] = c.nomeCargo || c.nome || '';
           return acc;
         }, {});
       } catch (e) {
-        // silencioso; filtros continuam funcionais sem cargos
         this.cargos = [];
         this.cargoMap = {};
         console.warn('Falha ao carregar cargos:', e?.message || e);
@@ -120,49 +99,51 @@ export default {
       return id ? (this.cargoMap[id] || '—') : '—';
     },
 
-    // TODO: ajustar quando o backend expor permissões
-    getPermissao(_user) {
-      return '—';
-    },
+    getPermissao(_user) { return '—'; },
 
-    // UI: filtros
-    toggleFilters() {
-      this.showFilters = !this.showFilters;
-    },
-    applyFilters() {
-      this.page = 1;
-      this.showFilters = false;
-    },
-    clearFilters() {
-      this.filters.status = '';
-      this.filters.cargoId = '';
-      this.page = 1;
-      this.showFilters = false;
-    },
+    toggleFilters() { this.showFilters = !this.showFilters; },
+    applyFilters() { this.page = 1; this.showFilters = false; },
+    clearFilters() { this.filters.status = ''; this.filters.cargoId = ''; this.page = 1; this.showFilters = false; },
 
-    // paginação
-    goToPage(p) {
-      if (p >= 1 && p <= this.totalPages) this.page = p;
-    },
-    prevPage() {
-      if (this.page > 1) this.page -= 1;
-    },
-    nextPage() {
-      if (this.page < this.totalPages) this.page += 1;
-    },
+    goToPage(p) { if (p >= 1 && p <= this.totalPages) this.page = p; },
+    prevPage() { if (this.page > 1) this.page -= 1; },
+    nextPage() { if (this.page < this.totalPages) this.page += 1; },
 
-    // ações
-    openCadastro() {
-      this.$router.push('/cadastro');
-    },
+    openCadastro() { this.$router.push('/cadastro'); },
 
-    // fecha dropdown ao clicar fora
     handleClickOutside(e) {
       const dropdown = this.$refs.filtersDropdown;
       const button = this.$refs.filtersBtn;
       if (!dropdown || !button) return;
       const clickedOutside = !dropdown.contains(e.target) && !button.contains(e.target);
       if (clickedOutside) this.showFilters = false;
+    },
+
+    // Aprovar usuário (único fluxo suportado no backend)
+    async onChangeStatus({ userId, status }) {
+      if ((status || '').toLowerCase() !== 'ativo') {
+        this.error = 'Somente a aprovação está disponível no momento.';
+        return;
+      }
+      const idx = this.users.findIndex(u => u.id === userId);
+      if (idx === -1) return;
+
+      const prev = this.users[idx].situacao;
+      this.statusLoading[userId] = true;
+      this.users[idx].situacao = 'aprovado'; // otimista
+
+      try {
+        await http(`/api/usuarios/${userId}/aprovar`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ motivo: 'aprovação via UI' }),
+        });
+      } catch (e) {
+        this.users[idx].situacao = prev;
+        this.error = e?.message || 'Falha ao aprovar usuário';
+      } finally {
+        delete this.statusLoading[userId];
+      }
     },
   },
 
@@ -171,7 +152,6 @@ export default {
     this.fetchCargos();
     document.addEventListener('click', this.handleClickOutside);
   },
-
   beforeUnmount() {
     document.removeEventListener('click', this.handleClickOutside);
   },
@@ -193,7 +173,6 @@ export default {
         class="cadastro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-[#CAD8FD] border border-[#3B67D0] text-white rounded-lg px-4 py-2 hover cursor-pointer ml-16" />
     </div>
 
-    <!-- Dropdown de filtros -->
     <div v-if="showFilters" ref="filtersDropdown"
       class="absolute z-50 mt-2 bg-white rounded-lg shadow-[0_8px_24px_rgba(0,0,0,0.12)] border border-gray-200 w-[320px] p-4"
       style="top: 90px;">
@@ -250,8 +229,18 @@ export default {
           </thead>
 
           <tbody class="max-h-[60vh] overflow-y-auto h-[50vh] w-fit flex flex-col gap-4 my-4">
-            <Card v-for="u in paginatedUsers" :key="u.id" :name="u.nomeCompleto || '—'" :email="u.email || '—'"
-              :cargo="cargoName(u)" :permisao="getPermissao(u)" :status="mapSituacao(u.situacao)" />
+            <Card
+              v-for="u in paginatedUsers"
+              :key="u.id"
+              :userId="u.id"
+              :name="u.nomeCompleto || '—'"
+              :email="u.email || '—'"
+              :cargo="cargoName(u)"
+              :permisao="getPermissao(u)"
+              :status="mapSituacao(u.situacao)"
+              :updating="Boolean(statusLoading[u.id])"
+              @change-status="onChangeStatus"
+            />
           </tbody>
         </table>
 
@@ -266,8 +255,7 @@ export default {
 
           <span class="px-2">Página {{ page }} de {{ totalPages }}</span>
 
-          <button @click="nextPage" :disabled="page === totalPages"
-            class="px-3 py-1 rounded border disabled:opacity-50">
+          <button @click="nextPage" :disabled="page === totalPages" class="px-3 py-1 rounded border disabled:opacity-50">
             Próxima
           </button>
         </div>

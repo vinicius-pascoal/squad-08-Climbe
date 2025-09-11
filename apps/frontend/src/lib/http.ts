@@ -10,7 +10,6 @@ function logoutAndRedirect() {
     localStorage.removeItem('access_token');
     localStorage.removeItem('user');
   } finally {
-    // usa navegação dura para zerar estado
     if (location.pathname !== '/') location.assign('/');
   }
 }
@@ -24,25 +23,20 @@ export async function http<T = any>(path: string, options: RequestInit = {}): Pr
 
   const res = await fetch(buildUrl(path), { ...options, headers });
 
-  // tenta ler corpo (pode ser vazio)
   const text = await res.text();
   let data: any = null;
-  try { data = text ? JSON.parse(text) : null; } catch { /* ignore */ }
+  try { data = text ? JSON.parse(text) : null; } catch {}
 
   if (res.status === 401) {
-    // token expirado/inválido → logout + redirect
     logoutAndRedirect();
-    // lança erro para quem chamou (se precisar tratar localmente)
-    const msg = data?.error || data?.message || 'Não autorizado';
-    const err: any = new Error(msg);
+    const err: any = new Error((data && (data.error || data.message)) || 'Não autorizado');
     err.status = 401;
     err.data = data;
     throw err;
   }
 
   if (!res.ok) {
-    const msg = data?.error || data?.message || res.statusText || 'Erro na requisição';
-    const err: any = new Error(msg);
+    const err: any = new Error((data && (data.error || data.message)) || res.statusText || 'Erro na requisição');
     err.status = res.status;
     err.data = data;
     throw err;
