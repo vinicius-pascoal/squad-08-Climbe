@@ -36,6 +36,7 @@ const router = createRouter({
     { path: '/propostas', component: () => import('../views/Propostas.vue'), meta: { requiresAuth: true } },
     { path: '/empresas', component: () => import('../views/Empresas.vue'), meta: { requiresAuth: true } },
     { path: '/auditoria', component: () => import('../views/Auditoria.vue'), meta: { requiresAuth: true } },
+    { path: '/CadastroUsuario', component: () => import('../views/CadastroUsuario.vue'),},
   ],
 });
 
