@@ -90,7 +90,7 @@ async function login() {
 }
 
 const loginGoogle = () => {
-  window.location.href = "http://localhost:3000/login";
+  window.location.href = `${import.meta.env.VITE_BACKEND_URI}/login`;
 }
 
 // Texto animado

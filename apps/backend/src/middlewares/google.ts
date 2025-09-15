@@ -6,7 +6,7 @@ import { Express, Request, Response } from "express";
 const oauth2Client = new google.auth.OAuth2(
   process.env.OAUTH2_ID,
   process.env.OAUTH2_SECRET,
-  process.env.OAUTH2_REDIRECT,
+  `${process.env.VITE_BACKEND_URI}/oauth2callback`,
 );
 
 app.get("/login", (req:Request, res:Response) => {
@@ -37,7 +37,7 @@ app.get("/oauth2callback", async (req:Request, res:Response) => {
 		
 		// Pegar informações do usuário baseado no access token do google
 		access_token = tokens.access_token;
-		const r = await fetch('http://localhost:3000/api/auth/google', {
+		const r = await fetch(`${process.env.VITE_BACKEND_URI}/api/auth/google`, {
 			method: 'POST',
 			body: JSON.stringify({
 				grant_type: 'google',
@@ -55,7 +55,7 @@ app.get("/oauth2callback", async (req:Request, res:Response) => {
 			(err as any).data = data;
 			throw err;
 		}
-		res.redirect(`http://localhost:5173/auth?access_token=${access_token}&user=${encodeURIComponent(JSON.stringify(data.user))}`);
+		res.redirect(`${process.env.VITE_FRONTEND_URI}/auth?access_token=${access_token}&user=${encodeURIComponent(JSON.stringify(data.user))}`);
 
 		/*const planilha = await getFileTextByName("Pasta1.csv", process.env.DRIVE_FOLDERID!, oauth2Client);
 		res.send(planilha);*/
@@ -65,7 +65,7 @@ app.get("/oauth2callback", async (req:Request, res:Response) => {
 		} else if (e?.status === 400) {
 			if(access_token !== null) {
 				//Se o access token for valido, redireciona usuário a página de cadastro com algumas informações preenchidas pelo google
-				res.redirect(`http://localhost:5173/cadastro?access_token=${access_token}`);
+				res.redirect(`${process.env.VITE_FRONTEND_URI}/cadastro?access_token=${access_token}`);
 			} else {
 				//Se não for valido mostra um erro na tela
 				res.send("Credenciais inválidas.");
