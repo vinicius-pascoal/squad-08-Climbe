@@ -27,7 +27,7 @@
             <input type="email" placeholder="Digite seu email" v-model="form.email"
               class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary" />
 
-            <input type="text" placeholder="Digite seu numero" v-model="form.contato"
+            <input type="tel" placeholder="Digite seu numero" v-model="form.contato"
               class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary" />
 
             <input type="password" placeholder="Digite sua senha" v-model="form.senha"
@@ -155,9 +155,35 @@ async function register() {
   }
 }
 
+async function googleAccessToken()
+{
+  const params = new URLSearchParams(window.location.search)
+  if(!params) return
+
+  const access_token = params.get('access_token')
+  if(!access_token || access_token.length < 1) return //Access Token nulo ou invalido
+
+  const response = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
+    headers: {
+      Authorization: `Bearer ${access_token}`
+    }
+  })
+
+  if (!response.ok) {
+    console.log('Falha ao carregar dados de usuário')
+    return
+  }
+
+  const data = await response.json()
+  form.value.nomeCompleto = data.name
+  form.value.email = data.email
+  //console.log(data)
+}
+
 const fullText = "A melhor empresa precisa dos melhores orientadores"
 const typedText = ref("")
 onMounted(() => {
+  googleAccessToken()
   loadCargos()
   let index = 0
   const typingInterval = setInterval(() => {

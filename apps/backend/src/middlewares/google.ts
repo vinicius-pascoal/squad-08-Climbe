@@ -13,7 +13,7 @@ app.get("/login", (req:Request, res:Response) => {
 	const url = oauth2Client.generateAuthUrl({
 		access_type: "offline",
 		prompt: "consent",
-		scope: ["https://www.googleapis.com/auth/userinfo.email"/*, "https://www.googleapis.com/auth/drive.readonly"*/],
+		scope: ["https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/userinfo.profile"/*, "https://www.googleapis.com/auth/drive.readonly"*/],
 	});
 	res.redirect(url);
 });
@@ -22,6 +22,7 @@ app.get("/oauth2callback", async (req:Request, res:Response) => {
 	const code = req.query.code as string;
 	if (!code) return res.send("Nenhum código foi encontrado.");
 
+	let access_token = null;
 	try {
 		const { tokens } = await oauth2Client.getToken(code);
 
@@ -35,7 +36,7 @@ app.get("/oauth2callback", async (req:Request, res:Response) => {
 		});
 		
 		// Pegar informações do usuário baseado no access token do google
-		const access_token = tokens.access_token;
+		access_token = tokens.access_token;
 		const r = await fetch('http://localhost:3000/api/auth/google', {
 			method: 'POST',
 			body: JSON.stringify({
@@ -54,14 +55,24 @@ app.get("/oauth2callback", async (req:Request, res:Response) => {
 			(err as any).data = data;
 			throw err;
 		}
-		res.redirect(`http://localhost:5173/auth?access_token=${tokens.access_token}&user=${encodeURIComponent(JSON.stringify(data.user))}`);
+		res.redirect(`http://localhost:5173/auth?access_token=${access_token}&user=${encodeURIComponent(JSON.stringify(data.user))}`);
 
 		/*const planilha = await getFileTextByName("Pasta1.csv", process.env.DRIVE_FOLDERID!, oauth2Client);
 		res.send(planilha);*/
 	} catch (e: any) {
-		if (e?.status === 403) res.send("Seu cadastro está pendente de aprovação.");
-		else if (e?.status === 400) res.send("Credenciais inválidas.");
-		else res.send(e?.message || "Falha ao autenticar.");
+		if (e?.status === 403) {
+			res.send("Seu cadastro está pendente de aprovação.");
+		} else if (e?.status === 400) {
+			if(access_token !== null) {
+				//Se o access token for valido, redireciona usuário a página de cadastro com algumas informações preenchidas pelo google
+				res.redirect(`http://localhost:5173/cadastro?access_token=${access_token}`);
+			} else {
+				//Se não for valido mostra um erro na tela
+				res.send("Credenciais inválidas.");
+			}
+		} else {
+			res.send(e?.message || "Falha ao autenticar.");
+		}
 	}
 });
 
