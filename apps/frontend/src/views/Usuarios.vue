@@ -119,8 +119,8 @@ export default {
       if (clickedOutside) this.showFilters = false;
     },
 
-    // Aprovar usuário (único fluxo suportado no backend)
-    async onChangeStatus({ userId, status }) {
+    // Aprovar usuário com cargo
+    async onChangeStatus({ userId, status, cargoId }) {
       if ((status || '').toLowerCase() !== 'ativo') {
         this.error = 'Somente a aprovação está disponível no momento.';
         return;
@@ -128,20 +128,27 @@ export default {
       const idx = this.users.findIndex(u => u.id === userId);
       if (idx === -1) return;
 
-      const prev = this.users[idx].situacao;
+      const prev = { situacao: this.users[idx].situacao, cargoId: this.users[idx].cargoId, cargo: this.users[idx].cargo };
       this.statusLoading[userId] = true;
-      this.users[idx].situacao = 'aprovado'; // otimista
+      // Otimista
+      this.users[idx].situacao = 'aprovado';
+      this.users[idx].cargoId = cargoId;
+      this.users[idx].cargo = { id: cargoId, nomeCargo: this.cargoMap[cargoId] || '—' };
 
       try {
         await http(`/api/usuarios/${userId}/aprovar`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ motivo: 'aprovação via UI' }),
+          body: JSON.stringify({ cargoId }),
         });
       } catch (e) {
-        this.users[idx].situacao = prev;
+        // rollback
+        this.users[idx].situacao = prev.situacao;
+        this.users[idx].cargoId = prev.cargoId;
+        this.users[idx].cargo = prev.cargo;
         this.error = e?.message || 'Falha ao aprovar usuário';
       } finally {
+        this.$set?.(this.statusLoading, userId, false); // vue2 compat
         delete this.statusLoading[userId];
       }
     },
@@ -210,21 +217,11 @@ export default {
         <table class=" bg-white shadow-md rounded-lg overflow-hidden w-full">
           <thead class="bg-white">
             <tr class="grid grid-cols-6 h-[50px] items-center">
-              <th
-                class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] py-3 px-6 text-center text-black font-bold border-[#5F6060] border-r-2 h-[40px]">
-                Nome Completo</th>
-              <th
-                class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] py-3 px-6 text-center text-black font-bold border-[#5F6060] border-r-2 h-[40px]">
-                Cargo</th>
-              <th
-                class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] py-3 px-6 text-center text-black font-bold col-span-2 border-[#5F6060] border-r-2 h-[40px]">
-                Email</th>
-              <th
-                class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] py-3 px-6 text-center text-black font-bold border-[#5F6060] border-r-2 h-[40px]">
-                Permissões</th>
-              <th
-                class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] py-3 px-6 text-center text-black font-bold border-r-2 h-[40px]">
-                Status</th>
+              <th class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] py-3 px-6 text-center text-black font-bold border-[#5F6060] border-r-2 h-[40px]">Nome Completo</th>
+              <th class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] py-3 px-6 text-center text-black font-bold border-[#5F6060] border-r-2 h-[40px]">Cargo</th>
+              <th class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] py-3 px-6 text-center text-black font-bold col-span-2 border-[#5F6060] border-r-2 h-[40px]">Email</th>
+              <th class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] py-3 px-6 text-center text-black font-bold border-[#5F6060] border-r-2 h-[40px]">Permissões</th>
+              <th class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] py-3 px-6 text-center text-black font-bold border-r-2 h-[40px]">Status</th>
             </tr>
           </thead>
 
@@ -239,6 +236,7 @@ export default {
               :permisao="getPermissao(u)"
               :status="mapSituacao(u.situacao)"
               :updating="Boolean(statusLoading[u.id])"
+              :cargos="cargos"
               @change-status="onChangeStatus"
             />
           </tbody>
@@ -249,15 +247,9 @@ export default {
         </div>
 
         <div class="flex items-center justify-end mt-4 gap-2">
-          <button @click="prevPage" :disabled="page === 1" class="px-3 py-1 rounded border disabled:opacity-50">
-            Anterior
-          </button>
-
+          <button @click="prevPage" :disabled="page === 1" class="px-3 py-1 rounded border disabled:opacity-50">Anterior</button>
           <span class="px-2">Página {{ page }} de {{ totalPages }}</span>
-
-          <button @click="nextPage" :disabled="page === totalPages" class="px-3 py-1 rounded border disabled:opacity-50">
-            Próxima
-          </button>
+          <button @click="nextPage" :disabled="page === totalPages" class="px-3 py-1 rounded border disabled:opacity-50">Próxima</button>
         </div>
       </div>
     </div>

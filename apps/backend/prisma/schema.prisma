@@ -11,7 +11,6 @@ model Usuario {
   id                 Int                   @id @default(autoincrement()) @map("id_usuario")
   nomeCompleto       String                @map("nome_completo") @db.VarChar(255)
   cargoId            Int?                  @map("cargo_id")
-  cpf                String                @db.Char(14)
   email              String                @db.VarChar(255)
   contato            String?               @db.VarChar(50)
   situacao           String?               @db.VarChar(255)

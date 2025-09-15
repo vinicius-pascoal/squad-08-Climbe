@@ -8,8 +8,9 @@ export const usuarioController = {
   },
   async aprovar(req: Request, res: Response) {
     const id = Number(req.params.id);
-    const updated = await usuarioService.aprovar(id);
-    res.json({ id: updated.id, situacao: updated.situacao });
+    const { cargoId } = req.body as { cargoId: number };
+    const updated = await usuarioService.aprovar({ id, cargoId });
+    res.json({ id: updated.id, situacao: updated.situacao, cargoId: updated.cargoId });
   },
   async list(_req: Request, res: Response) {
     const data = await usuarioService.list();
