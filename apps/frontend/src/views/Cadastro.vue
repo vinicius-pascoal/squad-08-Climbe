@@ -5,8 +5,9 @@
     </video>
     <div class="absolute inset-0 bg-black/50"></div>
 
-    <div class="relative z-10 flex w-4/5 h-full max-w-5xl rounded-2xl bg-neutral-600/50 border-2 border-neutral-700 backdrop-blur-sm shadow-lg overflow-hidden animate-fadeInUp justify-center align-middle">
-      <div class="flex flex-col items-center justify-center px-5 overlay-content w-full md:w-4/5 py-10">
+    <div
+      class="relative z-10 flex w-4/5 h-4/5 max-w-5xl max-h-5xl rounded-2xl bg-neutral-600/50 border-2 border-neutral-700 backdrop-blur-sm shadow-lg overflow-hidden animate-fadeInUp justify-center align-middle">
+      <div class="flex flex-col items-center justify-center space-x-36-5 px-5 overlay-content ">
         <div class="mb-8 text-center">
           <img src="/img/climbe-logo.png" alt="climb" class="h-20 mb-6 mx-auto" />
           <h2 class="text-white text-3xl font-medium">Cadastro.</h2>
@@ -14,16 +15,21 @@
 
         <div class="flex items-start w-full gap-6">
           <div class="w-full md:w-1/2 flex flex-col items-center">
-            <input v-model="form.nomeCompleto" type="text" placeholder="Digite seu nome" class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary" />
-            <input v-model="form.email" type="email" placeholder="Digite seu email" class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary" />
-            <input v-model="form.contato" type="text" placeholder="Digite seu contato" class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary" />
-            <input v-model="form.senha" type="password" placeholder="Digite sua senha" class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary" />
+            <input v-model="form.nomeCompleto" type="text" placeholder="Digite seu nome"
+              class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary" />
+            <input v-model="form.email" type="email" placeholder="Digite seu email"
+              class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary" />
+            <input v-model="form.contato" type="text" placeholder="Digite seu contato"
+              class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary" />
+            <input v-model="form.senha" type="password" placeholder="Digite sua senha"
+              class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary" />
 
             <p v-if="error" class="text-red-500 mb-2 text-center w-full">{{ error }}</p>
             <p v-if="success" class="text-green-400 mb-2 text-center w-full">{{ success }}</p>
 
             <div class="flex items-center justify-between w-full mb-4 gap-2">
-              <button @click="register" :disabled="loading" class="w-full h-15 py-3 rounded-lg border-2 text-xl border-primary font-semibold text-white bg-secondary hover:bg-neutral-500/20 hover:border-neutral-700 transition disabled:opacity-50">
+              <button @click="register" :disabled="loading"
+                class="w-full h-15 py-3 rounded-lg border-2 text-xl border-primary font-semibold text-white bg-secondary hover:bg-neutral-500/20 hover:border-neutral-700 transition disabled:opacity-50">
                 {{ loading ? 'Enviando...' : 'Cadastrar' }}
               </button>
             </div>
@@ -33,10 +39,14 @@
             </p>
           </div>
 
-          <div class="hidden md:flex w-1/2 items-center justify-center p-10">
-            <h2 class="text-white text-4xl font-bold w-full h-full text-center">
+          <div
+            class="w-[4px] h-4/5 bg-gradient-to-br from-primary via-transparent to-transparent mx-5 hidden sm:block ">
+          </div>
+
+          <div class="w-1/2 flex items-center justify-center p-10 hidden sm:block">
+            <h2 class="text-white w-full h-full text-center font-bold text-6xl">
               {{ typedText }}
-              <span class="border-r-4 border-primary animate-blink ml-1"></span>
+              <span class=" border-r-4 border-primary animate-blink ml-1"></span>
             </h2>
           </div>
         </div>
@@ -96,17 +106,41 @@ onMounted(() => {
 
 <style>
 @keyframes blink {
-  0%, 50%, 100% { opacity: 1; }
-  25%, 75% { opacity: 0; }
+
+  0%,
+  50%,
+  100% {
+    opacity: 1;
+  }
+
+  25%,
+  75% {
+    opacity: 0;
+  }
 }
+
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(30px) scale(0.5); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.5);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
+
 @keyframes shimmer {
-  0% { left: -100%; }
-  100% { left: 100%; }
+  0% {
+    left: -100%;
+  }
+
+  100% {
+    left: 100%;
+  }
 }
+
 .overlay-content::before {
   content: '';
   position: absolute;
@@ -117,6 +151,12 @@ onMounted(() => {
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
   animation: shimmer 3s infinite;
 }
-.animate-fadeInUp { animation: fadeInUp 2s ease-out forwards; }
-.animate-blink { animation: blink 1s infinite; }
+
+.animate-fadeInUp {
+  animation: fadeInUp 2s ease-out forwards;
+}
+
+.animate-blink {
+  animation: blink 1s infinite;
+}
 </style>
