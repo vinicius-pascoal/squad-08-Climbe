@@ -50,7 +50,7 @@
 
           <!-- Coluna Texto com animação -->
           <div class="w-1/2 flex items-center justify-center p-10 hidden sm:block ">
-            <h2 class="text-white text-4xl font-bold w-full h-full text-center font-bold text-6xl">
+            <h2 class="text-white w-full h-full text-center font-bold text-6xl">
               {{ typedText }}
               <span class="border-r-4 border-primary animate-blink ml-1"></span>
             </h2>

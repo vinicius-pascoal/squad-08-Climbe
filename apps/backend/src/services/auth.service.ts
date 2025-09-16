@@ -6,7 +6,7 @@ const SITUACAO = { APROVADO: 'aprovado' } as const;
 
 export const authService = {
   async passwordGrant(username: string, password: string) {
-    const user = await usuarioRepo.findByEmailOrCpf(username);
+    const user = await usuarioRepo.findByEmail(username);
     if (!user) {
       const e: any = new Error('Credenciais inválidas');
       e.statusCode = 400;
@@ -42,7 +42,7 @@ export const authService = {
     if (!response.ok) throw new Error('Falha ao carregar dados de usuário');
 
     const data = await response.json();
-    const user = await usuarioRepo.findByEmailOrCpf(data.email);
+    const user = await usuarioRepo.findByEmail(data.email);
     if (!user) {
       const e: any = new Error('Credenciais inválidas');
       e.statusCode = 400;
