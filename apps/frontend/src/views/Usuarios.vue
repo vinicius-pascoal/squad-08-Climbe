@@ -109,7 +109,7 @@ export default {
     prevPage() { if (this.page > 1) this.page -= 1; },
     nextPage() { if (this.page < this.totalPages) this.page += 1; },
 
-    openCadastro() { this.$router.push('/cadastro'); },
+    openCadastro() { this.$router.push('/CadastroUsuario'); },
 
     handleClickOutside(e) {
       const dropdown = this.$refs.filtersDropdown;
