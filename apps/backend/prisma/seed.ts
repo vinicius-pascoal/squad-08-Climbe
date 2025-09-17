@@ -22,29 +22,35 @@ async function main() {
     'Analista de BPO Financeiro',
   ];
 
-  const cargos = await Promise.all(cargosBase.map(ensureCargo));
-  const cargoCEO = cargos.find(c => c.nomeCargo === 'CEO') ?? await ensureCargo('CEO');
+  // Garante cargos
+  for (const nome of cargosBase) {
+    await ensureCargo(nome);
+  }
 
-  const email = 'admin@climbe.local';
-  const cpf = '123.456.789-00';
-  const senhaHash = await bcrypt.hash('Admin@123', 10);
+  // Usuário admin opcional (ativo) — edite conforme sua necessidade
+  const adminEmail = process.env.SEED_ADMIN_EMAIL || 'admin@climbe.local';
+  const adminNome = process.env.SEED_ADMIN_NOME || 'Administrador';
+  const adminCargoNome = process.env.SEED_ADMIN_CARGO || 'CEO';
+  const adminSenha = process.env.SEED_ADMIN_SENHA || 'admin12345';
 
-  const existing = await prisma.usuario.findFirst({
-    where: { OR: [{ email }, { cpf }] },
-  });
+  const cargo = await ensureCargo(adminCargoNome);
+  const senhaHash = await bcrypt.hash(adminSenha, 10);
 
-  if (!existing) {
+  const exists = await prisma.usuario.findFirst({ where: { email: adminEmail } });
+  if (!exists) {
     await prisma.usuario.create({
       data: {
-        nomeCompleto: 'Administrador (Seed)',
-        cargoId: cargoCEO.id,
-        cpf,
-        email,
-        contato: '(00) 00000-0000',
+        nomeCompleto: adminNome,
+        email: adminEmail.toLowerCase(),
+        contato: '—',
         situacao: 'aprovado',
         senhaHash,
+        cargoId: cargo.id,
       },
     });
+    console.log(`Admin criado: ${adminEmail} (${adminCargoNome})`);
+  } else {
+    console.log(`Admin já existe: ${adminEmail}`);
   }
 
   console.log('Seed finalizada com sucesso.');

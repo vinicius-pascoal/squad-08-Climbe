@@ -15,10 +15,11 @@ export default {
       default: 'pendente',
       validator: (v) => ['ativo', 'pendente', 'inativo'].includes((v || '').toLowerCase()),
     },
+    cargos: { type: Array, default: () => [] }, // [{id, nomeCargo}]
     updating: { type: Boolean, default: false },
   },
   data() {
-    return { open: false };
+    return { open: false, selectedCargoId: '' };
   },
   computed: {
     isDisabled() {
@@ -32,8 +33,11 @@ export default {
     },
     approve() {
       if (this.isDisabled) return;
-      this.$emit('change-status', { userId: Number(this.userId), status: 'ativo' });
+      const id = Number(this.selectedCargoId);
+      if (!id) return;
+      this.$emit('change-status', { userId: Number(this.userId), status: 'ativo', cargoId: id });
       this.open = false;
+      this.selectedCargoId = '';
     },
     close() { this.open = false; },
   },
@@ -74,14 +78,19 @@ export default {
         </svg>
       </button>
 
-      <div v-if="open" class="absolute top-[48px] right-0 z-50 bg-white border border-gray-200 rounded-lg shadow-lg min-w-[180px]">
-        <ul class="py-1 text-sm text-[#5F6060]">
-          <li>
-            <button class="w-full text-left px-4 py-2 hover:bg-gray-100" @click.stop="approve">
-              Aprovar (Ativar)
-            </button>
-          </li>
-        </ul>
+      <div v-if="open" class="absolute top-[48px] right-0 z-50 bg-white border border-gray-200 rounded-lg shadow-lg min-w-[240px] p-3">
+        <div class="text-sm text-[#5F6060] mb-2 font-medium">Selecionar cargo</div>
+        <select v-model="selectedCargoId" class="w-full mb-3 rounded-lg border bg-[#F6F7F8] px-3 py-2 text-[#5F6060]">
+          <option value="">Selecione</option>
+          <option v-for="c in cargos" :key="c.id" :value="c.id">{{ c.nomeCargo }}</option>
+        </select>
+        <button
+          class="w-full px-4 py-2 rounded-lg bg-[#CAD8FD] text-[#3B67D0] border border-[#3B67D0] disabled:opacity-50"
+          :disabled="!selectedCargoId"
+          @click.stop="approve"
+        >
+          Aprovar (Ativar)
+        </button>
       </div>
     </td>
   </tr>

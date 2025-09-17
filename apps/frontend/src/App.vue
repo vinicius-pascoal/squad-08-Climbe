@@ -28,8 +28,8 @@ const route = useRoute()
 const showSidebar = ref(true)
 
 watchEffect(() => {
-  const excludedRoutes = ['/', '/cadastro']
-  showSidebar.value = !excludedRoutes.includes(route.path)
+  const excludedRoutes = ['/', '/cadastro', '/auth']
+  showSidebar.value = !excludedRoutes.includes(route.path?.toLowerCase())
 })
 </script>
 
