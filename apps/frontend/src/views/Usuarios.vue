@@ -109,7 +109,7 @@ export default {
     prevPage() { if (this.page > 1) this.page -= 1; },
     nextPage() { if (this.page < this.totalPages) this.page += 1; },
 
-    openCadastro() { this.$router.push('/cadastro'); },
+    openCadastro() { this.$router.push('/CadastroUsuario'); },
 
     handleClickOutside(e) {
       const dropdown = this.$refs.filtersDropdown;
@@ -229,18 +229,10 @@ export default {
           </thead>
 
           <tbody class="max-h-[60vh] overflow-y-auto h-[50vh] w-fit flex flex-col gap-4 my-4">
-            <Card
-              v-for="u in paginatedUsers"
-              :key="u.id"
-              :userId="u.id"
-              :name="u.nomeCompleto || '—'"
-              :email="u.email || '—'"
-              :cargo="cargoName(u)"
-              :permisao="getPermissao(u)"
-              :status="mapSituacao(u.situacao)"
-              :updating="Boolean(statusLoading[u.id])"
-              @change-status="onChangeStatus"
-            />
+            <Card v-for="u in paginatedUsers" :key="u.id" :userId="u.id" :name="u.nomeCompleto || '—'"
+              :email="u.email || '—'" :cargo="cargoName(u)" :permisao="getPermissao(u)"
+              :status="mapSituacao(u.situacao)" :updating="Boolean(statusLoading[u.id])"
+              @change-status="onChangeStatus" />
           </tbody>
         </table>
 
@@ -255,7 +247,8 @@ export default {
 
           <span class="px-2">Página {{ page }} de {{ totalPages }}</span>
 
-          <button @click="nextPage" :disabled="page === totalPages" class="px-3 py-1 rounded border disabled:opacity-50">
+          <button @click="nextPage" :disabled="page === totalPages"
+            class="px-3 py-1 rounded border disabled:opacity-50">
             Próxima
           </button>
         </div>

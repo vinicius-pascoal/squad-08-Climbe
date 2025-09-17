@@ -20,10 +20,8 @@ export default {
 };
 </script>
 <template>
-    <div class="h-screen absolute top-0">
-        <input type="search" placeholder="pesquisar"
-            class="email shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] border bg-[#E1E5E5] rounded-lg px-4 py-2 w-[80vh] mt-4 mb-6 text-[#5F6060]" />
-        <div class="flex justify-between items-center mb-8">
+    <div class="">
+        <div class="flex justify-between items-center my-4">
 
             <h1 class="font-bold text-[40px]"> Cadastro de usuário</h1>
             <div class="flex ">
@@ -64,7 +62,7 @@ export default {
                             <input type="email" id="nome" name="nome" placeholder="Digite o email"
                                 class="border border-gray-300 w-[410px] h-8 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg px-2" />
                         </div>
-                         <div class="flex flex-col gap-1 mb-2">
+                        <div class="flex flex-col gap-1 mb-2">
                             <label for="nome" class=" font-bold text-[#5F6060]">Senha</label>
                             <input type="password" id="nome" name="nome" placeholder="Digite a senha"
                                 class="border border-gray-300 w-[410px] h-8 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg px-2" />
@@ -72,7 +70,7 @@ export default {
 
                     </div>
                 </div>
-                <div >
+                <div>
                     <div class="grid grid-cols-2 gap-4 mt-4">
                         <div class="flex flex-col ">
                             <label for="nome" class=" font-bold text-[#5F6060]">Telefone</label>
@@ -119,39 +117,27 @@ export default {
                             <option value="inativo">Inativo</option>
                         </select>
                     </div>
-              <div class="p-8">
-  <h2 class="text-xl font-bold mb-4 text-[#5F6060]">Permissões</h2>
-  <div class="grid grid-cols-2 gap-4">
-    <div>
-      <PermissionCheckbox
-        id="criar-propostas"
-        label="Criar Propostas"
-        v-model="permissions.criarPropostas"
-      />
-    </div>
-    <div>
-      <PermissionCheckbox
-        id="acessar-calendario"
-        label="Acessar Calendário"
-        v-model="permissions.acessarCalendario"
-      />
-    </div>
-    <div>
-      <PermissionCheckbox
-        id="visualizar-contratos"
-        label="Visualizar Contratos"
-        v-model="permissions.visualizarContratos"
-      />
-    </div>
-    <div>
-      <PermissionCheckbox
-        id="excluir-usuarios"
-        label="Excluir Usuários/Empresas"
-        v-model="permissions.excluirUsuarios"
-      />
-    </div>
-  </div>
-</div>
+                    <div class="p-8">
+                        <h2 class="text-xl font-bold mb-4 text-[#5F6060]">Permissões</h2>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <PermissionCheckbox id="criar-propostas" label="Criar Propostas"
+                                    v-model="permissions.criarPropostas" />
+                            </div>
+                            <div>
+                                <PermissionCheckbox id="acessar-calendario" label="Acessar Calendário"
+                                    v-model="permissions.acessarCalendario" />
+                            </div>
+                            <div>
+                                <PermissionCheckbox id="visualizar-contratos" label="Visualizar Contratos"
+                                    v-model="permissions.visualizarContratos" />
+                            </div>
+                            <div>
+                                <PermissionCheckbox id="excluir-usuarios" label="Excluir Usuários/Empresas"
+                                    v-model="permissions.excluirUsuarios" />
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
