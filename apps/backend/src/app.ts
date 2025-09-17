@@ -6,6 +6,7 @@ import { errorHandler } from './middlewares/error';
 import { authRouter } from './routes/auth.routes';
 import { usuarioRouter } from './routes/usuario.routes';
 import { cargoRouter } from './routes/cargo.routes';
+import { emailRouter } from './routes/email.routes';
 
 
 export const app = express();
@@ -19,6 +20,7 @@ app.get('/api/health', (_req, res) => res.json({ ok: true }));
 app.use('/api/auth', authRouter);
 app.use('/api/usuarios', usuarioRouter);
 app.use('/api/cargos', cargoRouter);
+app.use('/api/emails', emailRouter);
 // servir frontend estático (vite build)
 const distDir = path.resolve(__dirname, '../../frontend');
 app.use(express.static(distDir));
