@@ -21,7 +21,6 @@ const items = [
   { label: 'Propostas', to: '/propostas', icon: propostas },
   { label: 'Empresas', to: '/empresas', icon: empresas },
   { label: 'Auditoria', to: '/auditoria', icon: auditoria },
-  { label: 'Auth', to: '/auth' }, //usado para a autenticação do google
 ]
 
 const route = useRoute()
