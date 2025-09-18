@@ -1,85 +1,181 @@
 <script>
 import PermissionCheckbox from "../components/PermissionCheckbox.vue";
 import ToggleSwitch from "../components/ToggleSwitch.vue";
+import { http } from "../lib/http";
 
 export default {
     components: {
         PermissionCheckbox,
-        ToggleSwitch, // Register the new component here
+        ToggleSwitch,
     },
     data() {
         return {
+            // Dados do formulário para o endpoint admin
+            form: {
+                nomeCompleto: "",
+                email: "",
+                senha: "",
+                contato: "",
+                cargoId: "", // será um número (id do cargo)
+            },
+
+            // Status escolhido na UI; mapearemos para a situacao da API
+            statusSelecionado: "pendente", // 'ativo' | 'pendente' | 'inativo'
+
+            // Cargos carregados do backend
+            cargos: [],
+
+            // Mantém seus campos/estados existentes
             permissions: {
                 criarPropostas: true,
                 acessarCalendario: true,
                 visualizarContratos: true,
                 excluirUsuarios: false,
             },
+
+            loading: false,
         };
+    },
+    methods: {
+        mapStatusToSituacao(status) {
+            // API espera: 'aprovado' | 'pendente' | 'inativo'
+            const s = String(status).toLowerCase();
+            if (s === "ativo") return "aprovado";
+            if (s === "pendente") return "pendente";
+            return "inativo";
+        },
+
+        async carregarCargos() {
+            try {
+                const data = await http("/api/cargos");
+                this.cargos = Array.isArray(data) ? data : [];
+            } catch (e) {
+                console.warn("Falha ao carregar cargos:", e?.message || e);
+                this.cargos = [];
+            }
+        },
+
+        async salvar() {
+            try {
+                if (!this.form.nomeCompleto || !this.form.email || !this.form.senha || !this.form.cargoId) {
+                    return window.alert("Preencha nome, email, senha e cargo.");
+                }
+
+                this.loading = true;
+
+                const payload = {
+                    nomeCompleto: this.form.nomeCompleto.trim(),
+                    email: this.form.email.trim(),
+                    contato: this.form.contato?.trim() || null,
+                    senha: this.form.senha,
+                    cargoId: Number(this.form.cargoId),
+                    situacao: this.mapStatusToSituacao(this.statusSelecionado),
+                };
+
+                await http("/api/usuarios/admin", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                });
+
+                window.alert("Usuário criado com sucesso!");
+                this.$router.push("/usuarios");
+            } catch (e) {
+                console.error(e);
+                window.alert(e?.message || "Falha ao criar usuário.");
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        cancelar() {
+            this.$router.push("/usuarios");
+        },
+    },
+    mounted() {
+        this.carregarCargos();
     },
 };
 </script>
+
 <template>
     <div class="">
         <div class="flex justify-between items-center my-4">
-
             <h1 class="font-bold text-[40px]"> Cadastro de usuário</h1>
             <div class="flex ">
-                <input type="button" value="Salvar"
-                    class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-[#C7D6FA] border border-[#4167C0] text-[#2B5DDF] text-[25px] rounded-lg mb-8 w-[151px] h-[39px] hover cursor-pointer ml-16"></input>
-                <input type="button" value="Cancelar"
-                    class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-[#F9CDCB] border border-[#B42839] text-[#B42839] text-[25px] rounded-lg mb-8 w-[151px] h-[39px] hover cursor-pointer ml-16"></input>
+                <input type="button" value="Salvar" @click="salvar" :disabled="loading"
+                    class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-[#C7D6FA] border border-[#4167C0] text-[#2B5DDF] text-[25px] rounded-lg mb-8 w-[151px] h-[39px] hover cursor-pointer ml-16" />
+                <input type="button" value="Cancelar" @click="cancelar"
+                    class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-[#F9CDCB] border border-[#B42839] text-[#B42839] text-[25px] rounded-lg mb-8 w-[151px] h-[39px] hover cursor-pointer ml-16" />
             </div>
         </div>
+
         <div class="h-full mx-10 bg-[#FFFFFF] p-8 grid grid-cols-2 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg ">
             <div class="flex flex-col gap-8">
                 <div class="gap-8">
                     <div class="flex flex-col gap-1 mb-2">
                         <label for="nome" class=" font-bold text-[#5F6060]">Nome Completo</label>
                         <input type="text" id="nome" name="nome" placeholder="Digite o nome completo"
+                            v-model="form.nomeCompleto"
                             class="border border-gray-300  w-5/6  h-[37px] focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg px-2" />
                     </div>
-
                 </div>
+
                 <div>
                     <div class="flex flex-col gap-1 mb-2">
-                        <label for="nome" class=" font-bold text-[#5F6060]">Cargo</label>
-                        <select id="cargo" name="cargo"
+                        <label for="cargo" class=" font-bold text-[#5F6060]">Cargo</label>
+                        <select id="cargo" name="cargo" v-model="form.cargoId"
                             class="border border-gray-300 w-5/6  h-[37px] focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg px-2">
-                            <option value="analista-marketing">Analista de Marketing</option>
-                            <option value="gerente-vendas">Gerente de Vendas</option>
-                            <option value="desenvolvedor-software">Desenvolvedor de Software</option>
-                            <option value="designer-grafico">Designer Gráfico</option>
+                            <option value="" disabled>Selecione o cargo</option>
+
+                            <!-- opções do backend -->
+                            <option v-for="c in cargos" :key="c.id" :value="c.id">
+                                {{ c.nomeCargo }}
+                            </option>
+
+                            <!-- fallback (apenas visual; se usar, cargoId não será válido) -->
+                            <option disabled v-if="!cargos.length" value="analista-marketing">Analista de Marketing
+                            </option>
+                            <option disabled v-if="!cargos.length" value="gerente-vendas">Gerente de Vendas</option>
+                            <option disabled v-if="!cargos.length" value="desenvolvedor-software">Desenvolvedor de
+                                Software</option>
+                            <option disabled v-if="!cargos.length" value="designer-grafico">Designer Gráfico</option>
                         </select>
                     </div>
-
                 </div>
+
                 <div class="flex flex-col gap-1 mb-2">
-                    <label for="nome" class=" font-bold text-[#5F6060]">Email corporativo</label>
-                    <input type="email" id="nome" name="nome" placeholder="Digite o email"
+                    <label for="email_corp" class=" font-bold text-[#5F6060]">Email corporativo</label>
+                    <input type="email" id="email_corp" name="email_corp" placeholder="Digite o email"
+                        v-model="form.email"
                         class="border border-gray-300 w-5/6 h-[37px] focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg px-2" />
                 </div>
+
                 <div class="flex flex-col gap-1 mb-2">
-                    <label for="nome" class=" font-bold text-[#5F6060]">Senha</label>
-                    <input type="password" id="nome" name="nome" placeholder="Digite a senha"
+                    <label for="senha" class=" font-bold text-[#5F6060]">Senha</label>
+                    <input type="password" id="senha" name="senha" placeholder="Digite a senha" v-model="form.senha"
                         class="border border-gray-300 w-5/6  h-[37px] focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg px-2" />
                 </div>
 
                 <div>
                     <div class="grid grid-cols-2 gap-4 mt-4">
                         <div class="flex flex-col ">
-                            <label for="nome" class=" font-bold text-[#5F6060]">Telefone</label>
-                            <input type="text" id="nome" name="nome" placeholder="Digite o seu telefone"
+                            <label for="telefone" class=" font-bold text-[#5F6060]">Telefone</label>
+                            <input type="text" id="telefone" name="telefone" placeholder="Digite o seu telefone"
+                                v-model="form.contato"
                                 class="border border-gray-300 w-[178px] h-8 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg px-2" />
                         </div>
+
                         <div class="flex flex-col ">
-                            <label for="nome" class=" font-bold text-[#5F6060]">E-mail Adicional</label>
-                            <input type="text" id="nome" name="nome" placeholder="Digite o seu email adicional"
+                            <label for="email_adicional" class=" font-bold text-[#5F6060]">E-mail Adicional</label>
+                            <input type="text" id="email_adicional" name="email_adicional"
+                                placeholder="Digite o seu email adicional"
                                 class="border border-gray-300 w-[178px] h-8 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg px-2" />
                         </div>
+
                         <div class="flex flex-col ">
-                            <label for="nome" class=" font-bold text-[#5F6060]">Departamento</label>
-                            <select id="cargo" name="cargo"
+                            <label for="departamento" class=" font-bold text-[#5F6060]">Departamento</label>
+                            <select id="departamento" name="departamento"
                                 class="border border-gray-300 w-[178px] h-8 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg px-2">
                                 <option value="analista-marketing">Analista de Marketing</option>
                                 <option value="gerente-vendas">Gerente de Vendas</option>
@@ -87,31 +183,34 @@ export default {
                                 <option value="designer-grafico">Designer Gráfico</option>
                             </select>
                         </div>
+
                         <div class="flex flex-col ">
-                            <label for="nome" class=" font-bold text-[#5F6060]">Gestor responsável</label>
-                            <input type="text" id="nome" name="nome" placeholder="Digite o seu gestor"
+                            <label for="gestor" class=" font-bold text-[#5F6060]">Gestor responsável</label>
+                            <input type="text" id="gestor" name="gestor" placeholder="Digite o seu gestor"
                                 class="border border-gray-300 w-[178px] h-8 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg px-2" />
                         </div>
-
                     </div>
                 </div>
             </div>
+
             <div class="flex flex-col gap-10">
                 <div class="flex h-fit w-full items-center justify-start">
                     <img src="../icones/usuario.svg"
                         class="w-[15vh] h-[15vh] fotoperfil rounded-full border border-gray-300" />
                     <h1 class="w-700 text-bold text-[#5F6060] text-[24px] ml-3">John Lenon</h1>
                 </div>
+
                 <div>
                     <div class="flex flex-col ">
                         <label for="status" class=" font-bold text-[#5F6060]">Status</label>
-                        <select id="status" name="status"
+                        <select id="status" name="status" v-model="statusSelecionado"
                             class="border border-gray-300 w-[410px] h-8 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg px-2">
                             <option value="ativo">Ativo</option>
                             <option value="pendente">Pendente</option>
                             <option value="inativo">Inativo</option>
                         </select>
                     </div>
+
                     <div class="p-8 mt-40">
                         <h2 class="text-xl font-bold mb-4 text-[#5F6060]">Permissões</h2>
                         <div class="grid grid-cols-2 gap-4">
@@ -135,6 +234,7 @@ export default {
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 </template>

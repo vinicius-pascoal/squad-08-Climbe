@@ -50,6 +50,43 @@ export const usuarioService = {
     return updated;
   },
 
+async adminCreate(input: any) {
+  const { nomeCompleto, email, contato, senha, cargoId } = input;
+  let situacao = String(input.situacao || 'pendente').toLowerCase();
+  if (!['aprovado','pendente','inativo'].includes(situacao)) situacao = 'pendente';
+
+  const exists = await usuarioRepo.findByEmail(email);
+  if (exists) {
+    const e: any = new Error('E-mail já cadastrado');
+    e.statusCode = 409;
+    throw e;
+  }
+  const cargo = await prisma.cargo.findUnique({ where: { id: cargoId } });
+  if (!cargo) {
+    const e: any = new Error('Cargo inválido');
+    e.statusCode = 400;
+    throw e;
+  }
+  const senhaHash = await hashPassword(senha);
+  const created = await usuarioRepo.create({
+    nomeCompleto,
+    email: email.toLowerCase(),
+    contato: contato ?? null,
+    situacao,
+    senhaHash,
+    cargo: { connect: { id: cargoId } },
+  } as any);
+
+  // Se já for aprovado, dispara boas-vindas
+  if (situacao === 'aprovado') {
+    try {
+      await sendTemplate([created.email], 'boas-vindas', { nome: created.nomeCompleto, cargo: cargo.nomeCargo });
+    } catch (err) {
+      console.warn('Falha ao enviar e-mail de boas-vindas:', (err as Error).message);
+    }
+  }
+  return created;
+},
   list: () => usuarioRepo.list(),
   findById: (id: number) => usuarioRepo.findById(id),
   delete: (id: number) => usuarioRepo.delete(id),
