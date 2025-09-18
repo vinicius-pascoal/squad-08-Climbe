@@ -217,28 +217,29 @@ export default {
         <table class=" bg-white shadow-md rounded-lg overflow-hidden w-full">
           <thead class="bg-white">
             <tr class="grid grid-cols-6 h-[50px] items-center">
-              <th class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] py-3 px-6 text-center text-black font-bold border-[#5F6060] border-r-2 h-[40px]">Nome Completo</th>
-              <th class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] py-3 px-6 text-center text-black font-bold border-[#5F6060] border-r-2 h-[40px]">Cargo</th>
-              <th class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] py-3 px-6 text-center text-black font-bold col-span-2 border-[#5F6060] border-r-2 h-[40px]">Email</th>
-              <th class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] py-3 px-6 text-center text-black font-bold border-[#5F6060] border-r-2 h-[40px]">Permissões</th>
-              <th class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] py-3 px-6 text-center text-black font-bold border-r-2 h-[40px]">Status</th>
+              <th
+                class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] py-3 px-6 text-center text-black font-bold border-[#5F6060] border-r-2 h-[40px]">
+                Nome </th>
+              <th
+                class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] py-3 px-6 text-center text-black font-bold border-[#5F6060] border-r-2 h-[40px]">
+                Cargo</th>
+              <th
+                class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] py-3 px-6 text-center text-black font-bold col-span-2 border-[#5F6060] border-r-2 h-[40px]">
+                Email</th>
+              <th
+                class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] py-3 px-6 text-center text-black font-bold border-[#5F6060] border-r-2 h-[40px]">
+                Permissões</th>
+              <th
+                class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] py-3 px-6 text-center text-black font-bold border-r-2 h-[40px]">
+                Status</th>
             </tr>
           </thead>
 
-          <tbody class="max-h-[60vh] overflow-y-auto h-[50vh] w-fit flex flex-col gap-4 my-4">
-            <Card
-              v-for="u in paginatedUsers"
-              :key="u.id"
-              :userId="u.id"
-              :name="u.nomeCompleto || '—'"
-              :email="u.email || '—'"
-              :cargo="cargoName(u)"
-              :permisao="getPermissao(u)"
-              :status="mapSituacao(u.situacao)"
-              :updating="Boolean(statusLoading[u.id])"
-              :cargos="cargos"
-              @change-status="onChangeStatus"
-            />
+          <tbody class="max-h-[60vh] overflow-y-auto h-[50vh] flex flex-col gap-4 my-4">
+            <Card v-for="u in paginatedUsers" :key="u.id" :userId="u.id" :name="u.nomeCompleto || '—'"
+              :email="u.email || '—'" :cargo="cargoName(u)" :permisao="getPermissao(u)"
+              :status="mapSituacao(u.situacao)" :updating="Boolean(statusLoading[u.id])" :cargos="cargos"
+              @change-status="onChangeStatus" />
           </tbody>
         </table>
 
@@ -247,9 +248,11 @@ export default {
         </div>
 
         <div class="flex items-center justify-end mt-4 gap-2">
-          <button @click="prevPage" :disabled="page === 1" class="px-3 py-1 rounded border disabled:opacity-50">Anterior</button>
+          <button @click="prevPage" :disabled="page === 1"
+            class="px-3 py-1 rounded border disabled:opacity-50">Anterior</button>
           <span class="px-2">Página {{ page }} de {{ totalPages }}</span>
-          <button @click="nextPage" :disabled="page === totalPages" class="px-3 py-1 rounded border disabled:opacity-50">Próxima</button>
+          <button @click="nextPage" :disabled="page === totalPages"
+            class="px-3 py-1 rounded border disabled:opacity-50">Próxima</button>
         </div>
       </div>
     </div>
