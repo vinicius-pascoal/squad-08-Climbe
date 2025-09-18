@@ -31,14 +31,13 @@ export default {
                     class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-[#F9CDCB] border border-[#B42839] text-[#B42839] text-[25px] rounded-lg mb-8 w-[151px] h-[39px] hover cursor-pointer ml-16"></input>
             </div>
         </div>
-        <div
-            class="h-fit w-full bg-[#FFFFFF] p-8 grid grid-cols-2 gap-8 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg">
-            <div>
+        <div class="h-full mx-10 bg-[#FFFFFF] p-8 grid grid-cols-2 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg ">
+            <div class="flex flex-col gap-8">
                 <div class="gap-8">
-                    <div class="flex flex-col  gap-1 mb-2">
+                    <div class="flex flex-col gap-1 mb-2">
                         <label for="nome" class=" font-bold text-[#5F6060]">Nome Completo</label>
                         <input type="text" id="nome" name="nome" placeholder="Digite o nome completo"
-                            class="border border-gray-300  w-[410px] h-8 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg px-2" />
+                            class="border border-gray-300  w-5/6  h-[37px] focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg px-2" />
                     </div>
 
                 </div>
@@ -46,7 +45,7 @@ export default {
                     <div class="flex flex-col gap-1 mb-2">
                         <label for="nome" class=" font-bold text-[#5F6060]">Cargo</label>
                         <select id="cargo" name="cargo"
-                            class="border border-gray-300 w-[410px] h-8 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg px-2">
+                            class="border border-gray-300 w-5/6  h-[37px] focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg px-2">
                             <option value="analista-marketing">Analista de Marketing</option>
                             <option value="gerente-vendas">Gerente de Vendas</option>
                             <option value="desenvolvedor-software">Desenvolvedor de Software</option>
@@ -55,21 +54,17 @@ export default {
                     </div>
 
                 </div>
-                <div>
-                    <div>
-                        <div class="flex flex-col gap-1 mb-2">
-                            <label for="nome" class=" font-bold text-[#5F6060]">Email corporativo</label>
-                            <input type="email" id="nome" name="nome" placeholder="Digite o email"
-                                class="border border-gray-300 w-[410px] h-8 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg px-2" />
-                        </div>
-                        <div class="flex flex-col gap-1 mb-2">
-                            <label for="nome" class=" font-bold text-[#5F6060]">Senha</label>
-                            <input type="password" id="nome" name="nome" placeholder="Digite a senha"
-                                class="border border-gray-300 w-[410px] h-8 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg px-2" />
-                        </div>
-
-                    </div>
+                <div class="flex flex-col gap-1 mb-2">
+                    <label for="nome" class=" font-bold text-[#5F6060]">Email corporativo</label>
+                    <input type="email" id="nome" name="nome" placeholder="Digite o email"
+                        class="border border-gray-300 w-5/6 h-[37px] focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg px-2" />
                 </div>
+                <div class="flex flex-col gap-1 mb-2">
+                    <label for="nome" class=" font-bold text-[#5F6060]">Senha</label>
+                    <input type="password" id="nome" name="nome" placeholder="Digite a senha"
+                        class="border border-gray-300 w-5/6  h-[37px] focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg px-2" />
+                </div>
+
                 <div>
                     <div class="grid grid-cols-2 gap-4 mt-4">
                         <div class="flex flex-col ">
@@ -101,11 +96,11 @@ export default {
                     </div>
                 </div>
             </div>
-            <div class="flex flex-col gap-8">
-                <div class="flex h-fit w-full items-center justify-start gap-[20%]">
+            <div class="flex flex-col gap-10">
+                <div class="flex h-fit w-full items-center justify-start">
                     <img src="../icones/usuario.svg"
                         class="w-[15vh] h-[15vh] fotoperfil rounded-full border border-gray-300" />
-                    <h1 class="w-700 text-bold text-[#5F6060] text-[24px]">John Lenon</h1>
+                    <h1 class="w-700 text-bold text-[#5F6060] text-[24px] ml-3">John Lenon</h1>
                 </div>
                 <div>
                     <div class="flex flex-col ">
@@ -117,7 +112,7 @@ export default {
                             <option value="inativo">Inativo</option>
                         </select>
                     </div>
-                    <div class="p-8">
+                    <div class="p-8 mt-40">
                         <h2 class="text-xl font-bold mb-4 text-[#5F6060]">Permissões</h2>
                         <div class="grid grid-cols-2 gap-4">
                             <div>

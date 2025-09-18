@@ -1,24 +1,14 @@
 <template>
   <aside class="relative min-h-screen flex sombraTexto" :class="{ collapsed }" role="navigation">
     <div class="h-full bg-secondary flex flex-col justify-between w-14 shadow-lg">
-      <button v-if="collapsed">
+      <button v-if="collapsed" @click="toggleSidebar">
         <img src="/img/logoCircular.svg" class="w-14 h-14 absolute left-20 top-3" alt="climbe" />
-      </button>
-      <button @click="toggleSidebar" class="p-3 hover:bg-white/10">
-        <svg v-if="!collapsed" class="w-6 h-6 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-        </svg>
-        <svg v-else class="w-6 h-6 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 12H5"></path>
-        </svg>
       </button>
       <nav class="relative flex-1 mt-20">
         <ul class="menu px-2 ">
           <li v-for="(item, i) in items" :key="item.to" class=" relative ">
             <RouterLink :to="item.to"
-              class=" flex items-center px-3 overflow-hidden text-center my-7 first-of-type:mt-0 h-14 relative -left-2  "
+              class=" flex items-center px-3 overflow-hidden text-center my-7 first-of-type:mt-8 h-14 relative -left-2  "
               :class="{ 'border-l-4 border-white ': isActive(item) }"
               :aria-current="isActive(item) ? 'page' : undefined">
               <div class="relative flex items-center justify-center w-8 h-8 ">
@@ -37,9 +27,9 @@
 
     <!-- Sidebar Expandida (Labels + Logo) -->
     <div v-if="!collapsed" class="bg-sidebar text-white duration-300 rounded-e-xl w-60 shadow-xl">
-      <div class="px-7 py-5 overflow-hidden">
+      <div class="px-7 py-5 overflow-hidden" @click="toggleSidebar">
         <slot name="logo">
-          <img src="/img/logoBranca.png" class="" alt="climbe" />
+          <img src="/img/logoPreta.png" class="" alt="climbe" />
         </slot>
       </div>
       <div class="icon-bar p-2">
