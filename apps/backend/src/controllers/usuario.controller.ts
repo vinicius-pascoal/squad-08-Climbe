@@ -2,6 +2,10 @@ import { Request, Response } from 'express';
 import { usuarioService } from '../services/usuario.service';
 
 export const usuarioController = {
+async adminCreate(req: Request, res: Response) {
+  const created = await usuarioService.adminCreate(req.body);
+  res.status(201).json({ id: created.id, situacao: created.situacao, cargoId: created.cargoId });
+},
   async register(req: Request, res: Response) {
     const created = await usuarioService.register(req.body);
     res.status(201).json({ id: created.id, situacao: created.situacao });

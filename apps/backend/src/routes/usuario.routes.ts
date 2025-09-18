@@ -1,12 +1,19 @@
 import { Router } from 'express';
 import { usuarioController } from '../controllers/usuario.controller';
 import { validate } from '../middlewares/validate';
-import { registerSchema, aprovarSchema, aprovarBodySchema } from '../dtos/usuario.dto';
+import { registerSchema, aprovarSchema, aprovarBodySchema, adminCreateSchema } from '../dtos/usuario.dto';
 import { requireAuth } from '../middlewares/auth';
 
 export const usuarioRouter = Router();
 
 usuarioRouter.post('/register', validate({ body: registerSchema }), usuarioController.register);
+
+usuarioRouter.post(
+  '/admin',
+  requireAuth,
+  validate({ body: adminCreateSchema }),
+  usuarioController.adminCreate
+);
 
 usuarioRouter.patch(
   '/:id/aprovar',
