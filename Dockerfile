@@ -8,6 +8,7 @@ COPY apps/frontend/package.json apps/frontend/package.json
 RUN npm install
 COPY . .
 RUN npx prisma generate --schema apps/backend/prisma/schema.prisma
+RUN npx prisma db seed --schema apps/backend/prisma/schema.prisma
 RUN npm run build
 
 FROM base AS runtime
@@ -19,7 +20,5 @@ COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
 COPY --from=builder /app/apps/backend/prisma ./apps/backend/prisma
 COPY --from=builder /app/apps/backend/package.json ./apps/backend/package.json
 COPY --from=builder /app/apps/frontend/dist ./apps/frontend/dist
-COPY docker-entrypoint.sh ./docker-entrypoint.sh
-RUN chmod +x ./docker-entrypoint.sh
 EXPOSE 3000
 CMD ["./docker-entrypoint.sh"]

@@ -1,70 +1,52 @@
 <template>
-  <div class="flex items-center justify-center h-screen bg-cover bg-center">
+  <div class="flex items-center justify-center h-full bg-cover bg-center">
     <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover">
-      <source src="../../public/videos/climbeVideo.mp4" type="video/mp4" />
+      <source src="/videos/climbeVideo.mp4" type="video/mp4" />
     </video>
-    <!-- Overlay para escurecer -->
     <div class="absolute inset-0 bg-black/50"></div>
 
-    <!-- Card principal -->
     <div
       class="relative z-10 flex w-4/5 h-4/5 max-w-5xl max-h-5xl rounded-2xl bg-neutral-600/50 border-2 border-neutral-700 backdrop-blur-sm shadow-lg overflow-hidden animate-fadeInUp justify-center align-middle">
-      <!-- Coluna Login -->
-      <div class=" flex flex-col items-center justify-center space-x-36-5 px-5 overlay-content ">
-        <div>
-          <img src="../../public/img/climbe-logo.png" alt="climb" class="h-20 mb-6" />
-          <h2 class="text-white text-3xl font-medium mb-6 mx-auto text-center">Cadastro.</h2>
+      <div class="flex flex-col items-center justify-center space-x-36-5 px-5 overlay-content ">
+        <div class="mb-8 text-center">
+          <img src="/img/climbe-logo.png" alt="climb" class="h-20 mb-6 mx-auto" />
+          <h2 class="text-white text-3xl font-medium">Cadastro.</h2>
         </div>
-        <div class="flex items-center w-full">
-          <div class="sm:w-1/2 flex flex-col items-center">
 
-            <input type="text" placeholder="Digite seu nome" v-model="nome"
+        <div class="flex items-start w-full gap-6">
+          <div class="w-full md:w-1/2 flex flex-col items-center">
+            <input v-model="form.nomeCompleto" type="text" placeholder="Digite seu nome"
+              class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary" />
+            <input v-model="form.email" type="email" placeholder="Digite seu email"
+              class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary" />
+            <input v-model="form.contato" type="text" placeholder="Digite seu contato"
+              class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary" />
+            <input v-model="form.senha" type="password" placeholder="Digite sua senha"
               class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary" />
 
-            <input type="text" placeholder="Digite seu cpf" v-model="cpf"
-              class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary" />
-
-            <input type="email" placeholder="Digite seu email" v-model="email"
-              class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary" />
-
-            <input type="text" placeholder="Digite seu contato" v-model="contato"
-              class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary" />
-
-            <input type="password" placeholder="Digite sua senha" v-model="password"
-              class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary" />
-
-            <select name="" id="cargos"
-              class="w-full h-15 px-4 py-3 mb-6 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:text-primary">
-              <option value="" disabled selected>Selecione seu cargo</option>
-              <option value="instrutor">Instrutor</option>
-              <option value="administrador">Administrador</option>
-              <option value="atendente">Atendente</option>
-
-            </select>
-
+            <p v-if="error" class="text-red-500 mb-2 text-center w-full">{{ error }}</p>
+            <p v-if="success" class="text-green-400 mb-2 text-center w-full">{{ success }}</p>
 
             <div class="flex items-center justify-between w-full mb-4 gap-2">
-              <button @click="login"
-                class="w-full h-15 py-3 rounded-lg border-2 text-xl  border-primary font-semibold text-white  bg-secondary hover:bg-neutral-500/20 hover:border-neutral-700 transition ">
-                Cadastrar
+              <button @click="register" :disabled="loading"
+                class="w-full h-15 py-3 rounded-lg border-2 text-xl border-primary font-semibold text-white bg-secondary hover:bg-neutral-500/20 hover:border-neutral-700 transition disabled:opacity-50">
+                {{ loading ? 'Enviando...' : 'Cadastrar' }}
               </button>
             </div>
             <p class="text-white text-sm mt-4">
-              É sócio e ja tem acesso?
+              É sócio e já tem acesso?
               <a href="/" class="text-purple-400 hover:underline">Clique aqui</a>
             </p>
           </div>
 
-          <!-- Divider gradiente -->
           <div
             class="w-[4px] h-4/5 bg-gradient-to-br from-primary via-transparent to-transparent mx-5 hidden sm:block ">
           </div>
 
-          <!-- Coluna Texto com animação -->
           <div class="w-1/2 flex items-center justify-center p-10 hidden sm:block">
-            <h2 class="text-white text-4xl font-bold w-full h-full text-center font-bold text-6xl">
+            <h2 class="text-white w-full h-full text-center font-bold text-6xl">
               {{ typedText }}
-              <span class="border-r-4 border-primary animate-blink ml-1"></span>
+              <span class=" border-r-4 border-primary animate-blink ml-1"></span>
             </h2>
           </div>
         </div>
@@ -74,33 +56,52 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue"
-import { useRouter } from "vue-router"
+import { ref, onMounted } from 'vue';
+import { http } from '../lib/http';
 
-const router = useRouter()
-const email = ref("")
-const password = ref("")
+const fullText = 'A melhor empresa precisa dos melhores orientadores';
+const typedText = ref('');
+const loading = ref(false);
+const error = ref<string | null>(null);
+const success = ref<string | null>(null);
 
-const login = () => {
-  console.log("Email:", email.value, "Senha:", password.value)
-  router.push("/dashboard")
+const form = ref({
+  nomeCompleto: '',
+  email: '',
+  contato: '',
+  senha: '',
+});
+
+async function register() {
+  try {
+    loading.value = true;
+    error.value = null;
+    success.value = null;
+    await http('/api/usuarios/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(form.value),
+    });
+    success.value = 'Cadastro realizado! Aguarde aprovação.';
+    form.value = { nomeCompleto: '', email: '', contato: '', senha: '' };
+  } catch (e: any) {
+    error.value = e?.message || 'Falha ao cadastrar';
+  } finally {
+    loading.value = false;
+  }
 }
 
-// Texto animado
-const fullText = "A melhor empresa precisa dos melhores orientadores"
-const typedText = ref("")
-
 onMounted(() => {
-  let index = 0
+  let index = 0;
   const typingInterval = setInterval(() => {
     if (index < fullText.length) {
-      typedText.value += fullText[index]
-      index++
+      typedText.value += fullText[index];
+      index++;
     } else {
-      clearInterval(typingInterval)
+      clearInterval(typingInterval);
     }
-  }, 50) // 50ms por letra, ajuste para mais rápido/lento
-})
+  }, 50);
+});
 </script>
 
 <style>
@@ -147,10 +148,7 @@ onMounted(() => {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg,
-      transparent,
-      rgba(255, 255, 255, 0.1),
-      transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
   animation: shimmer 3s infinite;
 }
 
