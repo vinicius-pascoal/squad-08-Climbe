@@ -14,3 +14,7 @@ export function loginApi(input: LoginInput) {
     body: JSON.stringify({ grant_type: 'password', ...input }),
   });
 }
+
+export function loginGoogle() {
+  window.location.href = `${import.meta.env.VITE_BACKEND_URI}/login`;
+}
