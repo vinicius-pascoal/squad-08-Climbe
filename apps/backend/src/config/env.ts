@@ -16,3 +16,7 @@ export const mail = {
   secure: (process.env.SMTP_SECURE || 'false').toLowerCase() === 'true',
   enabled: (process.env.SMTP_ENABLED || 'true').toLowerCase() === 'true',
 };
+
+export const roles = {
+  adminCargoId: Number(process.env.ADMIN_CARGO_ID || 9),
+};
