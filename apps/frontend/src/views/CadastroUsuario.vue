@@ -10,22 +10,18 @@ export default {
     },
     data() {
         return {
-            // Dados do formulário para o endpoint admin
             form: {
                 nomeCompleto: "",
                 email: "",
                 senha: "",
                 contato: "",
-                cargoId: "", // será um número (id do cargo)
+                cargoId: "",
             },
 
-            // Status escolhido na UI; mapearemos para a situacao da API
-            statusSelecionado: "pendente", // 'ativo' | 'pendente' | 'inativo'
+            statusSelecionado: "pendente",
 
-            // Cargos carregados do backend
             cargos: [],
 
-            // Mantém seus campos/estados existentes
             permissions: {
                 criarPropostas: true,
                 acessarCalendario: true,
@@ -38,7 +34,6 @@ export default {
     },
     methods: {
         mapStatusToSituacao(status) {
-            // API espera: 'aprovado' | 'pendente' | 'inativo'
             const s = String(status).toLowerCase();
             if (s === "ativo") return "aprovado";
             if (s === "pendente") return "pendente";
@@ -128,12 +123,10 @@ export default {
                             class="border border-gray-300 w-5/6  h-[37px] focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg px-2">
                             <option value="" disabled>Selecione o cargo</option>
 
-                            <!-- opções do backend -->
                             <option v-for="c in cargos" :key="c.id" :value="c.id">
                                 {{ c.nomeCargo }}
                             </option>
 
-                            <!-- fallback (apenas visual; se usar, cargoId não será válido) -->
                             <option disabled v-if="!cargos.length" value="analista-marketing">Analista de Marketing
                             </option>
                             <option disabled v-if="!cargos.length" value="gerente-vendas">Gerente de Vendas</option>
