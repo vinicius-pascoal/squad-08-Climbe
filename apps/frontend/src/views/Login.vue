@@ -71,6 +71,7 @@ const email = ref("");
 const password = ref("");
 const error = ref<string | null>(null);
 const loading = ref(false);
+const googleHref = (import.meta.env.VITE_API_BASE || '') + '/login';
 
 async function login() {
   error.value = null;

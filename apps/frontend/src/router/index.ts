@@ -1,5 +1,5 @@
 // apps/frontend/src/router/index.ts
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
 function parseJwtExp(token: string): number | null {
   try {
@@ -14,47 +14,46 @@ function parseJwtExp(token: string): number | null {
 
 function isTokenExpired(token: string): boolean {
   const exp = parseJwtExp(token);
-  if (!exp) return false;
-  const nowSec = Math.floor(Date.now() / 1000);
-  return nowSec >= exp;
+  if (!exp) return false; // if cannot parse, assume valid
+  const now = Math.floor(Date.now() / 1000);
+  return exp <= now;
 }
 
-function clearAuth() {
-  localStorage.removeItem('access_token');
-  localStorage.removeItem('user');
-}
+const routes: RouteRecordRaw[] = [
+  { path: '/', name: 'Login', component: () => import('../views/Login.vue') },
+  { path: '/auth', name: 'Auth', component: () => import('../views/Auth.vue') },
+  { path: '/Home', name: 'Home', component: () => import('../views/Home.vue'), meta: { requiresAuth: true } },
+  { path: '/Usuarios', name: 'Usuarios', component: () => import('../views/Usuarios.vue'), meta: { requiresAuth: true } },
+  { path: '/Empresas', name: 'Empresas', component: () => import('../views/Empresas.vue'), meta: { requiresAuth: true } },
+  { path: '/Propostas', name: 'Propostas', component: () => import('../views/Propostas.vue'), meta: { requiresAuth: true } },
+  { path: '/Contratos', name: 'Contratos', component: () => import('../views/Contratos.vue'), meta: { requiresAuth: true } },
+  { path: '/Cadastro', name: 'Cadastro', component: () => import('../views/Cadastro.vue'), meta: { requiresAuth: true } },
+  { path: '/CadastroUsuario', name: 'CadastroUsuario', component: () => import('../views/CadastroUsuario.vue'), meta: { requiresAuth: true } },
+  { path: '/Auditoria', name: 'Auditoria', component: () => import('../views/Auditoria.vue'), meta: { requiresAuth: true } },
+  { path: '/Agenda', name: 'Agenda', component: () => import('../views/Agenda.vue'), meta: { requiresAuth: true } },
+];
 
 const router = createRouter({
   history: createWebHistory(),
-  routes: [
-    { path: '/', component: () => import('../views/Login.vue') },
-    { path: '/cadastro', component: () => import('../views/Cadastro.vue') },
-    { path: '/home', component: () => import('../views/Home.vue'), meta: { requiresAuth: true } },
-    { path: '/usuarios', component: () => import('../views/Usuarios.vue'), meta: { requiresAuth: true } },
-    { path: '/agenda', component: () => import('../views/Agenda.vue'), meta: { requiresAuth: true } },
-    { path: '/contratos', component: () => import('../views/Contratos.vue'), meta: { requiresAuth: true } },
-    { path: '/propostas', component: () => import('../views/Propostas.vue'), meta: { requiresAuth: true } },
-    { path: '/empresas', component: () => import('../views/Empresas.vue'), meta: { requiresAuth: true } },
-    { path: '/auditoria', component: () => import('../views/Auditoria.vue'), meta: { requiresAuth: true } },
-    { path: '/CadastroUsuario', component: () => import('../views/CadastroUsuario.vue'), meta: { requiresAuth: true } },
-    { path: '/auth', component: () => import('../views/Auth.vue') },
-  ],
+  routes,
 });
 
 router.beforeEach((to, _from, next) => {
-  const token = localStorage.getItem('access_token') || null;
+  const token = localStorage.getItem('access_token') || '';
 
+  // Redirect invalid/expired tokens to login
   if (token && isTokenExpired(token)) {
-    clearAuth();
-    if (to.meta?.requiresAuth) return next({ path: '/' });
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user');
   }
 
   if (to.meta?.requiresAuth) {
     if (!token) return next({ path: '/' });
   }
 
+  // If already logged in and going to root, go to Home
   if (!to.meta?.requiresAuth && token && !isTokenExpired(token) && to.path === '/') {
-    return next({ path: '/home' });
+    return next({ path: '/Home' });
   }
 
   next();

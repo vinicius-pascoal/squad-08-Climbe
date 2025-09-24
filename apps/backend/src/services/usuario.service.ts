@@ -1,4 +1,5 @@
 import { usuarioRepo } from '../repositories/usuario.repo';
+import { roles } from '../config/env';
 import { RegisterDTO, AprovarDTO } from '../dtos/usuario.dto';
 import { hashPassword } from '../utils/password';
 import { prisma } from '../utils/prisma';
@@ -50,44 +51,52 @@ export const usuarioService = {
     return updated;
   },
 
-async adminCreate(input: any) {
-  const { nomeCompleto, email, contato, senha, cargoId } = input;
-  let situacao = String(input.situacao || 'pendente').toLowerCase();
-  if (!['aprovado','pendente','inativo'].includes(situacao)) situacao = 'pendente';
+  async adminCreate(input: any) {
+    const { nomeCompleto, email, contato, senha, cargoId } = input;
+    let situacao = String(input.situacao || 'pendente').toLowerCase();
+    if (!['aprovado', 'pendente', 'inativo'].includes(situacao)) situacao = 'pendente';
 
-  const exists = await usuarioRepo.findByEmail(email);
-  if (exists) {
-    const e: any = new Error('E-mail já cadastrado');
-    e.statusCode = 409;
-    throw e;
-  }
-  const cargo = await prisma.cargo.findUnique({ where: { id: cargoId } });
-  if (!cargo) {
-    const e: any = new Error('Cargo inválido');
-    e.statusCode = 400;
-    throw e;
-  }
-  const senhaHash = await hashPassword(senha);
-  const created = await usuarioRepo.create({
-    nomeCompleto,
-    email: email.toLowerCase(),
-    contato: contato ?? null,
-    situacao,
-    senhaHash,
-    cargo: { connect: { id: cargoId } },
-  } as any);
-
-  // Se já for aprovado, dispara boas-vindas
-  if (situacao === 'aprovado') {
-    try {
-      await sendTemplate([created.email], 'boas-vindas', { nome: created.nomeCompleto, cargo: cargo.nomeCargo });
-    } catch (err) {
-      console.warn('Falha ao enviar e-mail de boas-vindas:', (err as Error).message);
+    const exists = await usuarioRepo.findByEmail(email);
+    if (exists) {
+      const e: any = new Error('E-mail já cadastrado');
+      e.statusCode = 409;
+      throw e;
     }
-  }
-  return created;
-},
-  list: () => usuarioRepo.list(),
+    const cargo = await prisma.cargo.findUnique({ where: { id: cargoId } });
+    if (!cargo) {
+      const e: any = new Error('Cargo inválido');
+      e.statusCode = 400;
+      throw e;
+    }
+    const senhaHash = await hashPassword(senha);
+    const created = await usuarioRepo.create({
+      nomeCompleto,
+      email: email.toLowerCase(),
+      contato: contato ?? null,
+      situacao,
+      senhaHash,
+      cargo: { connect: { id: cargoId } },
+    } as any);
+
+    // Se já for aprovado, dispara boas-vindas
+    if (situacao === 'aprovado') {
+      try {
+        await sendTemplate([created.email], 'boas-vindas', { nome: created.nomeCompleto, cargo: cargo.nomeCargo });
+      } catch (err) {
+        console.warn('Falha ao enviar e-mail de boas-vindas:', (err as Error).message);
+      }
+    }
+    return created;
+  },
+
+  // ⬇️ AQUI: filtra usuários com cargo Admin
+  list: async () => {
+    const adminCargoId = Number((roles as any)?.adminCargoId ?? 9);
+    const users = await usuarioRepo.list();
+    // mantém quem não tem cargo (null) e quem tem cargo diferente do Admin
+    return users.filter(u => u.cargoId == null || Number(u.cargoId) !== adminCargoId);
+  },
+
   findById: (id: number) => usuarioRepo.findById(id),
   delete: (id: number) => usuarioRepo.delete(id),
 };

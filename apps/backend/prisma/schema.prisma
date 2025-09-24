@@ -11,7 +11,7 @@ model Usuario {
   id                 Int                   @id @default(autoincrement()) @map("id_usuario")
   nomeCompleto       String                @map("nome_completo") @db.VarChar(255)
   cargoId            Int?                  @map("cargo_id")
-  email              String                @db.VarChar(255)
+  email              String                @unique @db.VarChar(255)
   contato            String?               @db.VarChar(50)
   situacao           String?               @db.VarChar(255)
   senhaHash          String                @map("senha_hash") @db.Char(60)
