@@ -59,9 +59,9 @@
     <div class=" bg-white rounded-xl mx-auto w-full max-w-7xl p-4 shadow-lg">
       <div class="bg-white rounded-t-[22px] px-4 pt-4 pb-0 flex items-center gap-6">
 
-        <div class="ml-auto flex items-center gap-2">
+        <div class=" flex items-center gap-2 w-full">
           <div class="text-[28px] font-extrabold mr-4">{{ monthTitle }}</div>
-          <div class="bg-slate-200/70 rounded-xl p-1 inline-flex">
+          <div class=" ml-auto bg-slate-200/70 rounded-xl p-1 inline-flex">
             <button class="px-3 py-1.5 text-sm rounded-lg transition"
               :class="view === 'week' ? 'bg-white shadow text-slate-900' : 'text-slate-600'"
               @click="view = 'week'">Semanal</button>
