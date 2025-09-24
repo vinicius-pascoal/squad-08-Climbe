@@ -1,8 +1,7 @@
 <template>
-  <div class="w-full">
+  <div class="bg-[#F0F0F0] rounded-xl w-full p-4 md:p-6 shadow-lg h-fit">
     <!-- Cabeçalho: dias + pílulas de data -->
-    <div class="grid grid-cols-8 items-end text-center text-sm font-semibold text-slate-600 mb-2">
-      <div></div>
+    <div class="gridTabela items-end text-center text-sm font-semibold text-slate-600 mb-2 mx-auto">
       <div v-for="d in weekDays" :key="d.date" class="pb-1">
         <div class="uppercase tracking-wide">{{ d.label }}</div>
         <div
@@ -13,15 +12,7 @@
     </div>
 
     <!-- Grade -->
-    <div class="grid grid-cols-8">
-      <!-- Trilho de horas -->
-      <div class="pr-2">
-        <div class="relative" :style="{ height: colHeight + 'px' }">
-          <div v-for="h in hours" :key="h" class="h-16 text-right pr-2 text-[11px] text-slate-500">
-            {{ String(h).padStart(2, '0') }}:00
-          </div>
-        </div>
-      </div>
+    <div class="gridTabela">
 
       <!-- Colunas dos dias -->
       <div v-for="day in 7" :key="day" class="border-l border-slate-200/80">
@@ -101,3 +92,11 @@ function colorClass(c: CalendarEvent['color']) {
 }
 
 </script>
+
+<style>
+.gridTabela {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
+}
+</style>

@@ -1,5 +1,5 @@
 <template>
-  <section class="min-h-screen bg-[#f4f4f6] text-slate-800">
+  <section class=" bg-[#f4f4f6] text-slate-800 ">
     <!-- Top: cards + CTA -->
     <div class="mx-auto w-full max-w-7xl px-4 pt-6 pb-3 grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4">
       <!-- Card: contratos -->
@@ -31,37 +31,33 @@
 
       <!-- CTA -->
       <div class="flex items-center justify-end">
-        <button
-          class="inline-flex items-center gap-2 rounded-full bg-[#3b82f6] text-white px-5 py-3 text-base font-semibold shadow hover:shadow-md transition">
-          <span class="grid place-items-center rounded-full bg-white/20 size-6">
-            <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" d="M12 5v14m-7-7h14" />
-            </svg>
-          </span>
-          Cadastrar Reunião
-        </button>
+        <input type="button" value="Cadastrar reunião"
+          class="cadastro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-[#CAD8FD] border border-[#3B67D0] text-white rounded-lg px-4 py-2 hover cursor-pointer ml-16" />
       </div>
     </div>
 
     <!-- Tabs + título + controle de visão -->
-    <div class="mx-auto w-full max-w-7xl px-4">
+    <div class="mx-auto w-full max-w-7xl px-4 pt-3 pb-0 flex items-center gap-6">
+      <button class="pb-3 text-base font-semibold" :class="activeTab === 'agenda' ? 'text-[#10b981]' : 'text-slate-400'"
+        @click="activeTab = 'agenda'">
+        <span class="relative">
+          Agenda
+          <span v-if="activeTab === 'agenda'"
+            class="absolute -bottom-3 left-0 right-0 h-[3px] rounded-full bg-[#10b981]" />
+        </span>
+      </button>
+      <button class="pb-3 text-base font-semibold" :class="activeTab === 'board' ? 'text-slate-800' : 'text-slate-400'"
+        @click="activeTab = 'board'">
+        <span class="relative">
+          Task Board
+          <span v-if="activeTab === 'board'"
+            class="absolute -bottom-3 left-0 right-0 h-[3px] rounded-full bg-slate-300" />
+        </span>
+      </button>
+
+    </div>
+    <div class=" bg-white rounded-xl mx-auto w-full max-w-7xl p-4 shadow-lg">
       <div class="bg-white rounded-t-[22px] px-4 pt-4 pb-0 flex items-center gap-6">
-        <button class="pb-3 text-base font-semibold"
-          :class="activeTab === 'agenda' ? 'text-[#10b981]' : 'text-slate-400'" @click="activeTab = 'agenda'">
-          <span class="relative">
-            Agenda
-            <span v-if="activeTab === 'agenda'"
-              class="absolute -bottom-3 left-0 right-0 h-[3px] rounded-full bg-[#10b981]" />
-          </span>
-        </button>
-        <button class="pb-3 text-base font-semibold"
-          :class="activeTab === 'board' ? 'text-slate-800' : 'text-slate-400'" @click="activeTab = 'board'">
-          <span class="relative">
-            Task Board
-            <span v-if="activeTab === 'board'"
-              class="absolute -bottom-3 left-0 right-0 h-[3px] rounded-full bg-slate-300" />
-          </span>
-        </button>
 
         <div class="ml-auto flex items-center gap-2">
           <div class="text-[28px] font-extrabold mr-4">{{ monthTitle }}</div>
@@ -76,7 +72,7 @@
         </div>
       </div>
 
-      <div class="bg-white rounded-b-[22px] rounded-tr-[22px] p-4 md:p-6">
+      <div class="  overflow-y-auto p-4">
         <WeeklyView v-if="view === 'week'" :start-hour="startHour" :end-hour="endHour" :week-start="weekStart"
           :events="events" />
         <MonthlyPlaceholder v-else />
@@ -111,3 +107,12 @@ const events = ref<CalendarEvent[]>([
   { id: 'e4', dayIndex: 5, start: '11:30', end: '13:00', title: '---', color: 'mint' },
 ])
 </script>
+
+<style>
+.cadastro {
+  background-image: url('/icones/cadastro.svg');
+  background-repeat: no-repeat;
+  background-position: 5px center;
+  padding-left: 40px;
+}
+</style>
