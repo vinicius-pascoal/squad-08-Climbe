@@ -167,3 +167,4 @@ function apiDelete(arg0: string, arg1: () => void, arg2: (err: any) => void): an
 function apiPatch(arg0: string, updates: Partial<any>, arg2: (res: any) => void, arg3: (err: any) => void): any {
     throw new Error("Function not implemented.");
 }
+

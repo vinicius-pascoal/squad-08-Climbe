@@ -64,7 +64,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { loginApi } from "../services/auth";
+import { loginApi, loginGoogle } from "../services/auth";
 
 const router = useRouter();
 const email = ref("");
@@ -88,10 +88,6 @@ async function login() {
   } finally {
     loading.value = false;
   }
-}
-
-const loginGoogle = () => {
-  window.location.href = `${import.meta.env.VITE_BACKEND_URI}/login`;
 }
 
 // Texto animado

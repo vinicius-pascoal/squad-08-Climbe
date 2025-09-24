@@ -1,8 +1,30 @@
 
 import { app } from "../app";
+import { google, drive_v3 } from "googleapis";
+import { Request, Response } from "express";
 import { signAccessToken } from "../services/token.service";
 import { usuarioRepo } from "../repositories/usuario.repo";
 import { env } from "../config/env";
+
+export const oauth2Client = new google.auth.OAuth2(
+  process.env.OAUTH2_ID,
+  process.env.OAUTH2_SECRET,
+  `${process.env.VITE_BACKEND_URI}/oauth2callback`,
+);
+
+app.get("/login", (req:Request, res:Response) => {
+	const url = oauth2Client.generateAuthUrl({
+		access_type: "offline",
+		scope: [
+			"https://www.googleapis.com/auth/userinfo.email",		//Acesso ao endereço de email do usuário
+			"https://www.googleapis.com/auth/userinfo.profile",		//Acesso ao nome completo do usuário
+			"https://www.googleapis.com/auth/calendar",				//Acesso aos eventos do google calendar
+			"https://www.googleapis.com/auth/tasks",				//Acesso as tarefas do google calendar
+			/*, "https://www.googleapis.com/auth/drive.readonly"	//Acesso ao google drive*/
+		],
+	});
+	res.redirect(url);
+
 
 const BACKEND_ORIGIN = process.env.BACKEND_ORIGIN || `http://localhost:${env.port}`;
 const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || process.env.VITE_FRONTEND_URI || "http://localhost:5173";
@@ -91,6 +113,7 @@ app.get("/oauth2callback", async (req, res) => {
       } as any);
     }
 
+import './drive';
     if ((String(user.situacao || "")).toLowerCase() !== "aprovado") {
       // Block login if not approved
       const url = new URL(FRONTEND_ORIGIN.replace(/\/$/, "") + "/");
