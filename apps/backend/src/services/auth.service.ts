@@ -60,7 +60,7 @@ export const authService = {
       user = await usuarioRepo.create({
         email,
         nomeCompleto: name,
-        situacao: 'aprovado',
+        situacao: 'pendente',
         senhaHash: '',
       } as any);
     }
