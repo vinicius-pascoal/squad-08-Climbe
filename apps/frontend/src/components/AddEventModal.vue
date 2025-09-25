@@ -17,8 +17,19 @@
           <input type="date" id="date" v-model="newEvent.date" required />
         </div>
         <div class="form-group">
-          <label for="time">Hora:</label>
-          <input type="time" id="time" v-model="newEvent.time" required />
+          <label>Hora:</label>
+          <div class="time-blocks">
+            <button
+              v-for="timeSlot in timeSlots"
+              :key="timeSlot"
+              type="button"
+              class="time-block"
+              :class="{ 'selected': newEvent.time === timeSlot }"
+              @click="selectTime(timeSlot)"
+            >
+              {{ timeSlot }}
+            </button>
+          </div>
         </div>
         <button type="submit">Salvar</button>
       </form>
@@ -38,6 +49,9 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'add']);
 
+// Array com os blocos de hora disponíveis
+const timeSlots = ['12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+
 const newEvent = ref({
   type: '',
   participants: '',
@@ -45,7 +59,16 @@ const newEvent = ref({
   time: ''
 });
 
+const selectTime = (time) => {
+  newEvent.value.time = time;
+};
+
 const handleSubmit = () => {
+  if (!newEvent.value.time) {
+    alert('Por favor, selecione um horário.');
+    return;
+  }
+
   const dateString = newEvent.value.date;
   const [year, month, day] = dateString.split('-').map(Number);
   const dateObj = new Date(year, month - 1, day);
@@ -91,14 +114,39 @@ label {
   margin-bottom: 5px;
 }
 input[type="text"],
-input[type="date"],
-input[type="time"] {
+input[type="date"] {
   width: 100%;
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
   box-sizing: border-box;
 }
+
+.time-blocks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.time-block {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.time-block:hover {
+  background-color: #e0e0e0;
+}
+
+.time-block.selected {
+  background-color: #26A69A; 
+  color: white;
+  border-color: #26A69A;
+}
+
 button[type="submit"] {
   background-color: #4CAF50;
   color: white;

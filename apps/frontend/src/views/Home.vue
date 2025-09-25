@@ -118,6 +118,7 @@ const updateActivity = (updatedActivity) => {
 };
 
 // Adiciona uma nova atividade ao array principal.
+import googleCalendar from '../services/calendar';
 const addActivity = (newActivity) => {
   activities.value.push({
     id: Date.now(),

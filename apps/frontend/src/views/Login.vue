@@ -64,13 +64,14 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { loginApi } from "../services/auth";
+import { loginApi, loginGoogle } from "../services/auth";
 
 const router = useRouter();
 const email = ref("");
 const password = ref("");
 const error = ref<string | null>(null);
 const loading = ref(false);
+const googleHref = (import.meta.env.VITE_API_BASE || '') + '/login';
 
 async function login() {
   error.value = null;
@@ -87,10 +88,6 @@ async function login() {
   } finally {
     loading.value = false;
   }
-}
-
-const loginGoogle = () => {
-  window.location.href = `${import.meta.env.VITE_BACKEND_URI}/login`;
 }
 
 // Texto animado
