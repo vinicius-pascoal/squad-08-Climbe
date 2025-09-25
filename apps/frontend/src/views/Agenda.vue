@@ -1,20 +1,17 @@
 <template>
   <section class=" bg-[#f4f4f6] text-slate-800 ">
-    <!-- Top: cards + CTA -->
-    <div class="mx-auto w-full max-w-7xl px-4 pt-6 pb-3 grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4">
-      <!-- Card: contratos -->
-      <div class="bg-white rounded-2xl shadow-sm p-5">
+    <div class="mx-auto w-full max-w-7xl px-4 pt-6 pb-3 grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4 ">
+      <div class="bg-white rounded-2xl p-5 shadow-lg">
         <p class="text-sm font-semibold tracking-wide">Contratos que&nbsp; vencem esse mês</p>
         <div class="text-5xl font-bold mt-2 leading-none">4</div>
       </div>
 
-      <!-- Card: tarefas (donut) -->
-      <div class="bg-white rounded-2xl shadow-sm p-4 md:px-6 md:py-4 flex items-center gap-4">
+      <div class="bg-white rounded-2xl  p-4 md:px-6 md:py-4 flex items-center gap-4 shadow-lg">
         <div class="size-20 rounded-full grid place-items-center"
           :style="{ background: `conic-gradient(#94a3b8 0 ${completedPct}%, #e2e8f0 ${completedPct}% 100%)` }">
           <div class="size-12 bg-white rounded-full"></div>
         </div>
-        <div class="flex-1">
+        <div class="flex-1 ">
           <p class="text-sm font-semibold">Tarefas Concluídas</p>
           <div class="mt-2 flex items-center gap-4 text-xs">
             <div class="flex items-center gap-1">
@@ -29,29 +26,25 @@
         </div>
       </div>
 
-      <!-- CTA -->
       <div class="flex items-center justify-end">
         <input type="button" value="Cadastrar reunião"
           class="cadastro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-[#CAD8FD] border border-[#3B67D0] text-white rounded-lg px-4 py-2 hover cursor-pointer ml-16" />
       </div>
     </div>
 
-    <!-- Tabs + título + controle de visão -->
-    <div class="mx-auto w-full max-w-7xl px-4 pt-3 pb-0 flex items-center gap-6">
-      <button class="pb-3 text-base font-semibold" :class="activeTab === 'agenda' ? 'text-[#10b981]' : 'text-slate-400'"
+    <div class="mx-auto w-full max-w-7xl px-4 pt-3 pb-0 flex items-center gap-1">
+      <button class="pb-3 text-base font-semibold  rounded-t-xl px-6 py-3 "
+        :class="activeTab === 'agenda' ? 'text-[#10b981] bg-white' : 'text-slate-400 bg-gray-300'"
         @click="activeTab = 'agenda'">
-        <span class="relative">
+        <span class=" text-shadow-lg">
           Agenda
-          <span v-if="activeTab === 'agenda'"
-            class="absolute -bottom-3 left-0 right-0 h-[3px] rounded-full bg-[#10b981]" />
         </span>
       </button>
-      <button class="pb-3 text-base font-semibold" :class="activeTab === 'board' ? 'text-slate-800' : 'text-slate-400'"
+      <button class="pb-3 text-base font-semibold  rounded-t-xl px-6 py-3"
+        :class="activeTab === 'board' ? 'text-[#10b981] bg-white' : 'text-slate-400 bg-gray-300'"
         @click="activeTab = 'board'">
-        <span class="relative">
+        <span class=" text-shadow-lg">
           Task Board
-          <span v-if="activeTab === 'board'"
-            class="absolute -bottom-3 left-0 right-0 h-[3px] rounded-full bg-slate-300" />
         </span>
       </button>
 
@@ -93,7 +86,7 @@ const completedPct = 79
 
 const startHour = 8
 const endHour = 20
-const weekStart = new Date(2025, 7, 24) // 24–30 ago/2025 (como no print)
+const weekStart = new Date(2025, 7, 24)
 
 const monthTitle = computed(() =>
   weekStart.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
@@ -101,10 +94,14 @@ const monthTitle = computed(() =>
 )
 
 const events = ref<CalendarEvent[]>([
-  { id: 'e1', dayIndex: 0, start: '09:00', end: '11:30', title: 'teste de titulo', color: 'blue' },
-  { id: 'e2', dayIndex: 0, start: '14:00', end: '18:30', title: '---', color: 'green' },
-  { id: 'e3', dayIndex: 2, start: '10:30', end: '15:30', title: '---', color: 'blue' },
-  { id: 'e4', dayIndex: 5, start: '11:30', end: '13:00', title: '---', color: 'mint' },
+  { id: 'e1', dayIndex: 0, start: '09:00', end: '11:30', title: 'reuniao com cliente', color: 'blue', resume: 'Reunião com o cliente para discutir os requisitos do projeto.' },
+  { id: 'e2', dayIndex: 0, start: '14:00', end: '18:30', title: 'Almoço com a equipe', color: 'green', resume: 'Almoço com a equipe para fortalecer o relacionamento e discutir ideias.' },
+  { id: 'e3', dayIndex: 2, start: '10:30', end: '15:30', title: 'brainstorming', color: 'blue', resume: 'Sessão de brainstorming para gerar novas ideias e soluções criativas.' },
+  { id: 'e4', dayIndex: 5, start: '11:30', end: '13:00', title: 'Revisão do código', color: 'mint', resume: 'Revisão do código para garantir a qualidade e aderência aos padrões estabelecidos.' },
+  { id: 'e4', dayIndex: 1, start: '11:00', end: '13:00', title: 'Revisão do código', color: 'mint', resume: 'Revisão do código para garantir a qualidade e aderência aos padrões estabelecidos.' },
+  { id: 'e4', dayIndex: 1, start: '13:30', end: '15:00', title: 'Revisão do código', color: 'mint', resume: 'Revisão do código para garantir a qualidade e aderência aos padrões estabelecidos.' },
+  { id: 'e4', dayIndex: 3, start: '15:00', end: '17:00', title: 'Almoço com a equipe', color: 'green', resume: 'Almoço com a equipe para fortalecer o relacionamento e discutir ideias.' },
+  //{ id: 'e4', dayIndex: 4, start: '6:00', end: '20:00', title: 'demonstracao', color: 'green' },
 ])
 </script>
 

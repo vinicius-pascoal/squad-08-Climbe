@@ -1,6 +1,5 @@
 <template>
   <div class="bg-[#F0F0F0] rounded-xl w-full p-4 md:p-6 shadow-lg h-fit">
-    <!-- Cabeçalho: dias + pílulas de data -->
     <div class="gridTabela items-end text-center text-sm font-semibold text-slate-600 mb-2 mx-auto">
       <div v-for="d in weekDays" :key="d.date" class="pb-1">
         <div class="uppercase tracking-wide">{{ d.label }}</div>
@@ -10,23 +9,20 @@
         </div>
       </div>
     </div>
-
-    <!-- Grade -->
     <div class="gridTabela">
 
-      <!-- Colunas dos dias -->
       <div v-for="day in 7" :key="day" class="border-l border-slate-200/80">
         <div class="relative bg-white" :style="{
           height: colHeight + 'px',
           backgroundImage: 'linear-gradient(to bottom, rgba(226,232,240,0.7) 1px, transparent 1px)',
           backgroundSize: '100% ' + pxPerHour + 'px'
         }">
-          <!-- Eventos -->
           <div v-for="e in shapedEvents.filter(ev => ev.dayIndex === (day - 1))" :key="e.id"
             class="absolute left-2 right-2 rounded-2xl shadow-md px-4 py-3 text-sm font-semibold select-none"
-            :class="colorClass(e.color)" :style="{ top: e.top + 'px', height: e.height + 'px' }" :title="e.title">
-            <div class="leading-4">---</div>
+            :class="colorClass(e.color)" :style="{ top: e.top + 'px', height: e.height + 'px' }" :title="e.resume">
+            <div class="leading-4">{{ e.title }}</div>
             <div class="opacity-60 text-[11px] mt-1">{{ e.start }}–{{ e.end }}</div>
+            <div class="text-[11px] h-3/5 overflow-hidden ">{{ e.resume }}</div>
           </div>
         </div>
       </div>
