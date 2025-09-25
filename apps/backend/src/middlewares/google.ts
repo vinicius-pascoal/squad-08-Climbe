@@ -1,112 +1,107 @@
+
 import { app } from "../app";
-import { google } from "googleapis";
 import type { Request, Response } from "express";
 import { signAccessToken } from "../services/token.service";
 import { usuarioRepo } from "../repositories/usuario.repo";
 import { env } from "../config/env";
 
-// Origens e credenciais (com fallbacks úteis para dev)
-const BACKEND_ORIGIN =
-  process.env.BACKEND_ORIGIN || `http://localhost:${env.port}`;
-const FRONTEND_ORIGIN =
-  process.env.FRONTEND_ORIGIN ||
-  process.env.VITE_FRONTEND_URI ||
-  "http://localhost:5173";
+const BACKEND_ORIGIN = process.env.BACKEND_ORIGIN || `http://localhost:${env.port}`;
+const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || process.env.VITE_FRONTEND_URI || "http://localhost:5173";
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || process.env.OAUTH2_ID || "";
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || process.env.OAUTH2_SECRET || "";
 
-const GOOGLE_CLIENT_ID =
-  process.env.GOOGLE_CLIENT_ID || process.env.OAUTH2_ID || "";
-const GOOGLE_CLIENT_SECRET =
-  process.env.GOOGLE_CLIENT_SECRET || process.env.OAUTH2_SECRET || "";
+function buildRedirectUri() {
+  return `${BACKEND_ORIGIN.replace(/\/$/, "")}/oauth2callback`;
+}
 
-const REDIRECT_URI = `${BACKEND_ORIGIN.replace(/\/$/, "")}/oauth2callback`;
-
-// Cliente OAuth2 do Google
-export const oauth2Client = new google.auth.OAuth2(
-  GOOGLE_CLIENT_ID,
-  GOOGLE_CLIENT_SECRET,
-  REDIRECT_URI
-);
-
-// Rota 1: enviar usuário para a tela de consentimento do Google
-app.get("/login", (_req: Request, res: Response) => {
-  if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
-    return res.status(500).send("Google OAuth não configurado");
-  }
-
-  const url = oauth2Client.generateAuthUrl({
+app.get("/login", (_req, res) => {
+  if (!GOOGLE_CLIENT_ID) return res.status(500).send("GOOGLE_CLIENT_ID not configured");
+  const params = new URLSearchParams({
+    client_id: GOOGLE_CLIENT_ID,
+    redirect_uri: buildRedirectUri(),
+    response_type: "code",
     access_type: "offline",
     prompt: "consent",
-    scope: [
-      "openid",
-      "email",
-      "profile",
-      "https://www.googleapis.com/auth/calendar",
-      "https://www.googleapis.com/auth/tasks",
-      // Se quiser adicionar Drive: "https://www.googleapis.com/auth/drive.readonly"
-    ],
+    scope: ["openid","email","profile"].join(" "),
   });
-
-  return res.redirect(url);
+  res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`);
 });
 
-// Rota 2: callback do Google (troca code por token, pega userinfo, cria JWT e redireciona)
 app.get("/oauth2callback", async (req: Request, res: Response) => {
   try {
     const code = String(req.query.code || "");
     if (!code) return res.status(400).send("Missing code");
-
     if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
-      return res.status(500).send("Google OAuth não configurado");
+      return res.status(500).send("Google OAuth env not configured");
     }
 
-    // Troca o code por tokens
-    const { tokens } = await oauth2Client.getToken(code);
-    oauth2Client.setCredentials(tokens);
+    // Exchange code for tokens
+    const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        code,
+        client_id: GOOGLE_CLIENT_ID,
+        client_secret: GOOGLE_CLIENT_SECRET,
+        redirect_uri: buildRedirectUri(),
+        grant_type: "authorization_code",
+      }),
+    });
+    if (!tokenRes.ok) {
+      const t = await tokenRes.text();
+      return res.status(502).send(`Failed to exchange code: ${t}`);
+    }
+    const tokenJson: any = await tokenRes.json();
+    const googleAccessToken = tokenJson.access_token;
+    if (!googleAccessToken) return res.status(502).send("No access_token from Google");
 
-    // Busca dados do usuário
-    const oauth2 = google.oauth2({ version: "v2", auth: oauth2Client });
-    const { data: profile } = await oauth2.userinfo.get();
-
+    // Get user info
+    const userinfoRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+      headers: { Authorization: `Bearer ${googleAccessToken}` },
+    });
+    if (!userinfoRes.ok) {
+      const t = await userinfoRes.text();
+      return res.status(502).send(`Failed to get userinfo: ${t}`);
+    }
+    const profile: any = await userinfoRes.json();
     const email = String(profile.email || "").toLowerCase();
-    const name = profile.name || (profile as any).given_name || "Usuário Google";
-
+    const name = profile.name || profile.given_name || "Usuário Google";
     if (!email) return res.status(400).send("Google user has no email");
 
-    // Localiza ou cria usuário (já marcando como aprovado por padrão)
     let user = await usuarioRepo.findByEmail(email);
     if (!user) {
+      // Create PENDING user (require manual approval)
       user = await usuarioRepo.create({
         email,
         nomeCompleto: name,
-        situacao: "aprovado",
-        senhaHash: "", // login via google; sem senha local
+        situacao: "pendente",
+        senhaHash: "", // Google user: no local password
       } as any);
+
+      // Redirect to login with confirmation message
+      const to = new URL(FRONTEND_ORIGIN.replace(/\/$/, "") + "/");
+      to.searchParams.set("created", "1");
+      to.searchParams.set("msg", "solicitação de acesso criada");
+      return res.redirect(to.toString());
     }
 
-    // Bloqueia login se ainda não aprovado
+    // Existing user but not approved yet
     if ((String(user.situacao || "")).toLowerCase() !== "aprovado") {
-      const url = new URL(FRONTEND_ORIGIN.replace(/\/$/, "") + "/");
-      url.searchParams.set("login_error", "Pendente de aprovação");
-      return res.redirect(url.toString());
+      const to = new URL(FRONTEND_ORIGIN.replace(/\/$/, "") + "/");
+      to.searchParams.set("pending", "1");
+      to.searchParams.set("msg", "solicitação de acesso criada");
+      return res.redirect(to.toString());
     }
 
-    // Gera seu JWT da aplicação
+    // Approved: issue our JWT and send to /auth
     const access_token = signAccessToken(user.id);
-
-    // Redireciona para o frontend com o token e o usuário (frontend salva no localStorage)
     const redirect = new URL(FRONTEND_ORIGIN.replace(/\/$/, "") + "/auth");
     redirect.searchParams.set("access_token", access_token);
-    redirect.searchParams.set(
-      "user",
-      JSON.stringify({
-        id: user.id,
-        nomeCompleto: user.nomeCompleto,
-        email: user.email,
-      })
-    );
-
+    redirect.searchParams.set("user", JSON.stringify({
+      id: user.id, nomeCompleto: user.nomeCompleto, email: user.email,
+    }));
     return res.redirect(redirect.toString());
-  } catch (err: any) {
+  } catch (err) {
     console.error("OAuth callback error", err);
     return res.status(500).send("OAuth error");
   }
