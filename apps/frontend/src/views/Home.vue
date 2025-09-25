@@ -10,19 +10,12 @@
           <span class="month-year">{{ monthYearDisplay }}</span>
           <button @click="nextMonth">&gt;</button>
         </div>
-        <ActivityList
-          :activities="activitiesForSelectedDate"
-          :selectedDate="selectedDate"
-          @update-activity="updateActivity"
-        />
+        <ActivityList :activities="activitiesForSelectedDate" :selectedDate="selectedDate"
+          @update-activity="updateActivity" />
         <AddEventButton @click="openAddEventModal" />
       </div>
       <div class="calendar-display-block">
-        <Calendar
-          :activities="activities"
-          :view-date="viewDate"
-          @date-selected="onDateSelected"
-        />
+        <Calendar :activities="activities" :view-date="viewDate" @date-selected="onDateSelected" />
       </div>
     </div>
 
@@ -39,12 +32,8 @@
     <ActionsWidget class="actions-widget" />
 
     <!--Modal do Calendario-->
-    <AddEventModal
-      v-if="isAddEventModalOpen"
-      @close="closeAddEventModal"
-      @add="addActivity"
-      :selectedDate="selectedDate"
-    />
+    <AddEventModal v-if="isAddEventModalOpen" @close="closeAddEventModal" @add="addActivity"
+      :selectedDate="selectedDate" />
   </div>
 </template>
 
@@ -64,31 +53,24 @@ import HistoryWidget from '../components/HistoryWidget.vue';
 import ActionsWidget from '../components/ActionsWidget.vue';
 
 // --- LÓGICA DO WIDGET DE CALENDÁRIO ---
-
 // A data que o usuário selecionou ativamente. Usada para filtrar a lista de atividades.
 const selectedDate = ref(new Date());
-
 // A data que controla o mês/ano exibido no componente Calendário.
 // Permite navegar pelos meses sem alterar o dia selecionado.
 const viewDate = ref(new Date());
-
 // Array principal de todas as atividades.
 // BACKEND: Substituir por uma chamada de API para buscar e persistir dados.
 const activities = ref([]);
-
 const isAddEventModalOpen = ref(false);
-
 const monthYearDisplay = computed(() => {
   return viewDate.value.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
 });
-
 const nextMonth = () => {
   viewDate.value = new Date(viewDate.value.getFullYear(), viewDate.value.getMonth() + 1, 1);
 };
 const prevMonth = () => {
   viewDate.value = new Date(viewDate.value.getFullYear(), viewDate.value.getMonth() - 1, 1);
 };
-
 // Callback para o evento @date-selected emitido pelo componente Calendário.
 const onDateSelected = (date) => {
   selectedDate.value = date;
@@ -96,7 +78,6 @@ const onDateSelected = (date) => {
     viewDate.value = new Date(date);
   }
 };
-
 // Função utilitária para comparar se duas datas são o mesmo dia.
 const isSameDate = (d1, d2) => {
   if (!d1 || !d2) return false;
@@ -104,19 +85,15 @@ const isSameDate = (d1, d2) => {
   const date2 = new Date(d2);
   return date1.getFullYear() === date2.getFullYear() && date1.getMonth() === date2.getMonth() && date1.getDate() === date2.getDate();
 };
-
 // Filtra a lista completa de atividades para mostrar apenas as do dia selecionado.
 const activitiesForSelectedDate = computed(() => activities.value.filter(a => isSameDate(a.date, selectedDate.value)));
-
 const openAddEventModal = () => { isAddEventModalOpen.value = true; };
 const closeAddEventModal = () => { isAddEventModalOpen.value = false; };
-
 // Atualiza uma atividade existente no array principal.
 const updateActivity = (updatedActivity) => {
   const idx = activities.value.findIndex(a => a.id === updatedActivity.id);
   if (idx !== -1) activities.value[idx] = { ...activities.value[idx], ...updatedActivity };
 };
-
 // Adiciona uma nova atividade ao array principal.
 import googleCalendar from '../services/calendar';
 const addActivity = (newActivity) => {
@@ -129,10 +106,11 @@ const addActivity = (newActivity) => {
     completed: false
   });
 };
+
+// --- LÓGICA DOS OUTROS WIDGETS ABAIXO... ---  
 </script>
 
 <style scoped>
-
 /* Define o layout principal do dashboard com CSS Grid. */
 .home-dashboard-grid {
   display: grid;
@@ -144,7 +122,7 @@ const addActivity = (newActivity) => {
     "history history actions actions";
   gap: 1.5rem;
   padding: 2rem;
-  background-color: #f4f7f9; 
+  background-color: #f4f7f9;
 }
 
 .widget-card {
@@ -154,11 +132,25 @@ const addActivity = (newActivity) => {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-.calendar-widget { grid-area: calendar; }
-.main-agenda-widget { grid-area: main-agenda; }
-.stats-widget { grid-area: stats; }
-.history-widget { grid-area: history; }
-.actions-widget { grid-area: actions; }
+.calendar-widget {
+  grid-area: calendar;
+}
+
+.main-agenda-widget {
+  grid-area: main-agenda;
+}
+
+.stats-widget {
+  grid-area: stats;
+}
+
+.history-widget {
+  grid-area: history;
+}
+
+.actions-widget {
+  grid-area: actions;
+}
 
 .calendar-widget {
   display: flex;
@@ -199,4 +191,3 @@ const addActivity = (newActivity) => {
   flex: 1.5;
 }
 </style>
-

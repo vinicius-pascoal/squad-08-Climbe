@@ -11,22 +11,13 @@
     </div>
 
     <div class="days">
-      <div
-        v-for="day in daysInMonth"
-        :key="day.date.toISOString()"
-        class="day"
-        :class="{
-          'selected': isSelected(day.date),
-          'other-month': !day.isCurrentMonth
-        }"
-        @click="selectDate(day.date)"
-      >
+      <div v-for="day in daysInMonth" :key="day.date.toISOString()" class="day" :class="{
+        'selected': isSelected(day.date),
+        'other-month': !day.isCurrentMonth
+      }" @click="selectDate(day.date)">
         <span class="day-number">{{ day.dayOfMonth }}</span>
-        <div 
-          v-if="hasActivity(day.date) && day.isCurrentMonth" 
-          class="activity-indicator"
-          :class="{ 'past': isPast(day.date) }"
-        ></div>
+        <div v-if="hasActivity(day.date) && day.isCurrentMonth" class="activity-indicator"
+          :class="{ 'past': isPast(day.date) }"></div>
       </div>
     </div>
   </div>
@@ -111,7 +102,7 @@ const selectDate = (date) => {
   color: #333;
   font-size: 0.9rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid #eee;  
+  border-bottom: 1px solid #eee;
 }
 
 .days {
