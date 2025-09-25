@@ -65,11 +65,14 @@
         </div>
       </div>
 
-      <div class="  overflow-y-auto p-4">
-        <WeeklyView v-if="view === 'week'" :start-hour="startHour" :end-hour="endHour" :week-start="weekStart"
-          :events="events" />
-        <MonthlyPlaceholder v-else />
-      </div>
+      <div v-if="activeTab === 'agenda'" class="overflow-y-auto p-4">
+  <WeeklyView v-if="view === 'week'" :start-hour="startHour" :end-hour="endHour" :week-start="weekStart"
+    :events="events" />
+  <MonthlyPlaceholder v-else />
+</div>
+<div v-else class="p-4">
+  <TaskBoard />
+</div>
     </div>
   </section>
 </template>
@@ -79,6 +82,7 @@ import { computed, ref } from 'vue'
 import WeeklyView from '../components/WeeklyView.vue'
 import type { CalendarEvent } from '../components/calendar-types'
 import MonthlyPlaceholder from '../components/MonthlyPlaceholder.vue'
+import TaskBoard from '../components/TaskBoard.vue'
 
 const activeTab = ref<'agenda' | 'board'>('agenda')
 const view = ref<'week' | 'month'>('week')
@@ -98,9 +102,9 @@ const events = ref<CalendarEvent[]>([
   { id: 'e2', dayIndex: 0, start: '14:00', end: '18:30', title: 'Almoço com a equipe', color: 'green', resume: 'Almoço com a equipe para fortalecer o relacionamento e discutir ideias.' },
   { id: 'e3', dayIndex: 2, start: '10:30', end: '15:30', title: 'brainstorming', color: 'blue', resume: 'Sessão de brainstorming para gerar novas ideias e soluções criativas.' },
   { id: 'e4', dayIndex: 5, start: '11:30', end: '13:00', title: 'Revisão do código', color: 'mint', resume: 'Revisão do código para garantir a qualidade e aderência aos padrões estabelecidos.' },
-  { id: 'e4', dayIndex: 1, start: '11:00', end: '13:00', title: 'Revisão do código', color: 'mint', resume: 'Revisão do código para garantir a qualidade e aderência aos padrões estabelecidos.' },
-  { id: 'e4', dayIndex: 1, start: '13:30', end: '15:00', title: 'Revisão do código', color: 'mint', resume: 'Revisão do código para garantir a qualidade e aderência aos padrões estabelecidos.' },
-  { id: 'e4', dayIndex: 3, start: '15:00', end: '17:00', title: 'Almoço com a equipe', color: 'green', resume: 'Almoço com a equipe para fortalecer o relacionamento e discutir ideias.' },
+  { id: 'e5', dayIndex: 1, start: '11:00', end: '13:00', title: 'Revisão do código', color: 'mint', resume: 'Revisão do código para garantir a qualidade e aderência aos padrões estabelecidos.' },
+  { id: 'e6', dayIndex: 1, start: '13:30', end: '15:00', title: 'Revisão do código', color: 'mint', resume: 'Revisão do código para garantir a qualidade e aderência aos padrões estabelecidos.' },
+  { id: 'e7', dayIndex: 3, start: '15:00', end: '17:00', title: 'Almoço com a equipe', color: 'green', resume: 'Almoço com a equipe para fortalecer o relacionamento e discutir ideias.' },
   //{ id: 'e4', dayIndex: 4, start: '6:00', end: '20:00', title: 'demonstracao', color: 'green' },
 ])
 </script>
