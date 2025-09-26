@@ -32,15 +32,15 @@
       </div>
     </div>
 
-    <div class="mx-auto w-full max-w-7xl px-4 pt-3 pb-0 flex items-center gap-1">
-      <button class="pb-3 text-base font-semibold  rounded-t-xl px-6 py-3 "
+    <div class="mx-auto w-full max-w-7xl px-4 pt-3 pb-0 flex items-center gap-4">
+      <button class="pb-3 text-base font-semibold  rounded-t-xl px-6 py-1 "
         :class="activeTab === 'agenda' ? 'text-[#10b981] bg-white' : 'text-slate-400 bg-gray-300'"
         @click="activeTab = 'agenda'">
         <span class=" text-shadow-lg">
           Agenda
         </span>
       </button>
-      <button class="pb-3 text-base font-semibold  rounded-t-xl px-6 py-3"
+      <button class="pb-3 text-base font-semibold  rounded-t-xl px-6 py-1"
         :class="activeTab === 'board' ? 'text-[#10b981] bg-white' : 'text-slate-400 bg-gray-300'"
         @click="activeTab = 'board'">
         <span class=" text-shadow-lg">
@@ -66,13 +66,13 @@
       </div>
 
       <div v-if="activeTab === 'agenda'" class="overflow-y-auto p-4">
-  <WeeklyView v-if="view === 'week'" :start-hour="startHour" :end-hour="endHour" :week-start="weekStart"
-    :events="events" />
-  <MonthlyPlaceholder v-else />
-</div>
-<div v-else class="p-4">
-  <TaskBoard />
-</div>
+        <WeeklyView v-if="view === 'week'" :start-hour="startHour" :end-hour="endHour" :week-start="weekStart"
+          :events="events" />
+        <MonthlyPlaceholder v-else />
+      </div>
+      <div v-else class="p-4">
+        <TaskBoard />
+      </div>
     </div>
   </section>
 </template>
