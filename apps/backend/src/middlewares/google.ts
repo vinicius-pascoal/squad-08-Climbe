@@ -5,8 +5,9 @@ import { signAccessToken } from "../services/token.service";
 import { usuarioRepo } from "../repositories/usuario.repo";
 import { env } from "../config/env";
 
-const BACKEND_ORIGIN = process.env.BACKEND_ORIGIN || `http://localhost:${env.port}`;
-const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || process.env.VITE_FRONTEND_URI || "http://localhost:5173";
+const VERCEL_URL = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '';
+const BACKEND_ORIGIN = process.env.BACKEND_ORIGIN || VERCEL_URL || `http://localhost:${env.port}`;
+const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || VERCEL_URL || process.env.VITE_FRONTEND_URI || "http://localhost:5173";
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || process.env.OAUTH2_ID || "";
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || process.env.OAUTH2_SECRET || "";
 

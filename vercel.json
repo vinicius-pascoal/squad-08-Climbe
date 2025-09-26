@@ -1,0 +1,23 @@
+{
+  "version": 2,
+  "buildCommand": "npm ci && npm run -w apps/backend prisma:generate && npm run -w apps/backend build && npm run -w apps/frontend build",
+  "outputDirectory": "apps/frontend/dist",
+  "rewrites": [
+    {
+      "source": "/api/:match*",
+      "destination": "/api/[...all].ts"
+    },
+    {
+      "source": "/login",
+      "destination": "/api/[...all].ts"
+    },
+    {
+      "source": "/oauth2callback",
+      "destination": "/api/[...all].ts"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

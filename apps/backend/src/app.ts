@@ -21,9 +21,15 @@ app.use('/api/auth', authRouter);
 app.use('/api/usuarios', usuarioRouter);
 app.use('/api/cargos', cargoRouter);
 app.use('/api/emails', emailRouter);
-// servir frontend estático (vite build)
-const distDir = path.resolve(__dirname, '../../frontend');
-app.use(express.static(distDir));
-app.get('*', (_req, res) => res.sendFile(path.join(distDir, 'index.html')));
+
+// Only serve static frontend when running as a standalone server (Docker/dev).
+const isVercel = !!process.env.VERCEL;
+if (!isVercel) {
+  // servir frontend estático (vite build)
+  const distDir = path.resolve(__dirname, '../../frontend');
+  app.use(express.static(distDir));
+  app.get('*', (_req, res) => res.sendFile(path.join(distDir, 'index.html')));
+}
+
 
 app.use(errorHandler);
