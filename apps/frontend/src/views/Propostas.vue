@@ -212,40 +212,14 @@
         </div>
       </div>
 
-      <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
-        <h3 class="font-semibold text-slate-800 mb-4">Distribuição de Status</h3>
-        <div class="flex items-center gap-4">
-          <svg :width="pieSize" :height="pieSize" :viewBox="`0 0 ${pieSize} ${pieSize}`" class="shrink-0">
-            <g :transform="`rotate(-90 ${pieHalf} ${pieHalf})`">
-              <circle v-for="(seg, idx) in pieSegments" :key="idx" :cx="pieHalf" :cy="pieHalf" :r="pieRadius"
-                :stroke="seg.color" :stroke-width="pieRadius" fill="none" :stroke-dasharray="seg.dasharray"
-                :stroke-dashoffset="seg.dashoffset" />
-            </g>
-            <circle :cx="pieHalf" :cy="pieHalf" :r="pieRadius - 4" fill="transparent" stroke="#fff" stroke-width="2" />
-          </svg>
-
-          <ul class="space-y-2 text-sm">
-            <li class="flex items-center gap-2">
-              <span class="h-3 w-3 rounded-full bg-emerald-500"></span>
-              <span>{{ percent('APROVADA') }}% Aprovada</span>
-            </li>
-            <li class="flex items-center gap-2">
-              <span class="h-3 w-3 rounded-full bg-amber-400"></span>
-              <span>{{ percent('REVISAO') }}% Em Revisão</span>
-            </li>
-            <li class="flex items-center gap-2">
-              <span class="h-3 w-3 rounded-full bg-rose-500"></span>
-              <span>{{ percent('REPROVADA') }}% Reprovadas</span>
-            </li>
-          </ul>
-        </div>
-      </div>
+      <DonutStatus :aprovado=aprovado :revisao=revisao :reprovado=reprovado />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue'
+import DonutStatus from '../components/DonutStatus.vue'
 
 type Status = 'APROVADA' | 'REVISAO' | 'REPROVADA'
 type Proposta = { id: string; empresa: string; data: string | Date; status: Status; responsavel: string }
@@ -263,6 +237,9 @@ const propostas = ref<Proposta[]>([])
 const historico = ref<Historico[]>([])
 const loading = reactive({ propostas: true, historico: true })
 const histSearch = ref('')
+const aprovado = 68
+const revisao = 22
+const reprovado = 10
 
 
 async function fetchPropostas() {
