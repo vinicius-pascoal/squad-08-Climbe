@@ -3,8 +3,12 @@
     <input type="search" placeholder="pesquisar"
       class="pesquisar shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] border bg-[#E1E5E5] rounded-lg px-4 py-2 w-[624px] mt-4 mb-6 placeholder-black" />
     <input type="button" value="Criar contratos"
-      class=" cadastro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]  border border-[#3B67D0] bg-[#CAD8FD] text-[#2551B2] rounded-lg px-4 py-2 mb-6 hover cursor-pointer ml-4" />
-  </div>
+        class="cadastro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] border border-[#3B67D0] bg-[#CAD8FD] text-[#2551B2] rounded-lg px-4 py-2 hover:cursor-pointer"
+        @click="toggleModal" />
+    </div>
+
+    <div class="flex gap-x-4 w-full mb-6">
+      </div>
   <div class="flex gap-x-4 w-full">
     <input type="button" value="Empresa"
       class="seta shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] border bg-[#E1E5E5] rounded-lg px-4 py-2 w-[184px] h-[39px] mt-4 mb-6 text-[#5F6060]" />
@@ -47,10 +51,17 @@
 
     </table> 
     </div>  
+<PopupCreatContract v-if="showModal" @close="toggleModal" />
 </template>
 <script setup>
 import { ref } from 'vue';
 import Contratocard from '../components/Contratocard.vue';
+import PopupCreatContract from '../components/PopupCreatContract.vue';
+const showModal = ref(false);
+
+const toggleModal = () => {
+  showModal.value = !showModal.value;
+};
 
 const contracts = ref([
   {

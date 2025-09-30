@@ -33,6 +33,7 @@ const router = createRouter({
     { path: '/usuarios', component: () => import('../views/Usuarios.vue'), meta: { requiresAuth: true } },
     { path: '/agenda', component: () => import('../views/Agenda.vue'), meta: { requiresAuth: true } },
     { path: '/contratos', component: () => import('../views/Contratos.vue'), },
+     { path: '/novocontrato', component: () => import('../views/NovoContrato.vue'), },
     { path: '/propostas', component: () => import('../views/Propostas.vue'), meta: { requiresAuth: true } },
     { path: '/empresas', component: () => import('../views/Empresas.vue'), meta: { requiresAuth: true } },
     { path: '/auditoria', component: () => import('../views/Auditoria.vue'), meta: { requiresAuth: true } },
