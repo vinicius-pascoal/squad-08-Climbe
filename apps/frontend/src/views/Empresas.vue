@@ -1,6 +1,7 @@
 <template>
-  <div class="min-h-screen bg-slate-100 p-4 md:p-6">
-    <div class="mx-auto grid max-w-7xl grid-cols-1 gap-6 lg:grid-cols-[280px,1fr]">
+  <div class=" bg-slate-100">
+    <h1 class="font-bold mb-10 text-4xl">Gestão de Empresas</h1>
+    <div class="mx-auto grid grid-cols-1 gap-6 lg:grid-cols-[280px,1fr]">
       <aside class="space-y-4">
         <div class="rounded-2xl bg-white p-4 shadow">
           <div class="space-y-3">
