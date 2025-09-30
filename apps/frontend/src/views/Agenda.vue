@@ -64,15 +64,15 @@
           </div>
         </div>
       </div>
-
+      
       <div v-if="activeTab === 'agenda'" class="overflow-y-auto p-4">
-  <WeeklyView v-if="view === 'week'" :start-hour="startHour" :end-hour="endHour" :week-start="weekStart"
-    :events="events" />
-  <MonthlyPlaceholder v-else />
-</div>
-<div v-else class="p-4">
-  <TaskBoard />
-</div>
+        <WeeklyView v-if="view === 'week'" :start-hour="startHour" :end-hour="endHour" :week-start="weekStart"
+          :events="events" />
+        <MonthlyPlaceholder v-else />
+      </div>
+      <div v-else class="p-4">
+        <TaskBoard />
+      </div>
     </div>
   </section>
 </template>
