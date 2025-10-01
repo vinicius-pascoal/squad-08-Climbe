@@ -2,12 +2,6 @@
     <div class="page-container">
         <header class="page-header">
             <h1>Agendar Reunião</h1>
-            <div class="header-icons">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                <div class="user-avatar"></div>
-            </div>
         </header>
         <main class="content-grid">
             <div class="form-column">
@@ -22,18 +16,13 @@
                             <label for="data">Data</label>
                             <div class="date-input">
                                 <input type="text" id="data" :value="formattedDate" readonly>
-                                <span>📅</span>
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="hora">Hora</label>
                             <div class="time-slots-container">
-                                <button 
-                                    v-for="slot in timeSlots" 
-                                    :key="slot" 
-                                    class="time-slot"
-                                    :class="{ 'selected': reuniao.comeco === slot }"
-                                    @click="selectTime(slot)">
+                                <button v-for="slot in timeSlots" :key="slot" class="time-slot"
+                                    :class="{ 'selected': reuniao.comeco === slot }" @click="selectTime(slot)">
                                     {{ slot }}
                                 </button>
                             </div>
@@ -67,18 +56,28 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label>Participantes</label>
-                        <div class="participantes-box">
-                            <span v-for="p in reuniao.participantes" :key="p" class="chip">
-                                {{ p }} <button @click="removerParticipante(p)">×</button>
-                            </span>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Participantes</label>
+                            <div class="participantes-container">
+                                <div class="participantes-box">
+                                    <span v-for="p in reuniao.participantes" :key="p.id" class="chip">
+                                        {{ p.name }} <button @click="removerParticipante(p)">×</button>
+                                    </span>
+                                    <input type="text" v-model="participanteSearch" placeholder="Pesquisar..."
+                                        class="participantes-input" @focus="showUserList = true" @blur="hideUserList">
+                                </div>
+                                <ul v-if="showUserList && filteredUsers.length" class="user-list">
+                                    <li v-for="user in filteredUsers" :key="user.id" @click="adicionarParticipante(user)">
+                                        {{ user.name }}
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="pauta">Pauta</label>
-                        <textarea id="pauta" v-model="reuniao.pauta" rows="3"></textarea>
+                        <div class="form-group">
+                            <label for="pauta">Pauta</label>
+                            <textarea id="pauta" v-model="reuniao.pauta" rows="3"></textarea>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -90,18 +89,15 @@
                         <div class="calendar-header">
                             <button @click="prevMonth">&lt;</button>
                             <select v-model="viewMonth">
-                                <option v-for="(month, index) in months" :key="index" :value="index">{{ month }}</option>
+                                <option v-for="(month, index) in months" :key="index" :value="index">{{ month }}
+                                </option>
                             </select>
                             <select v-model="viewYear">
                                 <option v-for="year in years" :key="year" :value="year">{{ year }}</option>
                             </select>
                             <button @click="nextMonth">&gt;</button>
                         </div>
-                        <Calendar 
-                            :activities="proximosEventos" 
-                            :view-date="viewDate"
-                            @date-selected="onDateSelected"
-                        />
+                        <Calendar :activities="proximosEventos" :view-date="viewDate" @date-selected="onDateSelected" />
                     </div>
 
                     <div class="eventos-section">
@@ -127,9 +123,10 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import Calendar from '../components/Calendar.vue';
 
+// --- Dados do Formulário ---
 const reuniao = ref({
     titulo: '',
     data: new Date(), // Inicia com a data atual
@@ -137,9 +134,61 @@ const reuniao = ref({
     empresa: '',
     tipo: 'Online', // Mantém 'Online' como padrão
     local: '',
-    participantes: [],
+    participantes: [], // Agora será um array de objetos
     pauta: ''
 });
+
+// --- Lógica dos Participantes ---
+const allUsers = ref([]); // Armazenará todos os usuários do sistema
+const participanteSearch = ref(''); // Termo de busca para participantes
+const showUserList = ref(false); // Controla a visibilidade da lista de usuários
+
+// Filtra os usuários com base na busca e que ainda não foram adicionados
+const filteredUsers = computed(() => {
+    if (!participanteSearch.value) {
+        // Se não houver busca, mostra todos que não foram selecionados
+        return allUsers.value.filter(user =>
+            !reuniao.value.participantes.some(p => p.id === user.id)
+        );
+    }
+    return allUsers.value.filter(user =>
+        user.name.toLowerCase().includes(participanteSearch.value.toLowerCase()) &&
+        !reuniao.value.participantes.some(p => p.id === user.id)
+    );
+});
+
+// TODO: Substituir por uma chamada de API real
+async function fetchUsers() {
+    // Dados de exemplo. Substitua pela sua lógica de API.
+    allUsers.value = [
+        { id: 1, name: 'Luiz Gomes' },
+        { id: 2, name: 'Davi Brito' },
+        { id: 3, name: 'Ricardo Azevedo' },
+        { id: 4, name: 'Ana Clara' },
+        { id: 5, name: 'Beatriz Costa' },
+    ];
+}
+
+onMounted(() => {
+    fetchUsers();
+});
+
+function adicionarParticipante(user) {
+    reuniao.value.participantes.push(user);
+    participanteSearch.value = ''; // Limpa o input
+}
+
+function removerParticipante(participante) {
+    reuniao.value.participantes = reuniao.value.participantes.filter(p => p.id !== participante.id);
+}
+
+// Pequeno delay para permitir o clique na lista antes que ela suma
+function hideUserList() {
+    setTimeout(() => {
+        showUserList.value = false;
+    }, 200);
+}
+
 
 const timeSlots = ['09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '14:00', '14:30', '15:00'];
 
@@ -147,10 +196,6 @@ const proximosEventos = ref([
     { id: 1, title: 'Daily Scrum', date: new Date(2025, 9, 29), time: '10:00 AM', avatar: 'https://i.pravatar.cc/40?img=1' },
     { id: 2, title: 'Review Sprint', date: new Date(2025, 9, 29), time: '11:00 AM', avatar: 'https://i.pravatar.cc/40?img=2' }
 ]);
-
-function removerParticipante(participante) {
-    reuniao.value.participantes = reuniao.value.participantes.filter(p => p !== participante);
-}
 
 function selectTime(time) {
     reuniao.value.comeco = time;
@@ -356,6 +401,10 @@ textarea {
     cursor: pointer;
 }
 
+.participantes-container {
+    position: relative;
+}
+
 .participantes-box {
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -364,6 +413,40 @@ textarea {
     flex-wrap: wrap;
     gap: 0.5rem;
     min-height: 40px;
+    align-items: center;
+}
+
+.participantes-input {
+    border: none;
+    outline: none;
+    padding: 0.25rem;
+    font-size: 1rem;
+    flex-grow: 1;
+}
+
+.user-list {
+    position: absolute;
+    width: 100%;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 150px;
+    overflow-y: auto;
+    z-index: 10;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.user-list li {
+    padding: 0.75rem;
+    cursor: pointer;
+}
+
+.user-list li:hover {
+    background-color: #f0f0f0;
 }
 
 .chip {
@@ -406,6 +489,7 @@ textarea {
     background-color: #fff;
     cursor: pointer;
 }
+
 .calendar-header select {
     flex-grow: 1;
     margin: 0 0.5rem;
@@ -462,6 +546,7 @@ textarea {
     cursor: pointer;
     transition: opacity 0.2s;
 }
+
 .action-buttons button:hover {
     opacity: 0.9;
 }
