@@ -1,3 +1,4 @@
+
 import { usuarioRepo } from '../repositories/usuario.repo';
 import { comparePassword } from '../utils/password';
 import { signAccessToken } from './token.service';
@@ -7,7 +8,7 @@ const SITUACAO = { APROVADO: 'aprovado' } as const;
 export const authService = {
   async passwordGrant(username: string, password: string) {
     const user = await usuarioRepo.findByEmail(username);
-    if (!user) {
+    if (!user || !user.senhaHash) {
       const e: any = new Error('Credenciais inválidas');
       e.statusCode = 400;
       throw e;
@@ -18,7 +19,7 @@ export const authService = {
       e.statusCode = 400;
       throw e;
     }
-    if ((user.situacao || '').toLowerCase() !== SITUACAO.APROVADO) {
+    if ((String(user.situacao || '')).toLowerCase() !== SITUACAO.APROVADO) {
       const e: any = new Error('Usuário pendente de aprovação');
       e.statusCode = 403;
       throw e;
@@ -26,40 +27,56 @@ export const authService = {
     const access_token = signAccessToken(user.id);
     return {
       access_token,
-      token_type: 'Bearer',
-      expires_in: 900,
+      token_type: 'Bearer' as const,
+      // Frontend only uses token; 30 min default (1800s). If you change env, adjust accordingly.
+      expires_in: 1800,
       user: { id: user.id, nomeCompleto: user.nomeCompleto, email: user.email },
     };
   },
 
-  async googleAccessGrant(access_token: string) {
-    const response = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
-      headers: {
-        Authorization: `Bearer ${access_token}`
-      }
+  // Optional flow if frontend sends a Google access_token directly
+  async googleAccessGrant(googleAccessToken: string) {
+    // Fetch userinfo from Google
+    const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: `Bearer ${googleAccessToken}` },
     });
-
-    if (!response.ok) throw new Error('Falha ao carregar dados de usuário');
-
-    const data = await response.json();
-    const user = await usuarioRepo.findByEmail(data.email);
-    if (!user) {
-      const e: any = new Error('Credenciais inválidas');
+    if (!res.ok) {
+      const e: any = new Error('Token Google inválido');
       e.statusCode = 400;
       throw e;
     }
-    
-    if ((user.situacao || '').toLowerCase() !== SITUACAO.APROVADO) {
+    const profile: any = await res.json();
+    const email = String(profile.email || '').toLowerCase();
+    const name = profile.name || profile.given_name || 'Usuário Google';
+
+    if (!email) {
+      const e: any = new Error('Google sem e-mail');
+      e.statusCode = 400;
+      throw e;
+    }
+
+    let user = await usuarioRepo.findByEmail(email);
+    if (!user) {
+      user = await usuarioRepo.create({
+        email,
+        nomeCompleto: name,
+        situacao: 'pendente',
+        senhaHash: '',
+      } as any);
+    }
+
+    if ((String(user.situacao || '')).toLowerCase() !== SITUACAO.APROVADO) {
       const e: any = new Error('Usuário pendente de aprovação');
       e.statusCode = 403;
       throw e;
     }
-    const user_token = signAccessToken(user.id);
+
+    const access_token = signAccessToken(user.id);
     return {
-      user_token,
-      token_type: 'Bearer',
-      expires_in: 900,
+      access_token,
+      token_type: 'Bearer' as const,
+      expires_in: 1800,
       user: { id: user.id, nomeCompleto: user.nomeCompleto, email: user.email },
     };
-  }
+  },
 };

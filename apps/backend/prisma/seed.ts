@@ -20,6 +20,7 @@ async function main() {
     'CFO',
     'Analista de Valores Imobiliários',
     'Analista de BPO Financeiro',
+    'Admin',
   ];
 
   // Garante cargos
@@ -30,7 +31,7 @@ async function main() {
   // Usuário admin opcional (ativo) — edite conforme sua necessidade
   const adminEmail = process.env.SEED_ADMIN_EMAIL || 'admin@climbe.local';
   const adminNome = process.env.SEED_ADMIN_NOME || 'Administrador';
-  const adminCargoNome = process.env.SEED_ADMIN_CARGO || 'CEO';
+  const adminCargoNome = process.env.SEED_ADMIN_CARGO || 'Admin';
   const adminSenha = process.env.SEED_ADMIN_SENHA || 'admin12345';
 
   const cargo = await ensureCargo(adminCargoNome);

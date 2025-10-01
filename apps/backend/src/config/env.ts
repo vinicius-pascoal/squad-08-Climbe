@@ -3,7 +3,7 @@ import 'dotenv/config';
 export const env = {
   port: Number(process.env.PORT ?? 3000),
   jwtSecret: process.env.JWT_SECRET ?? 'dev-secret',
-  jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? '15m',
+  jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? '30m',
   bcryptRounds: Number(process.env.BCRYPT_ROUNDS ?? 10),
 };
 
@@ -15,4 +15,8 @@ export const mail = {
   from: process.env.SMTP_FROM || '',
   secure: (process.env.SMTP_SECURE || 'false').toLowerCase() === 'true',
   enabled: (process.env.SMTP_ENABLED || 'true').toLowerCase() === 'true',
+};
+
+export const roles = {
+  adminCargoId: Number(process.env.ADMIN_CARGO_ID || 9),
 };
