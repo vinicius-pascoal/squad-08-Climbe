@@ -7,6 +7,7 @@ import { authRouter } from './routes/auth.routes';
 import { usuarioRouter } from './routes/usuario.routes';
 import { cargoRouter } from './routes/cargo.routes';
 import { emailRouter } from './routes/email.routes';
+import { tarefaRouter } from './routes/tarefa.routes';
 
 
 export const app = express();
@@ -22,6 +23,7 @@ app.use('/api/usuarios', usuarioRouter);
 app.use('/api/cargos', cargoRouter);
 app.use('/api/emails', emailRouter);
 // servir frontend estático (vite build)
+app.use('/api/tarefas', tarefaRouter);
 const distDir = path.resolve(__dirname, '../../frontend');
 app.use(express.static(distDir));
 app.get('*', (_req, res) => res.sendFile(path.join(distDir, 'index.html')));
