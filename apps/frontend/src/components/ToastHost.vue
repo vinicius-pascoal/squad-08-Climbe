@@ -24,15 +24,16 @@ function close(id: number) {
 }
 
 function typeClass(type: ToastType) {
+  // usa a paleta do projeto (tailwind.config.cjs): primary, secondary, sidebar, dark
   switch (type) {
     case 'success':
-      return 'bg-green-50 border-green-200 text-green-800';
+      return 'bg-primary/10 border-primary text-sidebar';
     case 'warning':
       return 'bg-yellow-50 border-yellow-200 text-yellow-900';
     case 'error':
       return 'bg-red-50 border-red-200 text-red-800';
-    default:
-      return 'bg-slate-50 border-slate-200 text-slate-800';
+    default: // info
+      return 'bg-secondary/10 border-secondary text-dark';
   }
 }
 </script>

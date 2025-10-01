@@ -8,7 +8,7 @@
             <label class="block">
               <span class="text-xs font-medium text-slate-600">CNPJ</span>
               <div
-                class="mt-1 inline-flex w-full items-center gap-2 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500">
+                class="mt-1 inline-flex w-full items-center gap-2 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 focus-within:border-sidebar focus-within:ring-2 focus-within:ring-sidebar">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-slate-500" fill="none"
                   viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h8" />
@@ -21,7 +21,7 @@
             <label class="block">
               <span class="text-xs font-medium text-slate-600">Representante Legal</span>
               <div
-                class="mt-1 inline-flex w-full items-center gap-2 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500">
+                class="mt-1 inline-flex w-full items-center gap-2 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 focus-within:border-sidebar focus-within:ring-2 focus-within:ring-sidebar">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-slate-500" viewBox="0 0 24 24"
                   fill="currentColor">
                   <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm-7 9a7 7 0 0 1 14 0z" />
@@ -34,7 +34,7 @@
             <label class="block">
               <span class="text-xs font-medium text-slate-600">E-mail</span>
               <div
-                class="mt-1 inline-flex w-full items-center gap-2 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500">
+                class="mt-1 inline-flex w-full items-center gap-2 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 focus-within:border-sidebar focus-within:ring-2 focus-within:ring-sidebar">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-slate-500" viewBox="0 0 24 24"
                   fill="currentColor">
                   <path
@@ -46,7 +46,7 @@
             </label>
 
             <button @click="doSearch" :disabled="loading"
-              class="mt-2 w-full rounded-xl bg-emerald-600 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-700 disabled:opacity-60">
+              class="mt-2 w-full rounded-xl bg-sidebar py-2 text-sm font-semibold text-white shadow hover:bg-secondary disabled:opacity-60">
               Buscar Empresa...
             </button>
           </div>
@@ -164,7 +164,7 @@
                 p.isEllipsis
                   ? 'cursor-default border border-transparent'
                   : p.num === page
-                    ? 'bg-emerald-600 text-white'
+                    ? 'bg-sidebar text-white'
                     : 'border border-slate-300 bg-white hover:bg-slate-50'
               ]">
               {{ p.label }}
@@ -180,10 +180,14 @@
       </section>
     </div>
   </div>
+
+  <CompanyWizard v-model:open="wizardOpen" api-url="/api/companies" @saved="handleSaved" />
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref, computed, watch } from 'vue'
+import CompanyWizard from '../components/modals/company-wizard/CompanyWizard.vue'
+import { useToast } from '../plugins/toast'
 
 type Status = 'Ativa' | 'Pendente' | 'Inativa'
 type Company = {
@@ -208,6 +212,8 @@ const total = ref(0)
 const companies = ref<Company[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
+const wizardOpen = ref(false)
+const toast = useToast()
 
 const pageCount = computed(() => Math.max(1, Math.ceil(total.value / pageSize.value)))
 const pageStart = computed(() => (total.value === 0 ? 0 : (page.value - 1) * pageSize.value + 1))
@@ -236,7 +242,7 @@ const visiblePages = computed(() => {
 })
 
 function statusClasses(status: Status) {
-  if (status === 'Ativa') return 'inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200'
+  if (status === 'Ativa') return 'inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-sidebar ring-1 ring-primary/40'
   if (status === 'Pendente') return 'inline-flex items-center rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 ring-1 ring-amber-200'
   return 'inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200'
 }
@@ -292,8 +298,13 @@ async function fetchCompanies() {
   }
 }
 
+function handleSaved() {
+  fetchCompanies()
+  toast.success('Lista atualizada.')
+}
+
 function onCreate() {
-  alert('Abrir tela de cadastro de empresa')
+  wizardOpen.value = true
 }
 
 watch([page, pageSize], fetchCompanies)
