@@ -3,82 +3,87 @@
         <header class="page-header">
             <h1>Agendar Reunião</h1>
         </header>
+
         <main class="content-grid">
+            
             <div class="form-column">
                 <div class="card">
-                    <div class="form-group">
-                        <label for="titulo">Título</label>
-                        <input type="text" id="titulo" v-model="reuniao.titulo">
-                    </div>
+                    <div class="form-content"> <!-- Div wrapper adicionada -->
+                        <div class="form-group">
+                            <label for="titulo">Título</label>
+                            <input type="text" id="titulo" v-model="reuniao.titulo">
+                        </div>
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="data">Data</label>
-                            <div class="date-input">
-                                <input type="text" id="data" :value="formattedDate" readonly>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="hora">Hora</label>
-                            <div class="time-slots-container">
-                                <button v-for="slot in timeSlots" :key="slot" class="time-slot"
-                                    :class="{ 'selected': reuniao.comeco === slot }" @click="selectTime(slot)">
-                                    {{ slot }}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="empresa">Empresa</label>
-                            <input type="text" id="empresa" v-model="reuniao.empresa">
-                        </div>
-                        <div class="form-group">
-                            <label>Tipo</label>
-                            <div class="radio-group">
-                                <input type="radio" id="online" value="Online" v-model="reuniao.tipo" checked>
-                                <label for="online">Online</label>
-                                <input type="radio" id="presencial" value="Presencial" v-model="reuniao.tipo">
-                                <label for="presencial">Presencial</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="local">Local</label>
-                            <input type="text" id="local" v-model="reuniao.local">
-                        </div>
-                        <div class="form-group">
-                            <label>Meeting room</label>
-                            <button class="btn-definir-meet">+ Definir meet</button>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Participantes</label>
-                            <div class="participantes-container">
-                                <div class="participantes-box">
-                                    <span v-for="p in reuniao.participantes" :key="p.id" class="chip">
-                                        {{ p.name }} <button @click="removerParticipante(p)">×</button>
-                                    </span>
-                                    <input type="text" v-model="participanteSearch" placeholder="Pesquisar..."
-                                        class="participantes-input" @focus="showUserList = true" @blur="hideUserList">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="data">Data</label>
+                                <div class="date-input">
+                                    <input type="text" id="data" :value="formattedDate" readonly>
                                 </div>
-                                <ul v-if="showUserList && filteredUsers.length" class="user-list">
-                                    <li v-for="user in filteredUsers" :key="user.id" @click="adicionarParticipante(user)">
-                                        {{ user.name }}
-                                    </li>
-                                </ul>
+                            </div>
+                            <div class="form-group">
+                                <label for="hora">Hora</label>
+                                <div class="time-slots-container">
+                                    <button v-for="slot in timeSlots" :key="slot" class="time-slot"
+                                        :class="{ 'selected': reuniao.comeco === slot }" @click="selectTime(slot)">
+                                        {{ slot }}
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label for="pauta">Pauta</label>
-                            <textarea id="pauta" v-model="reuniao.pauta" rows="3"></textarea>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="empresa">Empresa</label>
+                                <input type="text" id="empresa" v-model="reuniao.empresa">
+                            </div>
+                            <div class="form-group">
+                                <label>Tipo</label>
+                                <div class="radio-group">
+                                    <input type="radio" id="online" value="Online" v-model="reuniao.tipo" checked>
+                                    <label for="online">Online</label>
+                                    <input type="radio" id="presencial" value="Presencial" v-model="reuniao.tipo">
+                                    <label for="presencial">Presencial</label>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="local">Local</label>
+                                <input type="text" id="local" v-model="reuniao.local">
+                            </div>
+                            <div class="form-group">
+                                <label>Meeting room</label>
+                                <button class="btn-definir-meet">+ Definir meet</button>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Participantes</label>
+                                <div class="participantes-container">
+                                    <div class="participantes-box">
+                                        <span v-for="p in reuniao.participantes" :key="p.id" class="chip">
+                                            {{ p.name }} <button @click="removerParticipante(p)">×</button>
+                                        </span>
+                                        <input type="text" v-model="participanteSearch" placeholder="Pesquisar..."
+                                            class="participantes-input" @focus="showUserList = true" @blur="hideUserList">
+                                    </div>
+                                    <ul v-if="showUserList && filteredUsers.length" class="user-list">
+                                        <li v-for="user in filteredUsers" :key="user.id"
+                                            @click="adicionarParticipante(user)">
+                                            {{ user.name }}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="pauta">Pauta</label>
+                                <textarea id="pauta" v-model="reuniao.pauta" rows="3" @input="autoResizeTextarea"></textarea>
+                            </div>
+                        </div>
+                    </div> 
                 </div>
             </div>
 
@@ -106,15 +111,15 @@
                             <img :src="evento.avatar" class="evento-avatar" alt="Avatar">
                             <div class="evento-info">
                                 <p>{{ evento.title }}</p>
-                                <p>{{ evento.date }}</p>
+                                <p>{{ formatarDataEvento(evento.date) }}</p>
                             </div>
                             <div class="evento-hora">{{ evento.time }}</div>
                         </div>
                     </div>
 
                     <div class="action-buttons">
-                        <button class="btn-cancelar">Cancelar</button>
-                        <button class="btn-agendar">Agendar</button>
+                        <button class="btn-cancelar" @click="cancelar">Cancelar</button>
+                        <button class="btn-agendar" @click="agendarReuniao">Agendar</button>
                     </div>
                 </div>
             </div>
@@ -124,7 +129,11 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import Calendar from '../components/Calendar.vue';
+// import api from '@/services/api'; // API removida temporariamente
+
+const router = useRouter(); // Para navegação
 
 // --- Dados do Formulário ---
 const reuniao = ref({
@@ -157,16 +166,22 @@ const filteredUsers = computed(() => {
     );
 });
 
-// TODO: Substituir por uma chamada de API real
+// BACKEND: Substituir por uma chamada de API real para buscar usuários.
 async function fetchUsers() {
-    // Dados de exemplo. Substitua pela sua lógica de API.
-    allUsers.value = [
-        { id: 1, name: 'Luiz Gomes' },
-        { id: 2, name: 'Davi Brito' },
-        { id: 3, name: 'Ricardo Azevedo' },
-        { id: 4, name: 'Ana Clara' },
-        { id: 5, name: 'Beatriz Costa' },
-    ];
+    try {
+        // Simula uma chamada de API
+        const mockUsers = [
+            { id: 1, nome: 'Alice' },
+            { id: 2, nome: 'Bruno' },
+            { id: 3, nome: 'Carla' },
+            { id: 4, nome: 'Daniel' },
+            { id: 5, nome: 'Eduarda' }
+        ];
+        // A API retorna 'nome', então mapeamos para 'name' para manter o resto do código
+        allUsers.value = mockUsers.map(user => ({ id: user.id, name: user.nome }));
+    } catch (error) {
+        console.error("Erro ao buscar usuários (mock):", error);
+    }
 }
 
 onMounted(() => {
@@ -189,13 +204,56 @@ function hideUserList() {
     }, 200);
 }
 
+// --- Lógica de Agendamento ---
+async function agendarReuniao() {
+    // Validação simples
+    if (!reuniao.value.titulo || !reuniao.value.data || !reuniao.value.comeco) {
+        alert('Por favor, preencha Título, Data e Hora.');
+        return;
+    }
+
+    // 1. Combina a data e a hora em um objeto Date
+    const [horas, minutos] = reuniao.value.comeco.split(':');
+    const dataHoraInicio = new Date(reuniao.value.data);
+    dataHoraInicio.setHours(parseInt(horas, 10));
+    dataHoraInicio.setMinutes(parseInt(minutos, 10));
+    dataHoraInicio.setSeconds(0, 0);
+
+    // 2. Prepara o payload para a API
+    const payload = {
+        titulo: reuniao.value.titulo,
+        pauta: reuniao.value.pauta,
+        data_hora_inicio: dataHoraInicio.toISOString(), // Envia em formato ISO 8601
+        local: reuniao.value.local,
+        tipo: reuniao.value.tipo,
+        // NOTA: A API espera um `empresaId`. Como o campo é de texto,
+        // esta parte precisará de ajuste futuro (ex: um seletor de empresas).
+        // Por enquanto, não enviaremos a empresa.
+        participantes: reuniao.value.participantes.map(p => p.id) // Envia apenas os IDs
+    };
+
+    // BACKEND: Substituir o console.log por uma chamada de API real (api.post('/reunioes', payload)).
+    console.log('Payload da Reunião (simulando envio):', payload);
+
+    alert('Reunião agendada com sucesso!');
+    router.push('/agenda'); // Redireciona para a agenda após o sucesso
+}
+
+function cancelar() {
+    router.push('/agenda');
+}
 
 const timeSlots = ['09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '14:00', '14:30', '15:00'];
 
+
 const proximosEventos = ref([
-    { id: 1, title: 'Daily Scrum', date: new Date(2025, 9, 29), time: '10:00 AM', avatar: 'https://i.pravatar.cc/40?img=1' },
-    { id: 2, title: 'Review Sprint', date: new Date(2025, 9, 29), time: '11:00 AM', avatar: 'https://i.pravatar.cc/40?img=2' }
+    { id: 1, title: 'Daily Scrum', date: new Date(2025, 9, 29), time: '10:00 AM', avatar: '' },
+    { id: 2, title: 'Review Sprint', date: new Date(2025, 9, 29), time: '11:00 AM', avatar: '' }
 ]);
+
+function formatarDataEvento(date) {
+    return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' });
+}
 
 function selectTime(time) {
     reuniao.value.comeco = time;
@@ -251,6 +309,12 @@ function prevMonth() {
 function nextMonth() {
     viewDate.value = new Date(viewDate.value.getFullYear(), viewDate.value.getMonth() + 1, 1);
 }
+
+function autoResizeTextarea(event) {
+    const textarea = event.target;
+    textarea.style.height = 'auto';
+    textarea.style.height = `${textarea.scrollHeight}px`;
+}
 </script>
 
 <style scoped>
@@ -292,6 +356,19 @@ function nextMonth() {
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: 2rem;
+    align-items: stretch; /* Mantém o alinhamento para esticar */
+}
+
+/* Esta é a chave para o alinhamento */
+.form-column, .calendar-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-column .card, .calendar-column .card {
+    flex: 1; /* Faz com que cada card ocupe todo o espaço disponível na altura */
+    display: flex;
+    flex-direction: column;
 }
 
 .card {
@@ -299,6 +376,12 @@ function nextMonth() {
     border-radius: 8px;
     padding: 1.5rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+.form-content { /* Adicionar esta nova regra */
+    flex-grow: 1;
 }
 
 .form-group {
@@ -324,7 +407,8 @@ textarea {
 }
 
 textarea {
-    resize: vertical;
+    resize: none; /* Remove a alça de redimensionamento */
+    overflow: hidden; /* Esconde a barra de rolagem */
 }
 
 .form-row {
@@ -513,8 +597,7 @@ textarea {
 
 .evento-avatar {
     width: 32px;
-    height: 32px;
-    border-radius: 50%;
+    height: 32px;   border-radius: 50%;
     object-fit: cover;
 }
 
@@ -535,7 +618,8 @@ textarea {
     display: flex;
     justify-content: flex-end;
     gap: 1rem;
-    margin-top: 2rem;
+    margin-top: auto; /* Empurra os botões para o final do card */
+    padding-top: 2rem; /* Adiciona um espaçamento acima dos botões */
 }
 
 .action-buttons button {
