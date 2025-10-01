@@ -11,32 +11,45 @@ export interface Toast {
 }
 
 let _id = 1;
+
 export const toastStore = reactive({
   list: [] as Toast[],
   add(toast: Omit<Toast, 'id'>) {
-    const t: Toast = { id: _id++, ...toast };
-    this.list.push(t);
-    if (t.timeout > 0) {
+    const id = _id++;
+    const full: Toast = { id, ...toast };
+    this.list.push(full);
+    if (full.timeout > 0) {
       setTimeout(() => {
-        const idx = this.list.findIndex(x => x.id === t.id);
-        if (idx !== -1) this.list.splice(idx, 1);
-      }, t.timeout);
+        this.remove(id);
+      }, full.timeout);
     }
   },
   remove(id: number) {
-    const idx = this.list.findIndex(t => t.id === id);
-    if (idx !== -1) this.list.splice(idx, 1);
+    const i = this.list.findIndex(t => t.id === id);
+    if (i >= 0) this.list.splice(i, 1);
+  },
+  clear() {
+    this.list = [];
   }
 });
 
-export const ToastPlugin = {
+export type ToastAPI = {
+  info: (message: string, timeout?: number) => void;
+  success: (message: string, timeout?: number) => void;
+  warning: (message: string, timeout?: number) => void;
+  error: (message: string, timeout?: number) => void;
+};
+
+export const useToast = (): ToastAPI => ({
+  info(message: string, timeout = 2500)    { toastStore.add({ message, type: 'info',    timeout }); },
+  success(message: string, timeout = 3000) { toastStore.add({ message, type: 'success', timeout }); },
+  warning(message: string, timeout = 4000) { toastStore.add({ message, type: 'warning', timeout }); },
+  error(message: string, timeout = 5000)   { toastStore.add({ message, type: 'error',   timeout }); },
+});
+
+const ToastPlugin = {
   install(app: App) {
-    const api = {
-      info(message: string, timeout = 3000) { toastStore.add({ message, type: 'info', timeout }); },
-      success(message: string, timeout = 3000) { toastStore.add({ message, type: 'success', timeout }); },
-      warning(message: string, timeout = 4000) { toastStore.add({ message, type: 'warning', timeout }); },
-      error(message: string, timeout = 5000) { toastStore.add({ message, type: 'error', timeout }); },
-    };
+    const api = useToast();
     // expose as $toast
     // @ts-ignore
     app.config.globalProperties.$toast = api;
