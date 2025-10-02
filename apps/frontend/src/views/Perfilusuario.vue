@@ -5,16 +5,16 @@
 
   <div class="flex justify-between items-center h-fit">
     <div class="flex items-start gap-4">
-      <p class="text-[#0E9A97]">Gestão de usuários</p>
-      <p class="text-[#0E9A97]">></p>
-      <p class="text-[#5F6060]">Perfil de usuário</p>
+      <p class="text-brand-0e9a97">Gestão de usuários</p>
+      <p class="text-brand-0e9a97">></p>
+      <p class="text-brand-5f6060">Perfil de usuário</p>
     </div>
     <div class="flex justify-between items-center">
       <button
-        class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-[#F9CDCA] border border-[#BF1F2B] text-[#BF1F2B] text-[18px] rounded-lg w-[173px] h-[40px] cursor-pointer mr-4">Redefinir
+        class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-brand-f9cdca border border-brand-bf1f2b text-brand-bf1f2b text-[18px] rounded-lg w-[173px] h-[40px] cursor-pointer mr-4">Redefinir
         senha</button>
       <button
-        class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-[#F9CDCA] border border-[#BF1F2B] text-[#BF1F2B] text-[18px] rounded-lg w-[173px] h-[40px] cursor-pointer">Desativar
+        class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-brand-f9cdca border border-brand-bf1f2b text-brand-bf1f2b text-[18px] rounded-lg w-[173px] h-[40px] cursor-pointer">Desativar
         usuario</button>
     </div>
   </div>
@@ -47,24 +47,24 @@
     <h1 class="text-xl font-bold">Luiz Gomes</h1>
     <p class="text-sm text-gray-500">luiz.gomes@gmail.com.br</p>
     <input value="Gerente"
-      class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-[#F3EEEE] text-lg rounded-lg w-[173px] h-[40px] px-8 text-center"
+      class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-brand-f3eeee text-lg rounded-lg w-[173px] h-[40px] px-8 text-center"
       readonly>
   </div>
 
   <div class="flex flex-col gap-2 rounded-lg shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] w-[304px] h-fit p-6 bg-white">
     <h1 class="text-xl font-bold">Permissões</h1>
     <div class="flex flex-col w-full border overflow-hidden shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]">
-      <p class="p-3 bg-white border border-gray-300 text-[#5F6060] h-fit">Aprovar cadastros de usuários</p>
-      <p class="p-3 bg-white border border-gray-300 text-[#5F6060]">Acessar auditoria de contratos</p>
-      <p class="p-3 bg-white border border-gray-300 text-[#5F6060]">Criar e aprovar propostas</p>
+      <p class="p-3 bg-white border border-gray-300 text-brand-5f6060 h-fit">Aprovar cadastros de usuários</p>
+      <p class="p-3 bg-white border border-gray-300 text-brand-5f6060">Acessar auditoria de contratos</p>
+      <p class="p-3 bg-white border border-gray-300 text-brand-5f6060">Criar e aprovar propostas</p>
     </div>
     <div class="flex justify-between w-full gap-4">
       <button
-        class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-[#F9CDCA] border border-[#BF1F2B] text-[#BF1F2B] text-[18px] rounded-lg w-[132px] h-[32px] cursor-pointer">
+        class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-brand-f9cdca border border-brand-bf1f2b text-brand-bf1f2b text-[18px] rounded-lg w-[132px] h-[32px] cursor-pointer">
         Excluir
       </button>
       <button
-        class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-[#CAD7FF] border border-[#2C57BB] text-[#3964C6] text-[18px] rounded-lg w-[132px] h-[32px] cursor-pointer">
+        class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-brand-cad7ff border border-brand-2c57bb text-brand-3964c6 text-[18px] rounded-lg w-[132px] h-[32px] cursor-pointer">
         Adicionar
       </button>
     </div>

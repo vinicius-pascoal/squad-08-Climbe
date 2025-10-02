@@ -4,47 +4,52 @@
       <button v-if="collapsed" @click="toggleSidebar">
         <img src="/img/logoCircular.svg" class="w-14 h-14 absolute left-20 top-3" alt="climbe" />
       </button>
-      <nav class="relative flex-1 mt-20">
-        <ul class="menu px-2 ">
-          <li v-for="(item, i) in items" :key="item.to" class=" relative ">
+      <nav class="relative flex-1" :style="{ paddingTop: leftPad + 'px' }">
+        <ul class="menu px-2">
+          <li v-for="(item, i) in items" :key="item.to" class="relative">
+            <div style="height:10px"></div>
+
             <RouterLink :to="item.to"
-              class=" flex items-center px-3 overflow-hidden text-center my-7 first-of-type:mt-8 h-14 relative -left-2  "
-              :class="{ 'border-l-4 border-white ': isActive(item) }"
+              class="flex items-center justify-center overflow-hidden text-center h-16 relative -left-2 rounded-md"
+              :class="{ 'border-l-4 border-white': isActive(item) }"
               :aria-current="isActive(item) ? 'page' : undefined">
-              <div class="relative flex items-center justify-center w-8 h-8 ">
-                <img :src="item.icon" alt="Ícone" class=" min-w-6 h-6" />
+              <div class="relative flex items-center justify-center w-8 h-8">
+                <img :src="item.icon" alt="Ícone" class="min-w-6 h-6" />
               </div>
             </RouterLink>
+            <div style="height:10px"></div>
           </li>
         </ul>
       </nav>
-      <div class=" hover:bg-white/10 flex justify-center mb-5 ">
+
+      <div class="hover:bg-white/10 flex justify-center mb-5">
         <button>
-          <img src="/icones/config.svg" alt="">
+          <img src="/icones/config.svg" alt="configurações">
         </button>
       </div>
     </div>
-
-    <!-- Sidebar Expandida (Labels + Logo) -->
-    <div v-if="!collapsed" class="bg-sidebar text-white duration-300 rounded-e-xl w-60 shadow-xl">
-      <div class="px-7 py-5 overflow-hidden" @click="toggleSidebar">
+    <div v-if="!collapsed" class="bg-sidebar text-white duration-300 rounded-e-xl w-60 shadow-xl overflow-visible">
+      <div ref="headerEl" class="px-7 py-5 overflow-hidden cursor-pointer" @click="toggleSidebar">
         <slot name="logo">
-          <img src="/img/logoPreta.png" class="" alt="climbe" />
+          <img src="/img/logoPreta.png" alt="climbe" />
         </slot>
       </div>
+
       <div class="icon-bar p-2">
         <nav class="relative flex-1">
-          <ul class="menu px-2 ">
-            <li v-for="(item, i) in items" :key="item.to" class="menu-item group relative">
-              <div class="h-3 bg-sidebar bordaT " :class="{ 'bordaT ': isActive(item) }"></div>
+          <ul class="menu px-2">
+            <li v-for="(item, i) in items" :key="item.to" class="menu-item group relative overflow-visible">
+              <div class="h-3 bg-sidebar bordaT" :class="{ 'bordaT': isActive(item) }"></div>
+
               <RouterLink :to="item.to"
-                class="menu-link flex items-center gap-3 rounded-full px-3 py-3 overflow-hidden text-center h-16"
+                class="menu-link flex items-center gap-3 rounded-full px-3 py-3 overflow-hidden text-center h-16 w-full"
                 :class="{ 'ativo': isActive(item) }" :aria-current="isActive(item) ? 'page' : undefined">
                 <span v-if="!collapsed" class="nav-label font-bold text-xl whitespace-nowrap">
                   {{ item.label }}
                 </span>
               </RouterLink>
-              <div class="h-3 bg-sidebar bordaB " :class="{ 'bordaB ': isActive(item) }"></div>
+
+              <div class="h-3 bg-sidebar bordaB" :class="{ 'bordaB': isActive(item) }"></div>
             </li>
           </ul>
         </nav>
@@ -64,7 +69,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, nextTick, onBeforeUnmount, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 type NavItem = {
@@ -77,32 +82,70 @@ type NavItem = {
 const props = withDefaults(defineProps<{
   items: NavItem[]
   storageKey?: string
+  homeAliases?: string[]
 }>(), {
-  storageKey: 'sidebar:collapsed'
+  storageKey: 'sidebar:collapsed',
+  homeAliases: ['/', '/home']
 })
 
 const route = useRoute()
+const router = useRouter()
 const collapsed = ref(false)
 
+const headerEl = ref<HTMLElement | null>(null)
+const leftPad = ref(0)
+const CAP_TOP = 10
+
+function measureHeader() {
+  const h = headerEl.value?.offsetHeight ?? 0
+  leftPad.value = h + CAP_TOP
+}
+
+onMounted(async () => {
+  const saved = localStorage.getItem(props.storageKey!)
+  if (saved === '1') collapsed.value = true
+
+  await nextTick()
+  measureHeader()
+  window.addEventListener('resize', measureHeader)
+  setTimeout(measureHeader, 0)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', measureHeader)
+})
+
+function normalize(path: string) {
+  if (path === '/') return '/'
+  return path.replace(/\/+$/, '')
+}
+
+function isHomePath(path: string) {
+  const p = normalize(path)
+  return props.homeAliases!.map(normalize).includes(p)
+}
+
 function isActive(item: NavItem) {
-  return route.path === item.to || (item.exact && route.path === item.to)
+  const current = normalize(route.path)
+  const target = normalize(item.to)
+  if (isHomePath(target)) return isHomePath(current)
+  if (item.exact) return current === target
+
+  return current === target
 }
 
 function toggleSidebar() {
   collapsed.value = !collapsed.value
   localStorage.setItem(props.storageKey!, collapsed.value ? '1' : '0')
+  nextTick().then(measureHeader)
 }
-
-
-const router = useRouter();
 
 function logout() {
-  localStorage.removeItem('access_token');
-  localStorage.removeItem('user');
-
-  router.replace('/');
+  localStorage.removeItem('access_token')
+  localStorage.removeItem('user')
+  router.replace('/')
 }
-
+watch(() => route.path, () => nextTick().then(measureHeader))
 </script>
 
 <style scoped>

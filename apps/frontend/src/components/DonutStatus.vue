@@ -40,10 +40,10 @@ const props = withDefaults(defineProps<{
   totalsArePercent?: boolean
 }>(), { totalsArePercent: true })
 
-const greenFill = '#c8f0d3'
-const amberFill = '#f8e0b5'
-const redFill = '#efc2c2'
-const sepColor = '#e5e7eb'
+const greenFill = 'var(--color-c8f0d3)'
+const amberFill = 'var(--color-f8e0b5)'
+const redFill = 'var(--color-efc2c2)'
+const sepColor = 'var(--color-e5e7eb)'
 
 const clamp0 = (n: number) => Math.max(0, Number.isFinite(n) ? n : 0)
 

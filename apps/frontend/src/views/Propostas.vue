@@ -17,7 +17,7 @@
 
       <div class="flex items-center gap-2">
         <button
-          class="cadastro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-[#CAD8FD] border border-[#3B67D0] text-white rounded-lg px-4 py-2 hover cursor-pointer ml-16"
+          class="cadastro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-brand-cad8fd border border-brand-3b67d0 text-white rounded-lg px-4 py-2 hover cursor-pointer ml-16"
           @click="onCriarProposta">
           Criar Proposta
         </button>
