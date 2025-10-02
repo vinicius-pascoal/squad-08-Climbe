@@ -171,46 +171,46 @@ export default {
 
     <div class="flex items-center gap-4 mt-4 mb-6">
       <input v-model="searchTerm" type="search" placeholder="pesquisar por nome/email"
-        class="email shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] border bg-[#E1E5E5] rounded-lg px-4 py-2 w-[80vh] text-[#5F6060]" />
+        class="email shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] border bg-brand-e1e5e5 rounded-lg px-4 py-2 w-[80vh] text-brand-5f6060" />
 
       <input ref="filtersBtn" type="button" value="Filtros" @click="toggleFilters"
-        class="filtro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-[#E1E5E5] text-[#5F6060] rounded-lg px-4 py-2 hover cursor-pointer" />
+        class="filtro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-brand-e1e5e5 text-brand-5f6060 rounded-lg px-4 py-2 hover cursor-pointer" />
 
       <input type="button" value="Cadastrar usuário" @click="openCadastro"
-        class="cadastro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-[#CAD8FD] border border-[#3B67D0] text-white rounded-lg px-4 py-2 hover cursor-pointer ml-16" />
+        class="cadastro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-brand-cad8fd border border-brand-3b67d0 text-white rounded-lg px-4 py-2 hover cursor-pointer ml-16" />
     </div>
 
     <div v-if="showFilters" ref="filtersDropdown"
       class="absolute z-50 mt-2 bg-white rounded-lg shadow-[0_8px_24px_rgba(0,0,0,0.12)] border border-gray-200 w-[320px] p-4"
       style="top: 90px;">
-      <h3 class="text-[#5F6060] font-semibold mb-3">Filtrar por</h3>
+      <h3 class="text-brand-5f6060 font-semibold mb-3">Filtrar por</h3>
 
-      <label class="block text-sm text-[#5F6060] mb-1">Status</label>
+      <label class="block text-sm text-brand-5f6060 mb-1">Status</label>
       <select v-model="filters.status"
-        class="w-full mb-3 rounded-lg border bg-[#F6F7F8] px-3 py-2 text-[#5F6060] focus:outline-none focus:ring-2 focus:ring-primary">
+        class="w-full mb-3 rounded-lg border bg-brand-f6f7f8 px-3 py-2 text-brand-5f6060 focus:outline-none focus:ring-2 focus:ring-primary">
         <option value="">Todos</option>
         <option value="ativo">Ativo</option>
         <option value="pendente">Pendente</option>
         <option value="inativo">Inativo</option>
       </select>
 
-      <label class="block text-sm text-[#5F6060] mb-1">Cargo</label>
+      <label class="block text-sm text-brand-5f6060 mb-1">Cargo</label>
       <select v-model="filters.cargoId"
-        class="w-full mb-4 rounded-lg border bg-[#F6F7F8] px-3 py-2 text-[#5F6060] focus:outline-none focus:ring-2 focus:ring-primary">
+        class="w-full mb-4 rounded-lg border bg-brand-f6f7f8 px-3 py-2 text-brand-5f6060 focus:outline-none focus:ring-2 focus:ring-primary">
         <option value="">Todos</option>
         <option v-for="c in cargos" :key="c.id" :value="c.id">{{ c.nomeCargo }}</option>
       </select>
 
       <div class="flex items-center justify-end gap-2">
-        <button @click="clearFilters" class="px-3 py-2 rounded-lg border text-[#5F6060]">Limpar</button>
-        <button @click="applyFilters" class="px-3 py-2 rounded-lg bg-[#CAD8FD] text-[#3B67D0] border border-[#3B67D0]">
+        <button @click="clearFilters" class="px-3 py-2 rounded-lg border text-brand-5f6060">Limpar</button>
+        <button @click="applyFilters" class="px-3 py-2 rounded-lg bg-brand-cad8fd text-brand-3b67d0 border border-brand-3b67d0">
           Aplicar
         </button>
       </div>
     </div>
 
     <div class="p-4 bg-white rounded-lg shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]">
-      <div v-if="loading" class="py-8 text-center text-[#5F6060]">Carregando usuários...</div>
+      <div v-if="loading" class="py-8 text-center text-brand-5f6060">Carregando usuários...</div>
       <div v-else-if="error" class="py-8 text-center text-red-500">{{ error }}</div>
 
       <div v-else>
@@ -218,16 +218,16 @@ export default {
           <thead class="bg-white">
             <tr class="grid grid-cols-6 h-[50px] items-center">
               <th
-                class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] py-3 px-6 text-center text-black font-bold border-[#5F6060] border-r-2 h-[40px]">
+                class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] py-3 px-6 text-center text-black font-bold border-brand-5f6060 border-r-2 h-[40px]">
                 Nome </th>
               <th
-                class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] py-3 px-6 text-center text-black font-bold border-[#5F6060] border-r-2 h-[40px]">
+                class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] py-3 px-6 text-center text-black font-bold border-brand-5f6060 border-r-2 h-[40px]">
                 Cargo</th>
               <th
-                class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] py-3 px-6 text-center text-black font-bold col-span-2 border-[#5F6060] border-r-2 h-[40px]">
+                class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] py-3 px-6 text-center text-black font-bold col-span-2 border-brand-5f6060 border-r-2 h-[40px]">
                 Email</th>
               <th
-                class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] py-3 px-6 text-center text-black font-bold border-[#5F6060] border-r-2 h-[40px]">
+                class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] py-3 px-6 text-center text-black font-bold border-brand-5f6060 border-r-2 h-[40px]">
                 Permissões</th>
               <th
                 class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] py-3 px-6 text-center text-black font-bold border-r-2 h-[40px]">
@@ -243,7 +243,7 @@ export default {
           </tbody>
         </table>
 
-        <div v-if="!paginatedUsers.length && !loading" class="py-6 text-center text-[#5F6060]">
+        <div v-if="!paginatedUsers.length && !loading" class="py-6 text-center text-brand-5f6060">
           Nenhum usuário encontrado.
         </div>
 
