@@ -5,10 +5,10 @@
         </header>
 
         <main class="content-grid">
-            
+
             <div class="form-column">
                 <div class="card">
-                    <div class="form-content"> <!-- Div wrapper adicionada -->
+                    <div class="form-content">
                         <div class="form-group">
                             <label for="titulo">Título</label>
                             <input type="text" id="titulo" v-model="reuniao.titulo">
@@ -53,10 +53,12 @@
                                 <label for="local">Local</label>
                                 <input type="text" id="local" v-model="reuniao.local">
                             </div>
+                            <!--
                             <div class="form-group">
                                 <label>Meeting room</label>
                                 <button class="btn-definir-meet">+ Definir meet</button>
                             </div>
+                            -->
                         </div>
 
                         <div class="form-row">
@@ -68,7 +70,8 @@
                                             {{ p.name }} <button @click="removerParticipante(p)">×</button>
                                         </span>
                                         <input type="text" v-model="participanteSearch" placeholder="Pesquisar..."
-                                            class="participantes-input" @focus="showUserList = true" @blur="hideUserList">
+                                            class="participantes-input" @focus="showUserList = true"
+                                            @blur="hideUserList">
                                     </div>
                                     <ul v-if="showUserList && filteredUsers.length" class="user-list">
                                         <li v-for="user in filteredUsers" :key="user.id"
@@ -80,10 +83,11 @@
                             </div>
                             <div class="form-group">
                                 <label for="pauta">Pauta</label>
-                                <textarea id="pauta" v-model="reuniao.pauta" rows="3" @input="autoResizeTextarea"></textarea>
+                                <textarea id="pauta" v-model="reuniao.pauta" rows="3"
+                                    @input="autoResizeTextarea"></textarea>
                             </div>
                         </div>
-                    </div> 
+                    </div>
                 </div>
             </div>
 
@@ -93,11 +97,11 @@
                     <div class="calendar-container">
                         <div class="calendar-header">
                             <button @click="prevMonth">&lt;</button>
-                            <select v-model="viewMonth">
+                            <select class="month-selector" v-model="viewMonth">
                                 <option v-for="(month, index) in months" :key="index" :value="index">{{ month }}
                                 </option>
                             </select>
-                            <select v-model="viewYear">
+                            <select class="year-selector" v-model="viewYear">
                                 <option v-for="year in years" :key="year" :value="year">{{ year }}</option>
                             </select>
                             <button @click="nextMonth">&gt;</button>
@@ -127,35 +131,32 @@
     </div>
 </template>
 
+
 <script setup>
+
 import { ref, computed, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import Calendar from '../components/Calendar.vue';
-// import api from '@/services/api'; // API removida temporariamente
 
-const router = useRouter(); // Para navegação
+const router = useRouter();
 
-// --- Dados do Formulário ---
 const reuniao = ref({
     titulo: '',
-    data: new Date(), // Inicia com a data atual
+    data: new Date(),
     comeco: '',
     empresa: '',
-    tipo: 'Online', // Mantém 'Online' como padrão
+    tipo: 'Online',
     local: '',
-    participantes: [], // Agora será um array de objetos
+    participantes: [],
     pauta: ''
 });
 
-// --- Lógica dos Participantes ---
-const allUsers = ref([]); // Armazenará todos os usuários do sistema
-const participanteSearch = ref(''); // Termo de busca para participantes
-const showUserList = ref(false); // Controla a visibilidade da lista de usuários
+const allUsers = ref([]);
+const participanteSearch = ref('');
+const showUserList = ref(false);
 
-// Filtra os usuários com base na busca e que ainda não foram adicionados
 const filteredUsers = computed(() => {
     if (!participanteSearch.value) {
-        // Se não houver busca, mostra todos que não foram selecionados
         return allUsers.value.filter(user =>
             !reuniao.value.participantes.some(p => p.id === user.id)
         );
@@ -169,7 +170,6 @@ const filteredUsers = computed(() => {
 // BACKEND: Substituir por uma chamada de API real para buscar usuários.
 async function fetchUsers() {
     try {
-        // Simula uma chamada de API
         const mockUsers = [
             { id: 1, nome: 'Alice' },
             { id: 2, nome: 'Bruno' },
@@ -177,7 +177,6 @@ async function fetchUsers() {
             { id: 4, nome: 'Daniel' },
             { id: 5, nome: 'Eduarda' }
         ];
-        // A API retorna 'nome', então mapeamos para 'name' para manter o resto do código
         allUsers.value = mockUsers.map(user => ({ id: user.id, name: user.nome }));
     } catch (error) {
         console.error("Erro ao buscar usuários (mock):", error);
@@ -190,53 +189,45 @@ onMounted(() => {
 
 function adicionarParticipante(user) {
     reuniao.value.participantes.push(user);
-    participanteSearch.value = ''; // Limpa o input
+    participanteSearch.value = '';
 }
 
 function removerParticipante(participante) {
     reuniao.value.participantes = reuniao.value.participantes.filter(p => p.id !== participante.id);
 }
 
-// Pequeno delay para permitir o clique na lista antes que ela suma
 function hideUserList() {
     setTimeout(() => {
         showUserList.value = false;
     }, 200);
 }
 
-// --- Lógica de Agendamento ---
 async function agendarReuniao() {
-    // Validação simples
     if (!reuniao.value.titulo || !reuniao.value.data || !reuniao.value.comeco) {
         alert('Por favor, preencha Título, Data e Hora.');
         return;
     }
 
-    // 1. Combina a data e a hora em um objeto Date
     const [horas, minutos] = reuniao.value.comeco.split(':');
     const dataHoraInicio = new Date(reuniao.value.data);
     dataHoraInicio.setHours(parseInt(horas, 10));
     dataHoraInicio.setMinutes(parseInt(minutos, 10));
     dataHoraInicio.setSeconds(0, 0);
 
-    // 2. Prepara o payload para a API
     const payload = {
         titulo: reuniao.value.titulo,
         pauta: reuniao.value.pauta,
-        data_hora_inicio: dataHoraInicio.toISOString(), // Envia em formato ISO 8601
+        data_hora_inicio: dataHoraInicio.toISOString(),
         local: reuniao.value.local,
         tipo: reuniao.value.tipo,
-        // NOTA: A API espera um `empresaId`. Como o campo é de texto,
-        // esta parte precisará de ajuste futuro (ex: um seletor de empresas).
-        // Por enquanto, não enviaremos a empresa.
-        participantes: reuniao.value.participantes.map(p => p.id) // Envia apenas os IDs
+        participantes: reuniao.value.participantes.map(p => p.id)
     };
 
     // BACKEND: Substituir o console.log por uma chamada de API real (api.post('/reunioes', payload)).
     console.log('Payload da Reunião (simulando envio):', payload);
 
     alert('Reunião agendada com sucesso!');
-    router.push('/agenda'); // Redireciona para a agenda após o sucesso
+    router.push('/agenda');
 }
 
 function cancelar() {
@@ -244,7 +235,6 @@ function cancelar() {
 }
 
 const timeSlots = ['09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '14:00', '14:30', '15:00'];
-
 
 const proximosEventos = ref([
     { id: 1, title: 'Daily Scrum', date: new Date(2025, 9, 29), time: '10:00 AM', avatar: '' },
@@ -259,23 +249,19 @@ function selectTime(time) {
     reuniao.value.comeco = time;
 }
 
-// --- Lógica do Calendário (Adaptada de Home.vue) ---
 const selectedDate = ref(reuniao.value.data);
 const viewDate = ref(new Date(reuniao.value.data));
 
 const months = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 const years = computed(() => Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - 5 + i));
 
-// Controladores para os <select> de mês e ano
 const viewMonth = ref(viewDate.value.getMonth());
 const viewYear = ref(viewDate.value.getFullYear());
 
-// Observa mudanças nos selects e atualiza a data de visualização
 watch([viewYear, viewMonth], ([newYear, newMonth]) => {
     viewDate.value = new Date(newYear, newMonth, 1);
 });
 
-// Observa mudanças na data de visualização e atualiza os selects
 watch(viewDate, (newDate) => {
     if (newDate.getFullYear() !== viewYear.value) {
         viewYear.value = newDate.getFullYear();
@@ -295,8 +281,7 @@ const formattedDate = computed(() => {
 
 function onDateSelected(date) {
     selectedDate.value = date;
-    reuniao.value.data = date; // Atualiza o formulário
-    // Garante que a visualização do calendário mude se um dia de outro mês for clicado
+    reuniao.value.data = date;
     if (date.getMonth() !== viewDate.value.getMonth() || date.getFullYear() !== viewDate.value.getFullYear()) {
         viewDate.value = new Date(date);
     }
@@ -356,17 +341,18 @@ function autoResizeTextarea(event) {
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: 2rem;
-    align-items: stretch; /* Mantém o alinhamento para esticar */
+    align-items: stretch;
 }
 
-/* Esta é a chave para o alinhamento */
-.form-column, .calendar-column {
+.form-column,
+.calendar-column {
     display: flex;
     flex-direction: column;
 }
 
-.form-column .card, .calendar-column .card {
-    flex: 1; /* Faz com que cada card ocupe todo o espaço disponível na altura */
+.form-column .card,
+.calendar-column .card {
+    flex: 1;
     display: flex;
     flex-direction: column;
 }
@@ -380,7 +366,7 @@ function autoResizeTextarea(event) {
     flex-direction: column;
 }
 
-.form-content { /* Adicionar esta nova regra */
+.form-content {
     flex-grow: 1;
 }
 
@@ -407,8 +393,8 @@ textarea {
 }
 
 textarea {
-    resize: none; /* Remove a alça de redimensionamento */
-    overflow: hidden; /* Esconde a barra de rolagem */
+    resize: none;
+    overflow: hidden;
 }
 
 .form-row {
@@ -553,7 +539,6 @@ textarea {
     line-height: 1;
 }
 
-/* Coluna Direita */
 .calendar-container {
     margin-bottom: 2rem;
 }
@@ -567,7 +552,6 @@ textarea {
 
 .calendar-header select,
 .calendar-header button {
-    border: 1px solid #ccc;
     border-radius: 4px;
     padding: 0.5rem;
     background-color: #fff;
@@ -575,8 +559,23 @@ textarea {
 }
 
 .calendar-header select {
-    flex-grow: 1;
-    margin: 0 0.5rem;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-color: transparent;
+    border: 1px solid #B4B7BF;
+    border-radius: 4px;
+    padding: 0.5rem 2rem 0.5rem 0.75rem;
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    position: relative;
+    background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+    background-size: 16px;
 }
 
 .eventos-section h3 {
@@ -597,7 +596,8 @@ textarea {
 
 .evento-avatar {
     width: 32px;
-    height: 32px;   border-radius: 50%;
+    height: 32px;
+    border-radius: 50%;
     object-fit: cover;
 }
 
@@ -618,8 +618,8 @@ textarea {
     display: flex;
     justify-content: flex-end;
     gap: 1rem;
-    margin-top: auto; /* Empurra os botões para o final do card */
-    padding-top: 2rem; /* Adiciona um espaçamento acima dos botões */
+    margin-top: auto;
+    padding-top: 2rem;
 }
 
 .action-buttons button {
