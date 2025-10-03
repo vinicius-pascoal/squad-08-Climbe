@@ -69,7 +69,7 @@
                                         <span v-for="p in reuniao.participantes" :key="p.id" class="chip">
                                             {{ p.name }} <button @click="removerParticipante(p)">×</button>
                                         </span>
-                                        <input :class="participantes-search" type="text" v-model="participanteSearch" placeholder="Digite..."
+                                        <input type="text" v-model="participanteSearch" placeholder="Digite..."
                                             class="participantes-input" @focus="showUserList = true"
                                             @blur="hideUserList">
                                     </div>
@@ -83,8 +83,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="pauta">Pauta</label>
-                                <textarea id="pauta" v-model="reuniao.pauta" rows="3"
-                                    @input="autoResizeTextarea"></textarea>
+                                <textarea id="pauta" v-model="reuniao.pauta" @input="autoResizeTextarea"></textarea>
                             </div>
                         </div>
                     </div>
@@ -140,6 +139,7 @@ import Calendar from '../components/Calendar.vue';
 
 const router = useRouter();
 
+// Objeto reativo que armazena todos os dados do formulário da reunião
 const reuniao = ref({
     titulo: '',
     data: new Date(),
@@ -150,6 +150,8 @@ const reuniao = ref({
     participantes: [],
     pauta: ''
 });
+
+// --- Lógica de Gerenciamento de Participantes ---
 
 const allUsers = ref([]);
 const participanteSearch = ref('');
@@ -167,7 +169,8 @@ const filteredUsers = computed(() => {
     );
 });
 
-// BACKEND: Substituir por uma chamada de API real para buscar usuários.
+// Função para buscar a lista de usuários.
+// BACKEND: Atualmente usa dados mocados. Subistituir por uma chamada da API.
 async function fetchUsers() {
     try {
         const mockUsers = [
@@ -177,6 +180,7 @@ async function fetchUsers() {
             { id: 4, nome: 'Daniel' },
             { id: 5, nome: 'Eduarda' }
         ];
+        // Mapeia os dados mocados para o formato esperado pelo componente
         allUsers.value = mockUsers.map(user => ({ id: user.id, name: user.nome }));
     } catch (error) {
         console.error("Erro ao buscar usuários (mock):", error);
@@ -202,18 +206,23 @@ function hideUserList() {
     }, 200);
 }
 
+// --- Funções de Ação do Formulário ---
+// Função para processar e "enviar" os dados da reunião
 async function agendarReuniao() {
+    // Validação simples para campos obrigatórios
     if (!reuniao.value.titulo || !reuniao.value.data || !reuniao.value.comeco) {
         alert('Por favor, preencha Título, Data e Hora.');
         return;
     }
 
+    // Combina a data e a hora selecionadas em um único objeto Date
     const [horas, minutos] = reuniao.value.comeco.split(':');
     const dataHoraInicio = new Date(reuniao.value.data);
     dataHoraInicio.setHours(parseInt(horas, 10));
     dataHoraInicio.setMinutes(parseInt(minutos, 10));
     dataHoraInicio.setSeconds(0, 0);
 
+    // Monta os dados para serem enviados a API
     const payload = {
         titulo: reuniao.value.titulo,
         pauta: reuniao.value.pauta,
@@ -223,18 +232,18 @@ async function agendarReuniao() {
         participantes: reuniao.value.participantes.map(p => p.id)
     };
 
-    // BACKEND: Substituir o console.log por uma chamada de API real (api.post('/reunioes', payload)).
+    // BACKEND: Substituir o console.log por uma chamada de API
     console.log('Payload da Reunião (simulando envio):', payload);
 
     alert('Reunião agendada com sucesso!');
-    router.push('/agenda');
+    router.push('/agenda'); // Redireciona para a página da agenda
 }
 
 function cancelar() {
     router.push('/agenda');
 }
 
-const timeSlots = ['09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '14:00', '14:30', '15:00'];
+const timeSlots = ['12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
 
 const proximosEventos = ref([
     { id: 1, title: 'Daily Scrum', date: new Date(2025, 9, 29), time: '10:00 AM', avatar: '' },
@@ -248,6 +257,7 @@ function formatarDataEvento(date) {
 function selectTime(time) {
     reuniao.value.comeco = time;
 }
+
 
 const selectedDate = ref(reuniao.value.data);
 const viewDate = ref(new Date(reuniao.value.data));
@@ -303,15 +313,13 @@ function autoResizeTextarea(event) {
 </script>
 
 <style scoped>
-/* Container principal da página com o estilo de fonte base */
 .page-container {
     background-color: #f4f5f7;
     padding: 2rem;
-    font-family: 'Roboto', sans-serif; /* Fonte base */
+    font-family: 'Roboto', sans-serif;
     color: #333;
 }
 
-/* Cabeçalho da página com layout flexível para título e ícones */
 .page-header {
     display: flex;
     justify-content: space-between;
@@ -319,15 +327,13 @@ function autoResizeTextarea(event) {
     margin-bottom: 2rem;
 }
 
-/* Estilo do título principal da página */
 .page-header h1 {
-    font-size: 2.5rem; /* Mantém o tamanho original para hierarquia */
-    font-weight: 700; /* Peso da fonte solicitado */
-    line-height: 48px; /* Altura de linha para o título principal */
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 48px;
     letter-spacing: 0;
 }
 
-/* Contêiner para ícones no cabeçalho (para uso futuro) */
 .header-icons {
     display: flex;
     align-items: center;
@@ -335,7 +341,6 @@ function autoResizeTextarea(event) {
     color: #555;
 }
 
-/* Estilo para avatar de usuário (para uso futuro) */
 .user-avatar {
     width: 40px;
     height: 40px;
@@ -344,7 +349,6 @@ function autoResizeTextarea(event) {
     border: 2px solid white;
 }
 
-/* Layout de grade para o conteúdo principal - formulário e calendário */
 .content-grid {
     display: grid;
     grid-template-columns: 2fr 1fr;
@@ -352,14 +356,12 @@ function autoResizeTextarea(event) {
     align-items: stretch;
 }
 
-/* Layout flex para as colunas do formulário e calendário */
 .form-column,
 .calendar-column {
     display: flex;
     flex-direction: column;
 }
 
-/* Garante que os cards dentro das colunas ocupem todo o espaço vertical disponível */
 .form-column .card,
 .calendar-column .card {
     flex: 1;
@@ -367,7 +369,6 @@ function autoResizeTextarea(event) {
     flex-direction: column;
 }
 
-/* Estilo dos cards com fundo branco, cantos arredondados e sombra */
 .card {
     background-color: #fff;
     border-radius: 8px;
@@ -377,27 +378,23 @@ function autoResizeTextarea(event) {
     flex-direction: column;
 }
 
-/* Conteúdo do formulário expandindo para preencher o card */
 .form-content {
     flex-grow: 1;
 }
 
-/* Espaçamento entre grupos de formulário */
 .form-group {
     margin-bottom: 1.25rem;
 }
 
-/* Estilo para as labels dos campos de formulário */
 .form-group label {
     display: block;
-    font-weight: 700; /* Peso da fonte solicitado */
-    font-size: 18px; /* Tamanho da fonte solicitado */
-    line-height: 1.5; /* Altura de linha proporcional para não quebrar */
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 1.5;
     letter-spacing: 0;
     margin-bottom: 0.5rem;
 }
 
-/* Estilo padrão para inputs de texto, hora e áreas de texto */
 input[type="text"],
 input[type="time"],
 textarea {
@@ -405,15 +402,14 @@ textarea {
     padding: 0.75rem;
     border: 1px solid #ccc;
     border-radius: 4px;
-    font-family: 'Roboto', sans-serif; /* Garante a herança da fonte */
-    font-weight: 700; /* Peso da fonte solicitado */
-    font-size: 18px; /* Tamanho da fonte solicitado */
-    line-height: normal; /* Altura de linha normal para campos de input */
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    line-height: normal;
     letter-spacing: 0;
     box-sizing: border-box;
 }
 
-/* Adiciona sombra específica para os campos principais do formulário */
 #titulo,
 #data,
 #empresa,
@@ -423,35 +419,30 @@ textarea {
     box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
 }
 
-/* Remove a alça de redimensionamento padrão do textarea */
 textarea {
     resize: none;
     overflow: hidden;
 }
 
-/* Layout flexível para linhas do formulário com múltiplos campos */
 .form-row {
     display: flex;
     gap: 1rem;
 }
 
-/* Faz com que cada grupo em uma linha ocupe espaço igual */
 .form-row .form-group {
     flex: 1;
 }
 
-/* Container para input de data com posição relativa para acomodar ícones */
 .date-input {
     position: relative;
+    background-image: url();
 }
 
-/* Estilo do input de data com espaço à direita para o ícone */
 .date-input input {
     padding-right: 2.5rem;
     background-color: #fff;
 }
 
-/* Posicionamento do ícone dentro do campo de data */
 .date-input span {
     position: absolute;
     right: 0.75rem;
@@ -460,7 +451,6 @@ textarea {
     cursor: pointer;
 }
 
-/* Container flexível para os slots de tempo */
 .time-slots-container {
     display: flex;
     flex-wrap: wrap;
@@ -468,81 +458,73 @@ textarea {
     padding-top: 0.5rem;
 }
 
-/* Botões de slot de tempo com estilo neutro e cantos arredondados */
 .time-slot {
     background-color: #f0f0f0;
     border: 1px solid #ddd;
     border-radius: 4px;
     padding: 0.5rem 0.75rem;
     cursor: pointer;
-    font-family: 'Roboto', sans-serif; /* Garante a herança da fonte */
-    font-weight: 700; /* Peso da fonte solicitado */
-    font-size: 16px; /* Ajustado para caber melhor */
-    line-height: normal; /* Altura de linha normal para botões */
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: normal;
     letter-spacing: 0;
     transition: background-color 0.2s, border-color 0.2s;
 }
 
-/* Efeito hover para slot de tempo */
 .time-slot:hover {
     background-color: #e0e0e0;
 }
 
-/* Destaque visual para o slot de tempo selecionado */
 .time-slot.selected {
-    background-color: rgba(14, 154, 151, 1); /* Cor de fundo solicitada */
-    color: rgba(255, 255, 255, 1); /* Cor do texto solicitada (branco) */
-    border-color: rgba(14, 154, 151, 1); /* Mantém a borda consistente */
+    background-color: rgba(14, 154, 151, 1);
+    color: rgba(255, 255, 255, 1);
+    border-color: rgba(14, 154, 151, 1);
 }
 
-/* Grupo de botões de rádio com layout flexível */
 .radio-group {
     display: flex;
     align-items: center;
-    gap: 1rem; /* Aumenta o espaço para acomodar a sombra */
+    gap: 1rem;
     padding-top: 0.75rem;
 }
 
-/* Customização dos botões de rádio para aplicar a sombra */
 .radio-group input[type="radio"] {
     appearance: none;
     -webkit-appearance: none;
     margin: 0;
     width: 20px;
     height: 20px;
-    background-color: rgba(217, 217, 217, 1); /* Cor para o estado não selecionado */
-    border: none; /* Remove a borda para um visual mais limpo */
+    background-color: rgba(217, 217, 217, 1);
+    border: none;
     border-radius: 50%;
     cursor: pointer;
     position: relative;
     transition: background-color 0.2s;
-    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25); /* Sombra aplicada */
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
 }
 
 .radio-group input[type="radio"]:checked {
-    background-color: rgba(14, 154, 151, 1); /* Cor de fundo solicitada */
-    border-color: rgba(14, 154, 151, 1); /* Borda da mesma cor para um visual sólido */
+    background-color: rgba(14, 154, 151, 1);
+    border-color: rgba(14, 154, 151, 1);
     background-image: url("data:image/svg+xml,%3csvg width='13' height='12' viewBox='0 0 13 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M10.86 0L12.468 1.128L5.496 11.184H3.888L0 5.736L1.608 4.236L4.692 7.116L10.86 0Z' fill='white'/%3e%3c/svg%3e");
     background-repeat: no-repeat;
     background-position: center;
     background-size: 10px;
 }
 
-/* Remove o círculo interno anterior, pois agora usamos um SVG */
 .radio-group input[type="radio"]:checked::before {
     content: none;
 }
 
-/* Remove o espaçamento e o peso da fonte para labels dentro do grupo de rádio */
 .radio-group label {
     margin-bottom: 0;
-    font-weight: 700; /* Peso da fonte solicitado */
-    font-size: 18px; /* Tamanho da fonte solicitado */
-    line-height: normal; /* Altura de linha normal */
+    font-weight: 700;
+    font-size: 18px;
+    line-height: normal;
     letter-spacing: 0;
 }
 
-/* Botão para definir meet com borda tracejada e fundo claro */
 .btn-definir-meet {
     width: 100%;
     padding: 0.75rem;
@@ -550,19 +532,17 @@ textarea {
     background-color: #f9f9f9;
     border-radius: 4px;
     cursor: pointer;
-    font-family: 'Roboto', sans-serif; /* Garante a herança da fonte */
-    font-weight: 700; /* Peso da fonte solicitado */
-    font-size: 18px; /* Tamanho da fonte solicitado */
-    line-height: normal; /* Altura de linha normal */
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    line-height: normal;
     letter-spacing: 0;
 }
 
-/* Container para o seletor de participantes com posicionamento relativo */
 .participantes-container {
     position: relative;
 }
 
-/* Caixa para mostrar participantes selecionados como chips */
 .participantes-box {
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -574,20 +554,18 @@ textarea {
     align-items: center;
 }
 
-/* Input para busca de participantes dentro da caixa */
 .participantes-input {
     border: none;
     outline: none;
     padding: 0.25rem;
-    font-family: 'Roboto', sans-serif; /* Garante a herança da fonte */
-    font-weight: 700; /* Peso da fonte solicitado */
-    font-size: 18px; /* Tamanho da fonte solicitado */
-    line-height: normal; /* Altura de linha normal */
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    line-height: normal;
     letter-spacing: 0;
     flex-grow: 1;
 }
 
-/* Lista suspensa de usuários durante a busca */
 .user-list {
     position: absolute;
     width: 100%;
@@ -604,23 +582,20 @@ textarea {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Itens da lista de usuários */
 .user-list li {
     padding: 0.75rem;
     cursor: pointer;
-    font-family: 'Roboto', sans-serif; /* Garante a herança da fonte */
-    font-weight: 700; /* Peso da fonte solicitado */
-    font-size: 18px; /* Tamanho da fonte solicitado */
-    line-height: 1.5; /* Altura de linha proporcional */
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 1.5;
     letter-spacing: 0;
 }
 
-/* Efeito hover para itens da lista de usuários */
 .user-list li:hover {
     background-color: #f0f0f0;
 }
 
-/* Estilo para os chips de participantes selecionados */
 .chip {
     background-color: #e0e0e0;
     padding: 0.25rem 0.75rem;
@@ -628,45 +603,41 @@ textarea {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    font-family: 'Roboto', sans-serif; /* Garante a herança da fonte */
-    font-weight: 700; /* Peso da fonte solicitado */
-    font-size: 16px; /* Ajustado para caber melhor */
-    line-height: normal; /* Altura de linha normal */
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: normal;
     letter-spacing: 0;
 }
 
-/* Botão de remoção dentro do chip de participante */
 .chip button {
     border: none;
     background: none;
     cursor: pointer;
-    font-weight: 700; /* Peso da fonte solicitado */
-    font-size: 18px; /* Tamanho da fonte solicitado */
+    font-weight: 700;
+    font-size: 18px;
     padding: 0;
     line-height: 1;
 }
 
-/* Container do calendário na coluna direita */
 .calendar-container {
     margin-bottom: 2rem;
 }
 
-/* Cabeçalho do calendário com navegação entre meses */
 .calendar-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1rem;
-    gap: 0.5rem; /* Adiciona um espaçamento entre os elementos */
+    gap: 0.5rem;
 }
 
-/* Estilo comum para os botões de navegação de mês */
 .prev-month,
 .next-month {
     border: none;
     border-radius: 4px;
-    width: 38px; /* Tamanho fixo */
-    height: 38px; /* Tamanho fixo */
+    width: 38px;
+    height: 38px;
     background-color: #fff;
     cursor: pointer;
     background-repeat: no-repeat;
@@ -680,20 +651,17 @@ textarea {
     background-color: #f0f0f0;
 }
 
-/* Botão para navegar para o mês anterior */
 .prev-month {
     background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 10 21' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M9.6 2.3L3.3 10.5l6.3 8.2-1.9 2.3L-.002 10.5 7.7 0l1.9 2.3z' fill='%235F6060' fill-opacity='0.7'/%3e%3c/svg%3e");
 }
 
-/* Botão para navegar para o próximo mês */
 .next-month {
     background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 10 21' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M.398 18.7L6.7 10.5.398 2.3l1.9-2.3L10 10.5 2.3 21l-1.9-2.3z' fill='%235F6060' fill-opacity='0.7'/%3e%3c/svg%3e");
 }
 
-/* Estilo comum para os seletores de mês e ano */
 .month-selector,
 .year-selector {
-    flex-grow: 1; /* Faz com que ocupem o espaço disponível */
+    flex-grow: 1;
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -701,10 +669,10 @@ textarea {
     border: 1px solid #ccc;
     border-radius: 4px;
     padding: 0.5rem 2rem 0.5rem 0.75rem;
-    font-family: 'Roboto', sans-serif; /* Garante a herança da fonte */
-    font-weight: 700; /* Peso da fonte solicitado */
-    font-size: 18px; /* Tamanho da fonte solicitado */
-    line-height: normal; /* Altura de linha normal */
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    line-height: normal;
     letter-spacing: 0;
     color: #333;
     cursor: pointer;
@@ -714,16 +682,14 @@ textarea {
     background-size: 16px;
 }
 
-/* Título da seção de eventos próximos */
 .eventos-section h3 {
-    font-size: 18px; /* Tamanho da fonte solicitado */
-    font-weight: 700; /* Peso da fonte solicitado */
-    line-height: 1.5; /* Altura de linha proporcional */
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.5;
     letter-spacing: 0;
     margin-bottom: 1rem;
 }
 
-/* Card de evento na lista de próximos eventos */
 .evento-item {
     display: flex;
     align-items: center;
@@ -734,7 +700,6 @@ textarea {
     margin-bottom: 0.5rem;
 }
 
-/* Avatar do criador do evento */
 .evento-avatar {
     width: 32px;
     height: 32px;
@@ -742,31 +707,27 @@ textarea {
     object-fit: cover;
 }
 
-/* Informações do evento (título e data) */
 .evento-info {
     flex-grow: 1;
 }
 
-/* Parágrafos dentro da seção de informações do evento */
 .evento-info p {
     margin: 0;
-    font-family: 'Roboto', sans-serif; /* Garante a herança da fonte */
-    font-weight: 700; /* Peso da fonte solicitado */
-    font-size: 16px; /* Ajustado para caber melhor */
-    line-height: 1.4; /* Altura de linha proporcional */
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 1.4;
     letter-spacing: 0;
 }
 
-/* Horário do evento */
 .evento-hora {
-    font-family: 'Roboto', sans-serif; /* Garante a herança da fonte */
-    font-weight: 700; /* Peso da fonte solicitado */
-    font-size: 16px; /* Ajustado para caber melhor */
-    line-height: normal; /* Altura de linha normal */
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: normal;
     letter-spacing: 0;
 }
 
-/* Container para os botões de ação (Cancelar e Agendar) */
 .action-buttons {
     display: flex;
     justify-content: flex-end;
@@ -775,32 +736,28 @@ textarea {
     padding-top: 2rem;
 }
 
-/* Estilo base para os botões de ação */
 .action-buttons button {
     padding: 0.75rem 1.5rem;
     border: none;
     border-radius: 4px;
-    font-family: 'Roboto', sans-serif; /* Garante a herança da fonte */
-    font-weight: 700; /* Peso da fonte solicitado */
-    font-size: 18px; /* Tamanho da fonte solicitado */
-    line-height: normal; /* Altura de linha normal */
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    line-height: normal;
     letter-spacing: 0;
     cursor: pointer;
     transition: opacity 0.2s;
 }
 
-/* Efeito hover para os botões de ação */
 .action-buttons button:hover {
     opacity: 0.9;
 }
 
-/* Botão de cancelar com fundo vermelho */
 .btn-cancelar {
     background-color: #ff4d4f;
     color: white;
 }
 
-/* Botão de agendar com fundo verde */
 .btn-agendar {
     background-color: #28a745;
     color: white;
