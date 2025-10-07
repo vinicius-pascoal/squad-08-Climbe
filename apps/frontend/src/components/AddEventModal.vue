@@ -19,14 +19,8 @@
         <div class="form-group">
           <label>Hora:</label>
           <div class="time-blocks">
-            <button
-              v-for="timeSlot in timeSlots"
-              :key="timeSlot"
-              type="button"
-              class="time-block"
-              :class="{ 'selected': newEvent.time === timeSlot }"
-              @click="selectTime(timeSlot)"
-            >
+            <button v-for="timeSlot in timeSlots" :key="timeSlot" type="button" class="time-block"
+              :class="{ 'selected': newEvent.time === timeSlot }" @click="selectTime(timeSlot)">
               {{ timeSlot }}
             </button>
           </div>
@@ -74,7 +68,7 @@ const handleSubmit = () => {
   const dateObj = new Date(year, month - 1, day);
 
   emit('add', { ...newEvent.value, date: dateObj });
-  
+
   emit('close');
 };
 </script>
@@ -92,6 +86,7 @@ const handleSubmit = () => {
   align-items: center;
   z-index: 1000;
 }
+
 .modal-content {
   background-color: white;
   padding: 20px;
@@ -99,6 +94,7 @@ const handleSubmit = () => {
   width: 500px;
   position: relative;
 }
+
 .close {
   position: absolute;
   top: 10px;
@@ -106,13 +102,16 @@ const handleSubmit = () => {
   cursor: pointer;
   font-size: 1.5rem;
 }
+
 .form-group {
   margin-bottom: 15px;
 }
+
 label {
   display: block;
   margin-bottom: 5px;
 }
+
 input[type="text"],
 input[type="date"] {
   width: 100%;
@@ -142,7 +141,7 @@ input[type="date"] {
 }
 
 .time-block.selected {
-  background-color: #26A69A; 
+  background-color: #26A69A;
   color: white;
   border-color: #26A69A;
 }
