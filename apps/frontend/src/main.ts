@@ -1,3 +1,4 @@
+import "./styles/colors.css";
 import ToastPlugin from './plugins/toast';
 import { createApp } from 'vue';
 import './style.css';

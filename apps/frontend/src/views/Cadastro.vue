@@ -43,7 +43,7 @@
             class="w-[4px] h-4/5 bg-gradient-to-br from-primary via-transparent to-transparent mx-5 hidden sm:block ">
           </div>
 
-          <div class="w-1/2 flex items-center justify-center p-10 hidden sm:block">
+          <div class="w-1/2 flex items-center justify-center p-10 sm:block">
             <h2 class="text-white w-full h-full text-center font-bold text-6xl">
               {{ typedText }}
               <span class=" border-r-4 border-primary animate-blink ml-1"></span>

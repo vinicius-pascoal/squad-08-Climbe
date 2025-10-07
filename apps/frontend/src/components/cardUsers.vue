@@ -79,13 +79,13 @@ export default {
       </button>
 
       <div v-if="open" class="absolute top-[48px] right-0 z-50 bg-white border border-gray-200 rounded-lg shadow-lg min-w-[240px] p-3">
-        <div class="text-sm text-[#5F6060] mb-2 font-medium">Selecionar cargo</div>
-        <select v-model="selectedCargoId" class="w-full mb-3 rounded-lg border bg-[#F6F7F8] px-3 py-2 text-[#5F6060]">
+        <div class="text-sm text-brand-5f6060 mb-2 font-medium">Selecionar cargo</div>
+        <select v-model="selectedCargoId" class="w-full mb-3 rounded-lg border bg-brand-f6f7f8 px-3 py-2 text-brand-5f6060">
           <option value="">Selecione</option>
           <option v-for="c in cargos" :key="c.id" :value="c.id">{{ c.nomeCargo }}</option>
         </select>
         <button
-          class="w-full px-4 py-2 rounded-lg bg-[#CAD8FD] text-[#3B67D0] border border-[#3B67D0] disabled:opacity-50"
+          class="w-full px-4 py-2 rounded-lg bg-brand-cad8fd text-brand-3b67d0 border border-brand-3b67d0 disabled:opacity-50"
           :disabled="!selectedCargoId"
           @click.stop="approve"
         >

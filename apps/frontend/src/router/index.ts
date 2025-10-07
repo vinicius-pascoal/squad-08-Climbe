@@ -27,6 +27,7 @@ const routes: RouteRecordRaw[] = [
   { path: '/Empresas', name: 'Empresas', component: () => import('../views/Empresas.vue'), meta: { requiresAuth: true } },
   { path: '/Propostas', name: 'Propostas', component: () => import('../views/Propostas.vue'), meta: { requiresAuth: true } },
   { path: '/Contratos', name: 'Contratos', component: () => import('../views/Contratos.vue'), meta: { requiresAuth: true } },
+  { path: '/novocontrato', component: () => import('../views/NovoContrato.vue'), meta: { requiresAuth: true } },
   { path: '/Cadastro', name: 'Cadastro', component: () => import('../views/Cadastro.vue') },
   { path: '/CadastroUsuario', name: 'CadastroUsuario', component: () => import('../views/CadastroUsuario.vue'), meta: { requiresAuth: true } },
   { path: '/Auditoria', name: 'Auditoria', component: () => import('../views/Auditoria.vue'), meta: { requiresAuth: true } },
