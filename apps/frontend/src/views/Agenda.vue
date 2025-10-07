@@ -27,7 +27,7 @@
       </div>
 
       <div class="flex items-center justify-end">
-        <input type="button" value="Cadastrar reunião"
+        <input type="button" value="Cadastrar reunião" @click="goToAgendarReuniao"
           class="cadastro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-[#CAD8FD] border border-[#3B67D0] text-white rounded-lg px-4 py-2 hover cursor-pointer ml-16" />
       </div>
     </div>
@@ -64,7 +64,7 @@
           </div>
         </div>
       </div>
-      
+
       <div v-if="activeTab === 'agenda'" class="overflow-y-auto p-4">
         <WeeklyView v-if="view === 'week'" :start-hour="startHour" :end-hour="endHour" :week-start="weekStart"
           :events="events" />
@@ -83,6 +83,7 @@ import WeeklyView from '../components/WeeklyView.vue'
 import type { CalendarEvent } from '../components/calendar-types'
 import MonthlyPlaceholder from '../components/MonthlyPlaceholder.vue'
 import TaskBoard from '../components/TaskBoard.vue'
+import router from '../router'
 
 const activeTab = ref<'agenda' | 'board'>('agenda')
 const view = ref<'week' | 'month'>('week')
@@ -107,6 +108,11 @@ const events = ref<CalendarEvent[]>([
   { id: 'e7', dayIndex: 3, start: '15:00', end: '17:00', title: 'Almoço com a equipe', color: 'green', resume: 'Almoço com a equipe para fortalecer o relacionamento e discutir ideias.' },
   //{ id: 'e4', dayIndex: 4, start: '6:00', end: '20:00', title: 'demonstracao', color: 'green' },
 ])
+
+/** Navega para /AgendarReuniao ao clicar no botão */
+const goToAgendarReuniao = () => {
+  router.push('/AgendarReuniao')
+}
 </script>
 
 <style>

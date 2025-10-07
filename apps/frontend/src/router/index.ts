@@ -20,7 +20,7 @@ function isTokenExpired(token: string): boolean {
 }
 
 const routes: RouteRecordRaw[] = [
-  { path: '/login', name: 'Login', component: () => import('../views/Login.vue') },
+  { path: '/', name: 'Login', component: () => import('../views/Login.vue') },
   { path: '/auth', name: 'Auth', component: () => import('../views/Auth.vue') },
   { path: '/Home', name: 'Home', component: () => import('../views/Home.vue'), meta: { requiresAuth: true } },
   { path: '/Usuarios', name: 'Usuarios', component: () => import('../views/Usuarios.vue'), meta: { requiresAuth: true } },
@@ -31,8 +31,8 @@ const routes: RouteRecordRaw[] = [
   { path: '/CadastroUsuario', name: 'CadastroUsuario', component: () => import('../views/CadastroUsuario.vue'), meta: { requiresAuth: true } },
   { path: '/Auditoria', name: 'Auditoria', component: () => import('../views/Auditoria.vue'), meta: { requiresAuth: true } },
   { path: '/Agenda', name: 'Agenda', component: () => import('../views/Agenda.vue'), meta: { requiresAuth: true } },
-  { path: '/', name: 'AgendarReuniao', component: () => import('../views/AgendarReuniao.vue'), /*meta: { requiresAuth: true }*/ },
-  { path: '/Perfilusuario', component: () => import('../views/Perfilusuario.vue') },
+  { path: '/AgendarReuniao', name: 'AgendarReuniao', component: () => import('../views/AgendarReuniao.vue'), meta: { requiresAuth: true } },
+  { path: '/Perfilusuario', component: () => import('../views/Perfilusuario.vue'), meta: { requiresAuth: true } },
 ];
 
 const router = createRouter({
