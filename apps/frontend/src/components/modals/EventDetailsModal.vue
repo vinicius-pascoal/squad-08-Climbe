@@ -14,8 +14,8 @@
 
       <h2 class="mt-3 text-2xl font-bold text-slate-900">{{ event?.title }}</h2>
 
-      <div class="mt-5 grid gap-4 text-sm">
-        <div class="flex flex-wrap items-center gap-6">
+      <div class="mt-5 flex justify-start text-sm">
+        <div class="flex flex-col items-center gap-6">
           <div class="flex items-center gap-2 min-w-32">
             <span class="text-slate-400">🏷️ Etiqueta</span>
             <span class="font-medium text-slate-700">{{ event?.label ?? 'Apresentação' }}</span>
@@ -34,7 +34,8 @@
 
           <div class="flex items-center gap-2 min-w-28">
             <span class="text-slate-400">🗓️ Status</span>
-            <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 border border-amber-200">
+            <span
+              class="px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 border border-amber-200">
               {{ event?.status ?? 'A seguir' }}
             </span>
           </div>
@@ -49,13 +50,15 @@
       </div>
 
       <div class="mt-6 border-b border-slate-200 flex items-center gap-6 text-sm">
-        <button class="pb-3" :class="tab==='desc' ? 'text-slate-900 font-semibold border-b-2 border-slate-900' : 'text-slate-500'"
-                @click="tab='desc'">Descrição</button>
-        <button class="pb-3" :class="tab==='comments' ? 'text-slate-900 font-semibold border-b-2 border-slate-900' : 'text-slate-500'"
-                @click="tab='comments'">Comentários <span v-if="comments.length">({{ comments.length }})</span></button>
+        <button class="pb-3"
+          :class="tab === 'desc' ? 'text-slate-900 font-semibold border-b-2 border-slate-900' : 'text-slate-500'"
+          @click="tab = 'desc'">Descrição</button>
+        <button class="pb-3"
+          :class="tab === 'comments' ? 'text-slate-900 font-semibold border-b-2 border-slate-900' : 'text-slate-500'"
+          @click="tab = 'comments'">Comentários <span v-if="comments.length">({{ comments.length }})</span></button>
       </div>
 
-      <div v-if="tab==='desc'" class="pt-4 text-sm text-slate-700 leading-relaxed">
+      <div v-if="tab === 'desc'" class="pt-4 text-sm text-slate-700 leading-relaxed">
         <p>{{ event?.resume ?? 'Sem descrição.' }}</p>
         <p class="mt-2 text-xs text-slate-500">{{ event?.start }}–{{ event?.end }}</p>
       </div>
@@ -66,7 +69,8 @@
             placeholder="Escreva um comentário..."></textarea>
           <div class="mt-2 flex items-center justify-between">
             <div class="text-slate-400 text-xs">Use @ para mencionar</div>
-            <button class="px-4 py-1.5 rounded-lg bg-emerald-600 text-white text-sm hover:bg-emerald-700" @click="publish">
+            <button class="px-4 py-1.5 rounded-lg bg-emerald-600 text-white text-sm hover:bg-emerald-700"
+              @click="publish">
               Publicar
             </button>
           </div>
@@ -120,7 +124,7 @@ const props = defineProps<{
   event?: EventDetails | null
 }>()
 
-const emit = defineEmits<{ (e:'update:modelValue', v:boolean): void }>()
+const emit = defineEmits<{ (e: 'update:modelValue', v: boolean): void }>()
 
 const open = computed({
   get: () => props.modelValue,
