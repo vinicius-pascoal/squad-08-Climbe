@@ -67,14 +67,16 @@
 
       <div v-if="activeTab === 'agenda'" class="overflow-y-auto p-4">
         <WeeklyView v-if="view === 'week'" :start-hour="startHour" :end-hour="endHour" :week-start="weekStart"
-          :events="events" />
+          :events="events" @event-click="onEventClick" />
         <MonthlyPlaceholder v-else />
       </div>
       <div v-else class="p-4">
         <TaskBoard />
       </div>
     </div>
-  </section>
+  
+    <EventDetailsModal v-model="showDetails" :event="selectedEvent" />
+</section>
 </template>
 
 <script setup lang="ts">
@@ -83,6 +85,7 @@ import WeeklyView from '../components/WeeklyView.vue'
 import type { CalendarEvent } from '../components/calendar-types'
 import MonthlyPlaceholder from '../components/MonthlyPlaceholder.vue'
 import TaskBoard from '../components/TaskBoard.vue'
+import EventDetailsModal from '../components/modals/EventDetailsModal.vue'
 import router from '../router'
 
 const activeTab = ref<'agenda' | 'board'>('agenda')
@@ -108,6 +111,29 @@ const events = ref<CalendarEvent[]>([
   { id: 'e7', dayIndex: 3, start: '15:00', end: '17:00', title: 'Almoço com a equipe', color: 'green', resume: 'Almoço com a equipe para fortalecer o relacionamento e discutir ideias.' },
   //{ id: 'e4', dayIndex: 4, start: '6:00', end: '20:00', title: 'demonstracao', color: 'green' },
 ])
+
+/** Modal de detalhes */
+const showDetails = ref(false)
+const selectedEvent = ref<any | null>(null)
+
+function onEventClick(ev: CalendarEvent) {
+  selectedEvent.value = {
+    ...ev,
+    contextTitle: 'Apresentação do Projeto',
+    label: 'Apresentação',
+    status: 'A seguir',
+    priority: 'Alta',
+    responsaveis: [
+      { name: 'The Rock', avatar: '/avatars/rock.jpg' },
+      { name: 'Davi Brito', avatar: '/avatars/davi.jpg' },
+    ],
+    comments: [
+      { id: 'c1', author: 'The Rock', text: 'Aqui está o link do drive para a apresentação: Drive', createdAt: '1h' }
+    ]
+  }
+  showDetails.value = true
+}
+
 
 /** Navega para /AgendarReuniao ao clicar no botão */
 const goToAgendarReuniao = () => {

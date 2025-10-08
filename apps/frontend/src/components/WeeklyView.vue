@@ -18,7 +18,7 @@
           backgroundSize: '100% ' + pxPerHour + 'px'
         }">
           <div v-for="e in shapedEvents.filter(ev => ev.dayIndex === (day - 1))" :key="e.id"
-            class="absolute left-2 right-2 rounded-2xl shadow-md px-4 py-3 text-sm font-semibold select-none"
+            class="absolute left-2 right-2 rounded-2xl shadow-md px-4 py-3 text-sm font-semibold select-none cursor-pointer" @click="$emit('event-click', e)"
             :class="colorClass(e.color)" :style="{ top: e.top + 'px', height: e.height + 'px' }" :title="e.resume">
             <div class="leading-4">{{ e.title }}</div>
             <div class="opacity-60 text-[11px] mt-1">{{ e.start }}–{{ e.end }}</div>
@@ -31,6 +31,8 @@
 </template>
 
 <script setup lang="ts">
+const emit = defineEmits<{ (e:'event-click', ev:any): void }>()
+
 import { computed } from 'vue'
 import type { CalendarEvent } from './calendar-types'
 
