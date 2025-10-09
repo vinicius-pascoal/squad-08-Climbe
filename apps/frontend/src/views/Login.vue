@@ -62,11 +62,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, getCurrentInstance } from "vue";
 import { useRouter } from "vue-router";
 import { loginApi, loginGoogle } from "../services/auth";
 
 const router = useRouter();
+const _ins = getCurrentInstance();
+const notify = _ins?.appContext.config.globalProperties.$notify as any;
 const email = ref("");
 const password = ref("");
 const error = ref<string | null>(null);
@@ -80,11 +82,13 @@ async function login() {
     const res = await loginApi({ username: email.value, password: password.value });
     localStorage.setItem('access_token', res.access_token);
     localStorage.setItem('user', JSON.stringify(res.user));
+    await notify?.success(`Bem-vindo!`);
     router.push("/Home");
   } catch (e: any) {
     if (e?.status === 403) error.value = "Seu cadastro está pendente de aprovação.";
     else if (e?.status === 400) error.value = "Credenciais inválidas.";
     else error.value = e?.message || "Falha ao autenticar.";
+  await notify?.error(error.value as string);
   } finally {
     loading.value = false;
   }

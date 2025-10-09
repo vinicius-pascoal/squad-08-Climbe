@@ -34,6 +34,7 @@ const routes: RouteRecordRaw[] = [
   { path: '/Agenda', name: 'Agenda', component: () => import('../views/Agenda.vue'), meta: { requiresAuth: true } },
   { path: '/AgendarReuniao', name: 'AgendarReuniao', component: () => import('../views/AgendarReuniao.vue'), meta: { requiresAuth: true } },
   { path: '/Perfilusuario', component: () => import('../views/Perfilusuario.vue'), meta: { requiresAuth: true } },
+  { path: '/CreateProposta', component: () => import('../views/CreateProposta.vue'), meta: { requiresAuth: true } },
 ];
 
 const router = createRouter({
