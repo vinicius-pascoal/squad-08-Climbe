@@ -219,12 +219,14 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import DonutStatus from '../components/DonutStatus.vue'
 
 type Status = 'APROVADA' | 'REVISAO' | 'REPROVADA'
 type Proposta = { id: string; empresa: string; data: string | Date; status: Status; responsavel: string }
 type Historico = { id: string; data: string | Date; usuario: string; acao: string; status: Status; versao: string; comentario: string }
 
+const router = useRouter();
 const ui = reactive({ page: 1, pageSize: 5, search: '' })
 const uiHist = reactive({ page: 1, pageSize: 6 })
 
@@ -362,7 +364,7 @@ function percent(s: Status) {
   return Math.round((qtd / total) * 100)
 }
 
-function onCriarProposta() { console.log('Criar Proposta') }
+function onCriarProposta() { router.push('/CreateProposta') }
 function abrirProposta(p: Proposta) { console.log('Abrir', p.id) }
 
 function formatDate(d: string | Date) {

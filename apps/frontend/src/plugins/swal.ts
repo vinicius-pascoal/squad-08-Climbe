@@ -42,13 +42,13 @@ export default {
     (app.config.globalProperties as any).$swal = Swal;
     (app.config.globalProperties as any).$notify = notify;
 
-    // Optional: make window.alert show a neat toast instead of blocking dialog
+    // Qualquer window.alert vira MODAL CENTRAL
     (window as any).alert = (msg?: any) => Swal.fire({
-        icon: 'info',
-        text: String(msg),
-        position: 'center',
-        toast: false,
-        confirmButtonText: 'OK'
-      });
+      icon: 'info',
+      text: String(msg),
+      position: 'center',
+      toast: false,
+      confirmButtonText: 'OK'
+    });
   }
 };
