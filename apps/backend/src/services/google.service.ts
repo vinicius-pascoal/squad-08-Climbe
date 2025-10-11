@@ -10,13 +10,13 @@ export async function createGoogleEvent(googleAccessToken: string, eventDetails:
 
   const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 
-  if (eventDetails.isRemote) {
-    eventDetails.conferenceData = {
+  const { isRemote, ...eventBody } = eventDetails;
+
+  if (isRemote) {
+    eventBody.conferenceData = {
       createRequest: {
-        requestId: `${new Date().getTime()}`,
-        conferenceSolutionKey: {
-          type: 'hangoutsMeet',
-        },
+        requestId: `${Date.now()}`,
+        conferenceSolutionKey: { type: "hangoutsMeet" },
       },
     };
   }
@@ -24,14 +24,21 @@ export async function createGoogleEvent(googleAccessToken: string, eventDetails:
   try {
     const event = await calendar.events.insert({
       calendarId: 'primary',
-      requestBody: eventDetails,
+      requestBody: eventBody,
       conferenceDataVersion: 1,
     });
     return event.data;
   } catch (error: any) {
-    // É uma boa prática logar o erro original no servidor
-    console.error('Error creating Google Calendar event:', error);
-    throw new Error(`Error creating event: ${error.message}`);
+    const errData = error.response?.data;
+    console.error('Error creating Google Calendar event:', {
+      message: error.message,
+      status: error.response?.status,
+      data: errData,
+    });
+
+    throw new Error(
+      `Error creating event: ${errData?.error?.message || error.message}`
+    );
   }
 }
 

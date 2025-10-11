@@ -21,8 +21,7 @@ app.get("/login", (_req, res) => {
     redirect_uri: buildRedirectUri(),
     response_type: "code",
     access_type: "offline",
-    prompt: "consent",
-    scope: ["openid","email","profile"].join(" "),
+    scope: ["openid","email","profile", "https://www.googleapis.com/auth/calendar"].join(" "),
   });
   res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`);
 });
