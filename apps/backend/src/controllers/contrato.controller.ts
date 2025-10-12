@@ -7,7 +7,13 @@ export const contratoController = {
   async register(req: Request, res: Response) {
     try {
       const validatedData = contratoSchema.parse(req.body);
-      const existing = await contratoService.findById(validatedData.id);
+      let existing = null;
+      try {
+        existing = await contratoService.findById(validatedData.id);
+      } catch (err: any) {
+        if (err.message !== "Contrato não encontrado") throw err;
+      }
+
       if (existing) {
         return res.status(400).json({
           message: `Contrato com ID ${validatedData.id} já existe`,

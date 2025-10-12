@@ -112,9 +112,9 @@ model Proposta {
 }
 
 model Contrato {
-  id         String      @id @default(uuid()) @map("contrato_id")
+  id         String      @id @default(uuid()) @map("id_contrato")
   nome       String
-  propostaId Int         @map("proposta_id")
+  propostaId Int?        @map("id_proposta")
   status     String?
   descricao  String?
   valor      Float
@@ -123,7 +123,7 @@ model Contrato {
   envolvidos String?
   acoes      String?
   permissoes String?
-  Proposta   Proposta    @relation(fields: [propostaId], references: [id])
+  Proposta   Proposta?   @relation(fields: [propostaId], references: [id])
   Planilha   Planilha[]
   Relatorio  Relatorio[]
 
@@ -133,7 +133,7 @@ model Contrato {
 
 model Planilha {
   id                    Int      @id @default(autoincrement()) @map("id_planilha")
-  contratoId            String   @map("contrato_id")
+  contratoId            String   @map("id_contrato")
   urlGoogleSheets       String?  @map("url_google_sheets") @db.VarChar(255)
   bloqueada             Boolean?
   permissaoVisualizacao String?  @map("permissao_visualizacao") @db.VarChar(255)
@@ -145,7 +145,7 @@ model Planilha {
 
 model Relatorio {
   id         Int       @id @default(autoincrement()) @map("id_relatorio")
-  contratoId String    @map("contrato_id")
+  contratoId String    @map("id_contrato")
   urlPdf     String?   @map("url_pdf") @db.VarChar(255)
   dataEnvio  DateTime? @map("data_envio")
   contrato   Contrato  @relation(fields: [contratoId], references: [id])
