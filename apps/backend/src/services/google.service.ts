@@ -1,87 +1,96 @@
-import { google } from 'googleapis';
+import { google, calendar_v3 } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
 
+type CreateEventInput = {
+  summary: string;
+  description?: string;
+  location?: string;
+  start: { dateTime: string; timeZone?: string };
+  end: { dateTime: string; timeZone?: string };
+  attendees?: { email: string; optional?: boolean }[];
+  recurrence?: string[];
+  colorId?: string;
+  isRemote?: boolean;
+  sendUpdates?: 'all' | 'externalOnly' | 'none';
+};
+
 /**
- * Create a Google Calendar event. If `eventDetails.isRemote` is true, a Google Meet
+ * Create a Google Calendar event. If `isRemote` is true, a Google Meet
  * conference is created and attached to the event.
  *
  * @param googleAccessToken A valid Google OAuth2 access token with Calendar scope
  * @param eventDetails The event payload (summary, description, start, end, attendees[], isRemote?)
  */
-export async function createGoogleEvent(googleAccessToken: string, eventDetails: any) {
+export async function createGoogleEvent(googleAccessToken: string, eventDetails: CreateEventInput) {
   const oauth2Client = new OAuth2Client();
   oauth2Client.setCredentials({ access_token: googleAccessToken });
 
   const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 
-  const { isRemote, ...eventBody } = eventDetails ?? {};
-
-  const resource: any = {
-    ...eventBody,
+  const requestBody: calendar_v3.Schema$Event = {
+    summary: eventDetails.summary,
+    description: eventDetails.description,
+    location: eventDetails.location,
+    start: {
+      dateTime: eventDetails.start.dateTime,
+      timeZone: eventDetails.start.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+    },
+    end: {
+      dateTime: eventDetails.end.dateTime,
+      timeZone: eventDetails.end.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+    },
+    attendees: eventDetails.attendees,
+    recurrence: eventDetails.recurrence,
+    colorId: eventDetails.colorId,
   };
 
-  if (isRemote) {
-    resource.conferenceData = {
+  if (eventDetails.isRemote) {
+    requestBody.conferenceData = {
       createRequest: {
-        requestId: `req-${Date.now()}`,
+        requestId: 'req-' + Math.random().toString(36).slice(2),
         conferenceSolutionKey: { type: 'hangoutsMeet' },
       },
     };
   }
 
-  try {
-    const response = await calendar.events.insert({
-      calendarId: 'primary',
-      requestBody: resource,
-      conferenceDataVersion: isRemote ? 1 : 0,
-      supportsAttachments: false,
-      sendUpdates: 'all',
-    });
-    return response.data;
-  } catch (error: any) {
-    console.error('Error creating Google Calendar event:', error?.response?.data || error);
-    throw new Error(`Error creating event: ${error?.message || 'Unknown error'}`);
-  }
+  const res = await calendar.events.insert({
+    calendarId: 'primary',
+    requestBody,
+    conferenceDataVersion: eventDetails.isRemote ? 1 : 0,
+    sendUpdates: eventDetails.sendUpdates || 'all',
+  });
+
+  return res.data;
 }
 
-/**
- * List Google Calendar events for a specific day (UTC ISO date string 'YYYY-MM-DD'),
- * or for the next 7 days if no date is provided.
- */
 export async function getGoogleEvents(googleAccessToken: string, date?: string) {
   const oauth2Client = new OAuth2Client();
   oauth2Client.setCredentials({ access_token: googleAccessToken });
-
   const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 
-  let timeMin: string;
-  let timeMax: string;
+  let timeMin: string | undefined;
+  let timeMax: string | undefined;
 
   if (date) {
-    const d = new Date(date + 'T00:00:00Z');
-    const d2 = new Date(d);
-    d2.setUTCDate(d.getUTCDate() + 1);
-    timeMin = d.toISOString();
-    timeMax = d2.toISOString();
+    const d = new Date(date);
+    const start = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0));
+    const end = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59));
+    timeMin = start.toISOString();
+    timeMax = end.toISOString();
   } else {
     const now = new Date();
-    const week = new Date(now);
-    week.setDate(now.getDate() + 7);
+    const in30d = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
     timeMin = now.toISOString();
-    timeMax = week.toISOString();
+    timeMax = in30d.toISOString();
   }
 
-  try {
-    const events = await calendar.events.list({
-      calendarId: 'primary',
-      timeMin,
-      timeMax,
-      singleEvents: true,
-      orderBy: 'startTime',
-    });
-    return events.data.items || [];
-  } catch (error: any) {
-    console.error('Error fetching Google Calendar events:', error?.response?.data || error);
-    throw new Error(`Error fetching events: ${error?.message || 'Unknown error'}`);
-  }
+  const events = await calendar.events.list({
+    calendarId: 'primary',
+    timeMin,
+    timeMax,
+    singleEvents: true,
+    orderBy: 'startTime',
+  });
+
+  return events.data.items || [];
 }

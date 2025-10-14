@@ -4,54 +4,121 @@ import { requireAuth } from '../middlewares/auth';
 
 const eventRouter = Router();
 
-// Protect all routes with JWT (works with tokens from password or Google login flows)
+// All routes require auth (supports our JWT or Google ID token)
 eventRouter.use(requireAuth);
 
 /**
- * Create event
+ * Helper to extract a Google access token from body, header or query.
+ */
+function extractGoogleAccessToken(req: any): string | null {
+  const b = req.body || {};
+  return (
+    b.googleAccessToken ||
+    req.headers['x-google-access-token'] ||
+    (typeof req.query.googleAccessToken === 'string' ? req.query.googleAccessToken : null) ||
+    null
+  ) as string | null;
+}
+
+/**
+ * POST /api/events/create
  * Body:
- *  - eventDetails: Google Calendar event body (summary, start, end, attendees, isRemote?)
- *  - googleAccessToken?: string  (fallback if you want to pass the Google OAuth token explicitly)
- * Also accepts the Google token via header 'x-google-access-token' or query '?googleAccessToken='
+ *  - summary (string, required)
+ *  - description? (string)
+ *  - location? (string)
+ *  - start (ISO string) / end (ISO string) or start/end objects
+ *  - attendees? (string[] emails)
+ *  - isRemote? (boolean) -> create Google Meet link
+ *  - recurrence? (string[]) e.g. ['RRULE:FREQ=DAILY;COUNT=2']
+ *  - colorId? (string)
+ *  - sendUpdates? ('all' | 'externalOnly' | 'none')
+ *  - googleAccessToken? (string) as fallback
  */
 eventRouter.post('/create', async (req, res) => {
-  const eventDetails = req.body?.eventDetails;
-  const explicitToken = req.body?.googleAccessToken || req.headers['x-google-access-token'] || req.query.googleAccessToken;
+  const googleToken = extractGoogleAccessToken(req);
+  const user = (req as any).user || (req as any).userId || (req as any).userEmail;
 
-  if (!eventDetails) {
-    return res.status(400).json({ error: 'eventDetails is required' });
+  if (!user) return res.status(401).json({ error: 'Unauthorized' });
+  if (!googleToken) {
+    return res.status(400).json({
+      error: 'Google access token ausente. Envie no header x-google-access-token, query googleAccessToken ou body.googleAccessToken.',
+    });
   }
-  if (!explicitToken || typeof explicitToken !== 'string') {
-    return res.status(400).json({ error: 'Google access token is required (send in body.googleAccessToken, header x-google-access-token, or query googleAccessToken)' });
+
+  const {
+    summary,
+    description,
+    location,
+    start,
+    end,
+    attendees,
+    isRemote,
+    recurrence,
+    colorId,
+    sendUpdates,
+  } = req.body || {};
+
+  if (!summary || !start || !end) {
+    return res.status(400).json({ error: 'Campos obrigatórios: summary, start, end' });
   }
+
+  const normalizeDate = (v: any) => {
+    if (typeof v === 'string') return { dateTime: v };
+    if (v && typeof v.dateTime === 'string') return v;
+    return null;
+  };
+
+  const startObj = normalizeDate(start);
+  const endObj = normalizeDate(end);
+  if (!startObj || !endObj) {
+    return res.status(400).json({ error: 'start/end devem ser ISO strings ou objetos { dateTime, timeZone? }' });
+  }
+
+  const attendeesList =
+    Array.isArray(attendees) && attendees.length
+      ? attendees.map((email: string | { email: string }) =>
+          typeof email === 'string' ? { email } : email
+        )
+      : undefined;
 
   try {
-    const created = await createGoogleEvent(String(explicitToken), eventDetails);
+    const created = await createGoogleEvent(googleToken, {
+      summary,
+      description,
+      location,
+      start: startObj,
+      end: endObj,
+      attendees: attendeesList,
+      isRemote: !!isRemote,
+      recurrence,
+      colorId,
+      sendUpdates,
+    });
     return res.status(201).json(created);
   } catch (error: any) {
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: error?.message || 'Erro ao criar evento' });
   }
 });
 
 /**
- * List events
- * Query:
- *  - date?: 'YYYY-MM-DD' (optional)
- *  - googleAccessToken?: string (also accepted in header x-google-access-token)
+ * GET /api/events
+ * Optional: ?date=YYYY-MM-DD
+ * Requires: x-google-access-token or query/body googleAccessToken
  */
-eventRouter.get('/list', async (req, res) => {
-  const date = (req.query?.date as string) || undefined;
-  const explicitToken = (req.query?.googleAccessToken as string) || (req.headers['x-google-access-token'] as string) || (req.body?.googleAccessToken as string);
-
-  if (!explicitToken) {
-    return res.status(400).json({ error: 'Google access token is required (header x-google-access-token, query googleAccessToken or body.googleAccessToken)' });
+eventRouter.get('/', async (req, res) => {
+  const googleToken = extractGoogleAccessToken(req);
+  if (!googleToken) {
+    return res.status(400).json({
+      error: 'Google access token ausente. Envie no header x-google-access-token, query googleAccessToken ou body.googleAccessToken.',
+    });
   }
+  const date = typeof req.query.date === 'string' ? req.query.date : undefined;
 
   try {
-    const events = await getGoogleEvents(explicitToken, date);
-    return res.status(200).json(events);
+    const items = await getGoogleEvents(googleToken, date);
+    return res.status(200).json(items);
   } catch (error: any) {
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: error?.message || 'Erro ao obter eventos' });
   }
 });
 
