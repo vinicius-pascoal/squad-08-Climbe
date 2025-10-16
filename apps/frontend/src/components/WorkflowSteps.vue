@@ -12,7 +12,7 @@
     </div>
     <div class="w-full h-1 bg-gray-300 rounded-full">
       <div 
-        class="h-full bg-[#17BFBD] rounded-full"
+        class="h-full bg-brand-17bfbd rounded-full"
         :style="{ width: status === 'active' ? '50%' : '100%' }"
       ></div>
     </div>

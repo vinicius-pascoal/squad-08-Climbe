@@ -42,12 +42,12 @@ export default {
 .progress-bar-label {
   font-weight: bold;
   font-size: 1rem;
-  color: #333;
+  color: var(--color-333);
 }
 
 .progress-bar-wrapper {
   flex-grow: 1; /* Permite que a barra ocupe o espaço restante */
-  background-color: #e0e0e0;
+  background-color: var(--color-e0e0e0);
   border-radius: 5px;
   overflow: hidden;
   height: 25px;
@@ -56,7 +56,7 @@ export default {
 }
 
 .progress-bar {
-  background-color: #0E9A97; /* Cor verde/azulada da imagem */
+  background-color: var(--color-0e9a97); /* Cor verde/azulada da imagem */
   height: 100%;
   transition: width 0.4s ease; /* Adiciona uma transição suave */
   display: flex;

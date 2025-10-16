@@ -38,7 +38,7 @@
               <h1 class="font-bold text-lg">Etapa 4:</h1>
               <h2 class="text-lg">Assinatura</h2>
             </div>
-            <button class="text-[#17BFBD] font-medium">Atualizar</button>
+            <button class="text-brand-17bfbd font-medium">Atualizar</button>
           </div>
           
           <p class="text-gray-600 mb-6 text-sm">Adicione sua assinatura eletrônica ao contrato facilmente. Você pode usar a ferramenta de Assinatura do contract.io ou adicionar manualmente a imagem digitalizada da assinatura.</p>
@@ -111,7 +111,7 @@
           </div>
           
           <div class="mt-auto flex justify-end pt-6">
-            <button class="cadastro bg-[#CAD8FD] border border-[#3B67D0] text-white font-bold rounded-lg px-8 py-3 shadow-md  transition-colors">
+            <button class="cadastro bg-brand-cad8fd border border-brand-3b67d0 text-white font-bold rounded-lg px-8 py-3 shadow-md  transition-colors">
               Salvar e Enviar
             </button>
           </div>

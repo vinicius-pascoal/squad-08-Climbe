@@ -2,7 +2,7 @@
   <div class="flex items-center space-x-2">
     <label :for="inputId" class="text-sm font-medium text-gray-700">{{ label }}</label>
     <div
-      :class="['relative inline-flex h-6 w-11 items-center rounded-full transition-colors', modelValue ? 'bg-[#18a29b]' : 'bg-gray-200']"
+      :class="['relative inline-flex h-6 w-11 items-center rounded-full transition-colors', modelValue ? 'bg-brand-18a29b' : 'bg-gray-200']"
       @click="toggle"
     >
       <span

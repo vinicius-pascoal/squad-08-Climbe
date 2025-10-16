@@ -35,7 +35,7 @@
         </router-link>
       </div>
       
-      <button class="confirm-btn  border border-[#3B67D0] bg-[#CAD8FD] text-[#2551B2] rounded-lg">Confirmar</button>
+      <button class="confirm-btn  border border-brand-3b67d0 bg-brand-cad8fd text-brand-2551b2 rounded-lg">Confirmar</button>
     </div>
   </div>
 </template>

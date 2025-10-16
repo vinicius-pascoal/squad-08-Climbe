@@ -56,7 +56,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, getCurrentInstance } from 'vue';
 import { http } from '../lib/http';
 
 const fullText = 'A melhor empresa precisa dos melhores orientadores';
@@ -64,6 +64,10 @@ const typedText = ref('');
 const loading = ref(false);
 const error = ref<string | null>(null);
 const success = ref<string | null>(null);
+
+const _ins = getCurrentInstance();
+const swal = _ins?.appContext.config.globalProperties.$swal as any;
+const notify = _ins?.appContext.config.globalProperties.$notify as any;
 
 const form = ref({
   nomeCompleto: '',
@@ -108,9 +112,11 @@ async function register() {
       body: JSON.stringify(form.value),
     });
     success.value = 'Cadastro realizado! Aguarde aprovação.';
+    await swal.fire({ icon: 'success', title: 'Solicitação de acesso criada', text: 'Seu cadastro foi enviado e está pendente de aprovação.', confirmButtonText: 'OK' });
     form.value = { nomeCompleto: '', email: '', contato: '', senha: '' };
   } catch (e: any) {
-    error.value = e?.message || 'Falha ao cadastrar';
+    error.value = e?.message || 'Falha ao cadastrar.';
+    await swal.fire({ icon: 'error', title: 'Não foi possível cadastrar', text: String(error.value), confirmButtonText: 'OK' });
   } finally {
     loading.value = false;
   }

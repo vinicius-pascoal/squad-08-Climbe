@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import ToastHost from './components/ToastHost.vue';
 import { ref, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
 import Sidebar from './components/Sidebar.vue'
@@ -58,5 +57,5 @@ watchEffect(() => {
       <RouterView />
     </main>
   </div>
-  <ToastHost />
+  
 </template>

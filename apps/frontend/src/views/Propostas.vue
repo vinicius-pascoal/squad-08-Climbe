@@ -17,7 +17,7 @@
 
       <div class="flex items-center gap-2">
         <button
-          class="cadastro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-[#CAD8FD] border border-[#3B67D0] text-white rounded-lg px-4 py-2 hover cursor-pointer ml-16"
+          class="cadastro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-brand-cad8fd border border-brand-3b67d0 text-white rounded-lg px-4 py-2 hover cursor-pointer ml-16"
           @click="onCriarProposta">
           Criar Proposta
         </button>
@@ -219,12 +219,14 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import DonutStatus from '../components/DonutStatus.vue'
 
 type Status = 'APROVADA' | 'REVISAO' | 'REPROVADA'
 type Proposta = { id: string; empresa: string; data: string | Date; status: Status; responsavel: string }
 type Historico = { id: string; data: string | Date; usuario: string; acao: string; status: Status; versao: string; comentario: string }
 
+const router = useRouter();
 const ui = reactive({ page: 1, pageSize: 5, search: '' })
 const uiHist = reactive({ page: 1, pageSize: 6 })
 
@@ -362,7 +364,7 @@ function percent(s: Status) {
   return Math.round((qtd / total) * 100)
 }
 
-function onCriarProposta() { console.log('Criar Proposta') }
+function onCriarProposta() { router.push('/CreateProposta') }
 function abrirProposta(p: Proposta) { console.log('Abrir', p.id) }
 
 function formatDate(d: string | Date) {

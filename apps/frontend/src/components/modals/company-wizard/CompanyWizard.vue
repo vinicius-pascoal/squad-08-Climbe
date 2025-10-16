@@ -5,7 +5,8 @@
       <div class="relative z-10 w-[min(960px,95vw)] rounded-2xl bg-white p-6 shadow-xl">
         <div class="mb-6 flex items-center justify-between">
           <h2 class="text-center text-xl font-semibold text-slate-800 w-full">Cadastro de Empresa</h2>
-          <button class="absolute right-4 top-4 rounded-full p-1 text-slate-500 hover:bg-slate-100" @click="close" title="Fechar">✕</button>
+          <button class="absolute right-4 top-4 rounded-full p-1 text-slate-500 hover:bg-slate-100" @click="close"
+            title="Fechar">✕</button>
         </div>
 
         <div class="mb-6">
@@ -15,17 +16,18 @@
               <template v-for="(s, idx) in steps" :key="s.key">
                 <div class="flex flex-col items-center">
                   <div :class="[
-                      'grid size-10 place-items-center rounded-full border-2 text-sm font-semibold',
-                      currentStep >= idx + 1 ? 'border-sidebar bg-sidebar text-white' : 'border-slate-300 bg-white text-slate-600'
-                    ]">{{ idx + 1 }}</div>
+                    'grid size-10 place-items-center rounded-full border-2 text-sm font-semibold',
+                    currentStep >= idx + 1 ? 'border-sidebar bg-sidebar text-white' : 'border-slate-300 bg-white text-slate-600'
+                  ]">{{ idx + 1 }}</div>
                 </div>
               </template>
             </div>
           </div>
         </div>
 
-        <h3 class="mb-1 text-center text-base font-semibold text-slate-800">{{ steps[currentStep-1].title }}</h3>
-        <p class="mb-6 text-center text-xs text-slate-500">Preencha os dados abaixo para cadastrar sua empresa no sistema.</p>
+        <h3 class="mb-1 text-center text-base font-semibold text-slate-800">{{ steps[currentStep - 1].title }}</h3>
+        <p class="mb-6 text-center text-xs text-slate-500">Preencha os dados abaixo para cadastrar sua empresa no
+          sistema.</p>
 
         <div class="min-h-[320px]">
           <StepBasic v-if="currentStep === 1" ref="stepRef" v-model="form.basic" />
@@ -36,17 +38,20 @@
         </div>
 
         <div class="mt-6 flex items-center justify-between">
-          <button class="rounded-xl border border-slate-300 bg-slate-100 px-5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 disabled:opacity-60"
-                  :disabled="currentStep === 1 || loading" @click="prev">Anterior</button>
+          <button
+            class="rounded-xl border border-slate-300 bg-slate-100 px-5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 disabled:opacity-60"
+            :disabled="currentStep === 1 || loading" @click="prev">Anterior</button>
 
           <div class="flex items-center gap-3">
             <p v-if="error" class="text-xs text-red-600">{{ error }}</p>
 
-            <button v-if="currentStep < 5" class="rounded-xl bg-sidebar px-5 py-2 text-sm font-semibold text-white shadow hover:bg-secondary disabled:opacity-60"
-                    :disabled="loading" @click="next">Próximo</button>
+            <button v-if="currentStep < 5"
+              class="rounded-xl bg-sidebar px-5 py-2 text-sm font-semibold text-white shadow hover:bg-secondary disabled:opacity-60"
+              :disabled="loading" @click="next">Próximo</button>
 
-            <button v-else class="rounded-xl bg-sidebar px-5 py-2 text-sm font-semibold text-white shadow hover:bg-secondary disabled:opacity-60"
-                    :disabled="loading" @click="submit">
+            <button v-else
+              class="rounded-xl bg-sidebar px-5 py-2 text-sm font-semibold text-white shadow hover:bg-secondary disabled:opacity-60"
+              :disabled="loading" @click="submit">
               <span v-if="!loading">Salvar</span>
               <span v-else>Salvando...</span>
             </button>
@@ -64,7 +69,7 @@ import StepAddress from './StepAddress.vue'
 import StepRepresentative from './StepRepresentative.vue'
 import StepExtra from './StepExtra.vue'
 import StepConfirm from './StepConfirm.vue'
-import { useToast } from '../../../plugins/toast'
+
 
 type Basic = { name: string; cnpj: string; phone: string; corporateName: string; email: string }
 type Address = { street: string; number: string; neighborhood: string; city: string; state: string; zip: string }
@@ -88,7 +93,6 @@ const steps = [
 ]
 
 const currentStep = ref(1)
-const toast = useToast()
 const loading = ref(false)
 const error = ref<string | null>(null)
 
@@ -108,7 +112,7 @@ function close() {
 async function next() {
   error.value = null
   const ok = (await stepRef.value?.validate?.()) ?? true
-  if (!ok) { error.value = 'Verifique os campos obrigatórios.'; toast.warning('Preencha os campos obrigatórios.'); return }
+  if (!ok) { error.value = 'Verifique os campos obrigatórios.'; notify.warning('Preencha os campos obrigatórios.'); return }
   if (currentStep.value < 5) currentStep.value++
 }
 
@@ -140,12 +144,12 @@ async function submit() {
       })
       if (!res.ok) throw new Error(`Falha ao salvar (HTTP ${res.status})`)
     }
-    toast.success('Empresa cadastrada com sucesso!');
+    notify.success('Empresa cadastrada com sucesso!');
     emit('saved')
     close()
   } catch (e: any) {
     error.value = e?.message ?? 'Erro ao salvar';
-    toast.error(error.value)
+    notify.error(error.value)
   } finally {
     loading.value = false
   }
@@ -153,6 +157,13 @@ async function submit() {
 </script>
 
 <style scoped>
-.fade-enter-active, .fade-leave-active { transition: opacity .18s ease; }
-.fade-enter-from, .fade-leave-to { opacity: 0; }
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity .18s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
 </style>

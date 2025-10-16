@@ -187,7 +187,6 @@
 <script setup lang="ts">
 import { onMounted, ref, computed, watch } from 'vue'
 import CompanyWizard from '../components/modals/company-wizard/CompanyWizard.vue'
-import { useToast } from '../plugins/toast'
 
 type Status = 'Ativa' | 'Pendente' | 'Inativa'
 type Company = {
@@ -213,8 +212,6 @@ const companies = ref<Company[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
 const wizardOpen = ref(false)
-const toast = useToast()
-
 const pageCount = computed(() => Math.max(1, Math.ceil(total.value / pageSize.value)))
 const pageStart = computed(() => (total.value === 0 ? 0 : (page.value - 1) * pageSize.value + 1))
 const pageEnd = computed(() => Math.min(total.value, page.value * pageSize.value))
@@ -300,7 +297,7 @@ async function fetchCompanies() {
 
 function handleSaved() {
   fetchCompanies()
-  toast.success('Lista atualizada.')
+  notify.success('Lista atualizada.')
 }
 
 function onCreate() {

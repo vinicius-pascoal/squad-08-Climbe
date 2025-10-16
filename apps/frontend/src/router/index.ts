@@ -27,12 +27,14 @@ const routes: RouteRecordRaw[] = [
   { path: '/Empresas', name: 'Empresas', component: () => import('../views/Empresas.vue'), meta: { requiresAuth: true } },
   { path: '/Propostas', name: 'Propostas', component: () => import('../views/Propostas.vue'), meta: { requiresAuth: true } },
   { path: '/Contratos', name: 'Contratos', component: () => import('../views/Contratos.vue'), meta: { requiresAuth: true } },
-     { path: '/novocontrato', component: () => import('../views/NovoContrato.vue'), meta: { requiresAuth: true }},
+  { path: '/novocontrato', component: () => import('../views/NovoContrato.vue'), meta: { requiresAuth: true } },
   { path: '/Cadastro', name: 'Cadastro', component: () => import('../views/Cadastro.vue') },
   { path: '/CadastroUsuario', name: 'CadastroUsuario', component: () => import('../views/CadastroUsuario.vue'), meta: { requiresAuth: true } },
   { path: '/Auditoria', name: 'Auditoria', component: () => import('../views/Auditoria.vue'), meta: { requiresAuth: true } },
   { path: '/Agenda', name: 'Agenda', component: () => import('../views/Agenda.vue'), meta: { requiresAuth: true } },
-  { path: '/Perfilusuario', component: () => import('../views/Perfilusuario.vue') },
+  { path: '/AgendarReuniao', name: 'AgendarReuniao', component: () => import('../views/AgendarReuniao.vue'), meta: { requiresAuth: true } },
+  { path: '/Perfilusuario', component: () => import('../views/Perfilusuario.vue'), meta: { requiresAuth: true } },
+  { path: '/CreateProposta', component: () => import('../views/CreateProposta.vue'), meta: { requiresAuth: true } },
 ];
 
 const router = createRouter({
@@ -42,22 +44,18 @@ const router = createRouter({
 
 router.beforeEach((to, _from, next) => {
   const token = localStorage.getItem('access_token') || '';
-
-  // Redirect invalid/expired tokens to login
-  if (token && isTokenExpired(token)) {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('user');
-  }
-
   if (to.meta?.requiresAuth) {
-    if (!token) return next({ path: '/' });
+    if (!token || isTokenExpired(token)) {
+      // clear session and go to login
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('google_access_token');
+      return next({ path: '/' });
+    }
   }
-
-  // If already logged in and going to root, go to Home
   if (!to.meta?.requiresAuth && token && !isTokenExpired(token) && to.path === '/') {
     return next({ path: '/Home' });
   }
-
   next();
 });
 
