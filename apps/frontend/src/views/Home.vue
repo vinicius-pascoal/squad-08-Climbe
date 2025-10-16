@@ -106,15 +106,32 @@ async function loadEventsForSelectedDate() {
     const m = String(selectedDate.value.getMonth() + 1).padStart(2, '0');
     const d = String(selectedDate.value.getDate()).padStart(2, '0');
     const items = await listCalendarEvents(`${y}-${m}-${d}`);
-    activities.value = (items || []).map((ev: any) => ({
-      id: ev.id || crypto.randomUUID(),
-      date: new Date(ev.start?.dateTime || ev.start?.date || selectedDate.value),
-      title: ev.summary || 'Evento',
-      completed: false,
-      priority: 'Média',
-      description: ev.description || '',
-      location: ev.location || '',
-    }));
+    activities.value = (items || []).map((ev: any) => {
+      // Prefer start.dateTime (full ISO). If only start.date (YYYY-MM-DD) is present,
+      // parse it as local date to avoid timezone shift.
+      let evDate: Date;
+      if (ev.start?.dateTime) {
+        evDate = new Date(ev.start.dateTime);
+      } else if (ev.start?.date) {
+        const parts = String(ev.start.date).split('-').map((s: string) => Number(s));
+        const yy = parts[0] || selectedDate.value.getFullYear();
+        const mm = (parts[1] || (selectedDate.value.getMonth() + 1)) - 1;
+        const dd = parts[2] || selectedDate.value.getDate();
+        evDate = new Date(yy, mm, dd);
+      } else {
+        evDate = new Date(selectedDate.value);
+      }
+
+      return {
+        id: ev.id || crypto.randomUUID(),
+        date: evDate,
+        title: ev.summary || 'Evento',
+        completed: false,
+        priority: 'Média',
+        description: ev.description || '',
+        location: ev.location || '',
+      };
+    });
   } catch (err) {
     console.error('Falha ao carregar eventos:', err);
   }
