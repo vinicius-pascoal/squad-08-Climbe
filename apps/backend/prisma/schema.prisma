@@ -21,6 +21,7 @@ model Usuario {
   participantes      ParticipanteReuniao[]
   documentosAnalista Documento[]           @relation("Documento_Analista")
   usuarioPermissoes  UsuarioPermissao[]
+  tarefas     Tarefa[]
 
   @@index([cargoId])
   @@map("usuarios")
@@ -201,4 +202,17 @@ model Documento {
   @@index([empresaId])
   @@index([analistaId])
   @@map("documentos")
+}
+
+model Tarefa {
+  id          Int      @id @default(autoincrement()) @map("id_tarefa")
+  titulo      String   @db.VarChar(255)
+  descricao   String?  @db.Text
+  status      String   @default("A_FAZER") @db.VarChar(50)
+  dataCriacao DateTime @default(now()) @map("data_criacao")
+  usuarioId   Int?     @map("usuario_id")
+  usuario     Usuario? @relation(fields: [usuarioId], references: [id])
+
+  @@index([usuarioId])
+  @@map("tarefas")
 }
