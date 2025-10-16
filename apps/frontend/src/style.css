@@ -229,3 +229,14 @@ body,
   color: var(--text) !important;
   border-color: var(--border) !important;
 }
+
+.dark .calendarioSemanal {
+  background-color: var(--card) !important;
+  color: var(--text) !important;
+}
+
+.dark .taskboard .busca {
+  background: none !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
