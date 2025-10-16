@@ -34,7 +34,7 @@ export async function addCalendarEvent(input: AddEventInput) {
     isRemote: !!input.remoto,
   };
 
-  const headers: Record<string,string> = {};
+  const headers: Record<string, string> = {};
   const gtoken = getGoogleToken();
   if (gtoken) headers['x-google-access-token'] = gtoken;
 
@@ -46,12 +46,20 @@ export async function addCalendarEvent(input: AddEventInput) {
 }
 
 export async function listCalendarEvents(date?: string) {
-  const headers: Record<string,string> = {};
+  const headers: Record<string, string> = {};
   const gtoken = getGoogleToken();
   if (gtoken) headers['x-google-access-token'] = gtoken;
 
   const url = date ? `/api/events?date=${encodeURIComponent(date)}` : '/api/events';
   return http(url, { headers });
+}
+
+export async function listUserEvents() {
+  const headers: Record<string, string> = {};
+  const gtoken = getGoogleToken();
+  if (gtoken) headers['x-google-access-token'] = gtoken;
+
+  return http('/api/events/user', { headers });
 }
 
 const calendarApi = { addCalendarEvent, listCalendarEvents };

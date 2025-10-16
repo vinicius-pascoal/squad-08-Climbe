@@ -53,12 +53,13 @@ import HistoryWidget from '../components/HistoryWidget.vue';
 import ActionsWidget from '../components/ActionsWidget.vue';
 
 // Serviços
-import calendarApi, { listCalendarEvents, addCalendarEvent } from '../services/calendar';
+import calendarApi, { listCalendarEvents, listUserEvents, addCalendarEvent } from '../services/calendar';
 
 // --- ESTADO DO WIDGET DE CALENDÁRIO ---
 const selectedDate = ref<Date>(new Date());
 const viewDate = ref<Date>(new Date());
-const activities = ref<any[]>([]);
+const activitiesAll = ref<any[]>([]);
+const activities = activitiesAll; // compat shorthand for older code using 'activities'
 const isAddEventModalOpen = ref(false);
 
 const monthYearDisplay = computed(() => {
@@ -93,7 +94,7 @@ const isSameDate = (d1: Date | string | number, d2: Date | string | number) => {
 };
 
 const activitiesForSelectedDate = computed(() =>
-  activities.value.filter(a => isSameDate(a.date, selectedDate.value))
+  activitiesAll.value.filter((a: any) => isSameDate(a.date, selectedDate.value))
 );
 
 const openAddEventModal = () => { isAddEventModalOpen.value = true; };
@@ -106,7 +107,8 @@ async function loadEventsForSelectedDate() {
     const m = String(selectedDate.value.getMonth() + 1).padStart(2, '0');
     const d = String(selectedDate.value.getDate()).padStart(2, '0');
     const items = await listCalendarEvents(`${y}-${m}-${d}`);
-    activities.value = (items || []).map((ev: any) => {
+    // This function loads events for a single date (detailed view) but should not overwrite the global activitiesAll
+    const dayItems = (items || []).map((ev: any) => {
       // Prefer start.dateTime (full ISO). If only start.date (YYYY-MM-DD) is present,
       // parse it as local date to avoid timezone shift.
       let evDate: Date;
@@ -132,8 +134,44 @@ async function loadEventsForSelectedDate() {
         location: ev.location || '',
       };
     });
+
+    // Update only detailed view if needed (we can set activitiesAll for calendar elsewhere)
+    // For now keep dayItems available by replacing activitiesAll entries for that day
+    // Remove existing activities on that day and add fetched ones
+    activitiesAll.value = activitiesAll.value.filter((a: any) => !isSameDate(a.date, selectedDate.value)).concat(dayItems);
   } catch (err) {
     console.error('Falha ao carregar eventos:', err);
+  }
+}
+
+async function loadAllUserEvents() {
+  try {
+    const items = await listUserEvents();
+    // items is array with merged local+google events
+    activitiesAll.value = (items || []).map((ev: any) => {
+      // ev.start may be ISO string or date-only; prefer to parse as local
+      let evDate: Date;
+      if (ev.start && typeof ev.start === 'string' && ev.start.includes('T')) {
+        evDate = new Date(ev.start);
+      } else if (ev.start && typeof ev.start === 'string' && ev.start.includes('-')) {
+        const [y, m, d] = ev.start.split('-').map(Number);
+        evDate = new Date(y, (m || 1) - 1, d || 1);
+      } else {
+        evDate = new Date();
+      }
+
+      return {
+        id: ev.id || crypto.randomUUID(),
+        date: evDate,
+        title: ev.summary || ev.title || 'Evento',
+        completed: false,
+        priority: 'Média',
+        description: ev.description || '',
+        location: ev.location || '',
+      };
+    });
+  } catch (err) {
+    console.error('Falha ao carregar eventos do usuário:', err);
   }
 }
 
@@ -187,7 +225,10 @@ async function addActivity(payload: AddPayload) {
   }
 }
 
-onMounted(loadEventsForSelectedDate);
+onMounted(() => {
+  loadAllUserEvents();
+  loadEventsForSelectedDate();
+});
 watch(selectedDate, () => loadEventsForSelectedDate());
 
 </script>

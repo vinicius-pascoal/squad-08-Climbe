@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { createGoogleEvent, getGoogleEvents } from '../services/google.service';
 import { requireAuth } from '../middlewares/auth';
+import { prisma } from '../utils/prisma';
+import { usuarioRepo } from '../repositories/usuario.repo';
 
 const eventRouter = Router();
 
@@ -77,8 +79,8 @@ eventRouter.post('/create', async (req, res) => {
   const attendeesList =
     Array.isArray(attendees) && attendees.length
       ? attendees.map((email: string | { email: string }) =>
-          typeof email === 'string' ? { email } : email
-        )
+        typeof email === 'string' ? { email } : email
+      )
       : undefined;
 
   try {
@@ -119,6 +121,85 @@ eventRouter.get('/', async (req, res) => {
     return res.status(200).json(items);
   } catch (error: any) {
     return res.status(500).json({ error: error?.message || 'Erro ao obter eventos' });
+  }
+});
+
+/**
+ * GET /api/events/user
+ * Returns events linked to the authenticated user:
+ *  - local reunioes where the user is a participant (from ParticipanteReuniao)
+ *  - google events (optional) if x-google-access-token header provided
+ */
+eventRouter.get('/user', async (req, res) => {
+  try {
+    const userId = (req as any).userId as number | undefined;
+    const userEmail = (req as any).userEmail as string | undefined;
+
+    if (!userId && !userEmail) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const results: any[] = [];
+
+    // 1) local meetings (Reuniao) where user is participant
+    const participations = await prisma.participanteReuniao.findMany({
+      where: { usuarioId: userId || 0 },
+      include: { reuniao: true },
+    });
+
+    for (const p of participations) {
+      const r = p.reuniao;
+      // r.data is Date (date only), r.hora may be a Date with time only or null
+      let start: Date | null = null;
+      try {
+        if (r.data) {
+          const d = new Date(r.data as any);
+          if (r.hora) {
+            const time = new Date(r.hora as any);
+            d.setHours(time.getHours(), time.getMinutes(), 0, 0);
+          }
+          start = d;
+        }
+      } catch (e) {
+        start = null;
+      }
+
+      results.push({
+        id: `local-${r.id}`,
+        source: 'local',
+        summary: r.titulo || 'Reunião',
+        description: r.pauta || '',
+        start: start ? start.toISOString() : null,
+        end: start ? new Date(start.getTime() + 60 * 60 * 1000).toISOString() : null,
+        location: r.local || '',
+        attendees: [],
+      });
+    }
+
+    // 2) google events (optional)
+    const googleToken = extractGoogleAccessToken(req);
+    if (googleToken) {
+      const items = await getGoogleEvents(googleToken);
+      for (const ev of items || []) {
+        // normalize start
+        const s = ev.start?.dateTime || ev.start?.date || null;
+        const e = ev.end?.dateTime || ev.end?.date || null;
+        results.push({
+          id: ev.id || `google-${Math.random().toString(36).slice(2)}`,
+          source: 'google',
+          summary: ev.summary || 'Evento',
+          description: ev.description || '',
+          start: s,
+          end: e,
+          location: ev.location || '',
+          attendees: (ev.attendees || []).map((a: any) => a.email),
+        });
+      }
+    }
+
+    return res.status(200).json(results);
+  } catch (error: any) {
+    return res.status(500).json({ error: error?.message || 'Erro ao obter eventos do usuário' });
   }
 });
 
