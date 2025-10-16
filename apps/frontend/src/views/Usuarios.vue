@@ -166,8 +166,8 @@ export default {
 </script>
 
 <template>
-  <div class="gestaousuario ml-16 relative ">
-    <h1 class="font-bold text-[40px]">Gestão de Usuário</h1>
+  <div class="gestaousuario ml-16 relative usuarios ">
+    <h1 class="font-bold text-[40px] titulo">Gestão de Usuário</h1>
 
     <div class="flex items-center gap-4 mt-4 mb-6">
       <input v-model="searchTerm" type="search" placeholder="pesquisar por nome/email"
@@ -203,7 +203,8 @@ export default {
 
       <div class="flex items-center justify-end gap-2">
         <button @click="clearFilters" class="px-3 py-2 rounded-lg border text-brand-5f6060">Limpar</button>
-        <button @click="applyFilters" class="px-3 py-2 rounded-lg bg-brand-cad8fd text-brand-3b67d0 border border-brand-3b67d0">
+        <button @click="applyFilters"
+          class="px-3 py-2 rounded-lg bg-brand-cad8fd text-brand-3b67d0 border border-brand-3b67d0">
           Aplicar
         </button>
       </div>

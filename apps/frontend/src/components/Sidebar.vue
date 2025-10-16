@@ -1,5 +1,5 @@
 <template>
-  <aside class="relative min-h-screen flex sombraTexto" :class="{ collapsed }" role="navigation">
+  <aside class="relative min-h-screen flex sombraTexto fundosidebar" :class="{ collapsed }" role="navigation">
     <div class="h-full bg-secondary flex flex-col justify-between w-14 shadow-lg">
       <button v-if="collapsed" @click="toggleSidebar">
         <img src="/img/logoCircular.svg" class="w-14 h-14 absolute left-20 top-3" alt="climbe" />
@@ -207,5 +207,33 @@ watch(() => route.path, () => nextTick().then(measureHeader))
   position: absolute;
   bottom: 0;
   width: 100%;
+}
+
+/* dark mode adjustments for sidebar (scoped) */
+:deep(.dark) .menu-link.ativo {
+  background-color: var(--panel) !important;
+  color: var(--text) !important;
+  box-shadow: none !important;
+  border-left: 4px solid var(--accent) !important;
+}
+
+:deep(.dark) .menu-link:hover {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+:deep(.dark) .bg-sidebar {
+  background-color: var(--sidebar) !important;
+}
+
+:deep(.dark) .bg-secondary {
+  background-color: var(--secondary) !important;
+}
+
+:deep(.dark) .hover\:bg-white\/20:hover {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+.dark .fundosidebar {
+  background-color: var(--sidebar) !important;
 }
 </style>

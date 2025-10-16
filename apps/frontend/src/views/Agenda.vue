@@ -1,5 +1,5 @@
 <template>
-  <section class=" bg-brand-f4f4f6 text-slate-800 ">
+  <section class="  text-slate-800 ">
     <div class="mx-auto w-full max-w-7xl px-4 pt-6 pb-3 grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4 ">
       <div class="bg-white rounded-2xl p-5 shadow-lg">
         <p class="text-sm font-semibold tracking-wide">Contratos que&nbsp; vencem esse mês</p>
@@ -74,9 +74,9 @@
         <TaskBoard />
       </div>
     </div>
-  
+
     <EventDetailsModal v-model="showDetails" :event="selectedEvent" />
-</section>
+  </section>
 </template>
 
 <script setup lang="ts">
