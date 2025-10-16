@@ -38,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, getCurrentInstance } from 'vue';
 
 // Componentes do Widget de Calendário
 import Calendar from '../components/Calendar.vue';
@@ -132,7 +132,14 @@ type AddPayload = {
 
 async function addActivity(payload: AddPayload) {
   try {
-    const start = new Date(payload?.date || selectedDate.value);
+    // garantir payload.date como Date local
+    let start = payload?.date ? new Date(payload.date as any) : new Date(selectedDate.value);
+    // se payload.date foi uma string no formato YYYY-MM-DD, new Date(...) pode interpretar em UTC;
+    // preferimos garantir local: se foi string com '-', criar localmente
+    if (payload?.date && typeof payload.date === 'string' && payload.date.includes('-')) {
+      const [y, m, d] = payload.date.split('-').map(Number);
+      start = new Date(y, (m || 1) - 1, d || 1);
+    }
     if (payload?.time) {
       const [hh = '9', mm = '0'] = String(payload.time).split(':');
       start.setHours(Number(hh), Number(mm), 0, 0);
@@ -152,15 +159,20 @@ async function addActivity(payload: AddPayload) {
 
     await loadEventsForSelectedDate();
     isAddEventModalOpen.value = false;
+    const instance = getCurrentInstance();
+    const $notify = instance?.appContext.config.globalProperties.$notify;
+    ($notify?.success?.('Evento criado com sucesso!') || window.alert('Evento criado com sucesso!'));
   } catch (err) {
     console.error('Falha ao criar evento:', err);
+    const instance = getCurrentInstance();
+    const $notify = instance?.appContext.config.globalProperties.$notify;
+    ($notify?.error?.('Falha ao criar evento') || window.alert('Falha ao criar evento'));
   }
 }
 
 onMounted(loadEventsForSelectedDate);
 watch(selectedDate, () => loadEventsForSelectedDate());
 
-// --- LÓGICA DOS OUTROS WIDGETS ABAIXO... ---
 </script>
 
 <style scoped>
