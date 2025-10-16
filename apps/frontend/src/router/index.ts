@@ -44,22 +44,18 @@ const router = createRouter({
 
 router.beforeEach((to, _from, next) => {
   const token = localStorage.getItem('access_token') || '';
-
-  // Redirect invalid/expired tokens to login
-  if (token && isTokenExpired(token)) {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('user');
-  }
-
   if (to.meta?.requiresAuth) {
-    if (!token) return next({ path: '/' });
+    if (!token || isTokenExpired(token)) {
+      // clear session and go to login
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('google_access_token');
+      return next({ path: '/' });
+    }
   }
-
-  // If already logged in and going to root, go to Home
   if (!to.meta?.requiresAuth && token && !isTokenExpired(token) && to.path === '/') {
     return next({ path: '/Home' });
   }
-
   next();
 });
 

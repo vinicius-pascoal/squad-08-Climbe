@@ -1,108 +1,102 @@
-
-import { app } from "../app";
-import type { Request, Response } from "express";
-import { signAccessToken } from "../services/token.service";
-import { usuarioRepo } from "../repositories/usuario.repo";
-import { env } from "../config/env";
+import { app } from '../app';
+import type { Request, Response } from 'express';
+import { signAccessToken } from '../services/token.service';
+import { usuarioRepo } from '../repositories/usuario.repo';
+import { env } from '../config/env';
 
 const BACKEND_ORIGIN = process.env.BACKEND_ORIGIN || `http://localhost:${env.port}`;
-const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || process.env.VITE_FRONTEND_URI || "http://localhost:5173";
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || process.env.OAUTH2_ID || "";
-const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || process.env.OAUTH2_SECRET || "";
+const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || process.env.VITE_FRONTEND_URI || 'http://localhost:5173';
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || process.env.OAUTH2_ID || '';
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || process.env.OAUTH2_SECRET || '';
 
 function buildRedirectUri() {
-  return `${BACKEND_ORIGIN.replace(/\/$/, "")}/oauth2callback`;
+  return `${BACKEND_ORIGIN.replace(/\/$/, '')}/oauth2callback`;
 }
 
-app.get("/login", (_req, res) => {
-  if (!GOOGLE_CLIENT_ID) return res.status(500).send("GOOGLE_CLIENT_ID not configured");
+// Step 1: redirect to Google OAuth consent
+app.get('/login', (_req: Request, res: Response) => {
   const params = new URLSearchParams({
     client_id: GOOGLE_CLIENT_ID,
     redirect_uri: buildRedirectUri(),
-    response_type: "code",
-    access_type: "offline",
-    prompt: "consent",
-    scope: ["openid","email","profile"].join(" "),
+    response_type: 'code',
+    scope: [
+      'openid',
+      'email',
+      'profile',
+      'https://www.googleapis.com/auth/calendar.events',
+    ].join(' '),
+    access_type: 'offline',
+    prompt: 'consent', // to get refresh_token each time in dev
   });
-  res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`);
+  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+  return res.redirect(authUrl);
 });
 
-app.get("/oauth2callback", async (req: Request, res: Response) => {
+// Step 2: callback
+app.get('/oauth2callback', async (req: Request, res: Response) => {
   try {
-    const code = String(req.query.code || "");
-    if (!code) return res.status(400).send("Missing code");
-    if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
-      return res.status(500).send("Google OAuth env not configured");
-    }
+    const code = req.query.code as string | undefined;
+    if (!code) return res.status(400).send('Missing code');
 
     // Exchange code for tokens
-    const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
         code,
         client_id: GOOGLE_CLIENT_ID,
         client_secret: GOOGLE_CLIENT_SECRET,
         redirect_uri: buildRedirectUri(),
-        grant_type: "authorization_code",
+        grant_type: 'authorization_code',
       }),
     });
     if (!tokenRes.ok) {
       const t = await tokenRes.text();
-      return res.status(502).send(`Failed to exchange code: ${t}`);
+      console.error('Token exchange failed:', t);
+      return res.status(500).send('OAuth token exchange failed');
     }
-    const tokenJson: any = await tokenRes.json();
-    const googleAccessToken = tokenJson.access_token;
-    if (!googleAccessToken) return res.status(502).send("No access_token from Google");
+    const tokens = await tokenRes.json() as any;
+    const accessToken = tokens.access_token as string;
+    const idToken = tokens.id_token as string | undefined;
 
-    // Get user info
-    const userinfoRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-      headers: { Authorization: `Bearer ${googleAccessToken}` },
+    // Fetch userinfo
+    const userRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: `Bearer ${accessToken}` },
     });
-    if (!userinfoRes.ok) {
-      const t = await userinfoRes.text();
-      return res.status(502).send(`Failed to get userinfo: ${t}`);
+    if (!userRes.ok) {
+      const t = await userRes.text();
+      console.error('Userinfo fetch failed:', t);
+      return res.status(500).send('OAuth userinfo failed');
     }
-    const profile: any = await userinfoRes.json();
-    const email = String(profile.email || "").toLowerCase();
-    const name = profile.name || profile.given_name || "Usuário Google";
-    if (!email) return res.status(400).send("Google user has no email");
+    const profile = await userRes.json() as any;
+    const email: string | undefined = profile?.email;
+    const name: string | undefined = profile?.name;
 
+    if (!email) return res.status(400).send('Email não disponível pelo Google');
+
+    // Ensure local user exists (approve automatically to simplify)
     let user = await usuarioRepo.findByEmail(email);
     if (!user) {
-      // Create PENDING user (require manual approval)
       user = await usuarioRepo.create({
         email,
-        nomeCompleto: name,
-        situacao: "pendente",
-        senhaHash: "", // Google user: no local password
-      } as any);
-
-      // Redirect to login with confirmation message
-      const to = new URL(FRONTEND_ORIGIN.replace(/\/$/, "") + "/");
-      to.searchParams.set("created", "1");
-      to.searchParams.set("msg", "solicitação de acesso criada");
-      return res.redirect(to.toString());
+        nomeCompleto: name || email,
+        situacao: 'aprovado',
+      });
     }
 
-    // Existing user but not approved yet
-    if ((String(user.situacao || "")).toLowerCase() !== "aprovado") {
-      const to = new URL(FRONTEND_ORIGIN.replace(/\/$/, "") + "/");
-      to.searchParams.set("pending", "1");
-      to.searchParams.set("msg", "solicitação de acesso criada");
-      return res.redirect(to.toString());
-    }
-
-    // Approved: issue our JWT and send to /auth
+    // Issue our app JWT
     const access_token = signAccessToken(user.id);
-    const redirect = new URL(FRONTEND_ORIGIN.replace(/\/$/, "") + "/auth");
-    redirect.searchParams.set("access_token", access_token);
-    redirect.searchParams.set("user", JSON.stringify({
-      id: user.id, nomeCompleto: user.nomeCompleto, email: user.email,
-    }));
+
+    // Redirect to frontend with app access_token, user and google_access_token to use Calendar
+    const redirect = new URL(FRONTEND_ORIGIN.replace(/\/$/, '') + '/auth');
+    redirect.searchParams.set('access_token', access_token);
+    redirect.searchParams.set('user', JSON.stringify({ id: user.id, nomeCompleto: user.nomeCompleto, email: user.email }));
+    redirect.searchParams.set('google_access_token', accessToken);
+    if (idToken) redirect.searchParams.set('google_id_token', idToken);
+
     return res.redirect(redirect.toString());
   } catch (err) {
-    console.error("OAuth callback error", err);
-    return res.status(500).send("OAuth error");
+    console.error('OAuth callback error', err);
+    return res.status(500).send('OAuth error');
   }
 });

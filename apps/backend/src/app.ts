@@ -7,7 +7,7 @@ import { authRouter } from './routes/auth.routes';
 import { usuarioRouter } from './routes/usuario.routes';
 import { cargoRouter } from './routes/cargo.routes';
 import { emailRouter } from './routes/email.routes';
-
+import eventRouter from './routes/event.router';
 
 export const app = express();
 app.use(cors());
@@ -17,11 +17,14 @@ import './middlewares/google';
 
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
 
+// Rotas da API
 app.use('/api/auth', authRouter);
 app.use('/api/usuarios', usuarioRouter);
 app.use('/api/cargos', cargoRouter);
 app.use('/api/emails', emailRouter);
-// servir frontend estático (vite build)
+app.use('/api/events', eventRouter);
+
+// Servir frontend estático (vite build)
 const distDir = path.resolve(__dirname, '../../frontend');
 app.use(express.static(distDir));
 app.get('*', (_req, res) => res.sendFile(path.join(distDir, 'index.html')));

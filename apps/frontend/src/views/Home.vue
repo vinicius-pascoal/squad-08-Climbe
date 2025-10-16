@@ -37,8 +37,8 @@
   </div>
 </template>
 
-<script setup>
-import { ref, computed } from 'vue';
+<script setup lang="ts">
+import { ref, computed, onMounted, watch, getCurrentInstance } from 'vue';
 
 // Componentes do Widget de Calendário
 import Calendar from '../components/Calendar.vue';
@@ -52,62 +52,185 @@ import StatsWidget from '../components/StatsWidget.vue';
 import HistoryWidget from '../components/HistoryWidget.vue';
 import ActionsWidget from '../components/ActionsWidget.vue';
 
-// --- LÓGICA DO WIDGET DE CALENDÁRIO ---
-// A data que o usuário selecionou ativamente. Usada para filtrar a lista de atividades.
-const selectedDate = ref(new Date());
-// A data que controla o mês/ano exibido no componente Calendário.
-// Permite navegar pelos meses sem alterar o dia selecionado.
-const viewDate = ref(new Date());
-// Array principal de todas as atividades.
-// BACKEND: Substituir por uma chamada de API para buscar e persistir dados.
-const activities = ref([]);
+// Serviços
+import calendarApi, { listCalendarEvents, listUserEvents, addCalendarEvent } from '../services/calendar';
+
+// --- ESTADO DO WIDGET DE CALENDÁRIO ---
+const selectedDate = ref<Date>(new Date());
+const viewDate = ref<Date>(new Date());
+const activitiesAll = ref<any[]>([]);
+const activities = activitiesAll; // compat shorthand for older code using 'activities'
 const isAddEventModalOpen = ref(false);
+
 const monthYearDisplay = computed(() => {
   return viewDate.value.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
 });
+
 const nextMonth = () => {
   viewDate.value = new Date(viewDate.value.getFullYear(), viewDate.value.getMonth() + 1, 1);
 };
 const prevMonth = () => {
   viewDate.value = new Date(viewDate.value.getFullYear(), viewDate.value.getMonth() - 1, 1);
 };
-// Callback para o evento @date-selected emitido pelo componente Calendário.
-const onDateSelected = (date) => {
+
+// Callback quando seleciona uma data no calendário
+const onDateSelected = (date: Date) => {
   selectedDate.value = date;
   if (date.getMonth() !== viewDate.value.getMonth() || date.getFullYear() !== viewDate.value.getFullYear()) {
     viewDate.value = new Date(date);
   }
 };
-// Função utilitária para comparar se duas datas são o mesmo dia.
-const isSameDate = (d1, d2) => {
+
+// Util: comparar dia/mês/ano
+const isSameDate = (d1: Date | string | number, d2: Date | string | number) => {
   if (!d1 || !d2) return false;
   const date1 = new Date(d1);
   const date2 = new Date(d2);
-  return date1.getFullYear() === date2.getFullYear() && date1.getMonth() === date2.getMonth() && date1.getDate() === date2.getDate();
-};
-// Filtra a lista completa de atividades para mostrar apenas as do dia selecionado.
-const activitiesForSelectedDate = computed(() => activities.value.filter(a => isSameDate(a.date, selectedDate.value)));
-const openAddEventModal = () => { isAddEventModalOpen.value = true; };
-const closeAddEventModal = () => { isAddEventModalOpen.value = false; };
-// Atualiza uma atividade existente no array principal.
-const updateActivity = (updatedActivity) => {
-  const idx = activities.value.findIndex(a => a.id === updatedActivity.id);
-  if (idx !== -1) activities.value[idx] = { ...activities.value[idx], ...updatedActivity };
-};
-// Adiciona uma nova atividade ao array principal.
-import googleCalendar from '../services/calendar';
-const addActivity = (newActivity) => {
-  activities.value.push({
-    id: Date.now(),
-    date: newActivity.date,
-    title: newActivity.type || 'Sem título',
-    participants: newActivity.participants || '',
-    time: newActivity.time || '',
-    completed: false
-  });
+  return (
+    date1.getFullYear() === date2.getFullYear() &&
+    date1.getMonth() === date2.getMonth() &&
+    date1.getDate() === date2.getDate()
+  );
 };
 
-// --- LÓGICA DOS OUTROS WIDGETS ABAIXO... ---  
+const activitiesForSelectedDate = computed(() =>
+  activitiesAll.value.filter((a: any) => isSameDate(a.date, selectedDate.value))
+);
+
+const openAddEventModal = () => { isAddEventModalOpen.value = true; };
+const closeAddEventModal = () => { isAddEventModalOpen.value = false; };
+
+// --- Integração com backend de eventos/Google Calendar ---
+async function loadEventsForSelectedDate() {
+  try {
+    const y = selectedDate.value.getFullYear();
+    const m = String(selectedDate.value.getMonth() + 1).padStart(2, '0');
+    const d = String(selectedDate.value.getDate()).padStart(2, '0');
+    const items = await listCalendarEvents(`${y}-${m}-${d}`);
+    // This function loads events for a single date (detailed view) but should not overwrite the global activitiesAll
+    const dayItems = (items || []).map((ev: any) => {
+      // Prefer start.dateTime (full ISO). If only start.date (YYYY-MM-DD) is present,
+      // parse it as local date to avoid timezone shift.
+      let evDate: Date;
+      if (ev.start?.dateTime) {
+        evDate = new Date(ev.start.dateTime);
+      } else if (ev.start?.date) {
+        const parts = String(ev.start.date).split('-').map((s: string) => Number(s));
+        const yy = parts[0] || selectedDate.value.getFullYear();
+        const mm = (parts[1] || (selectedDate.value.getMonth() + 1)) - 1;
+        const dd = parts[2] || selectedDate.value.getDate();
+        evDate = new Date(yy, mm, dd);
+      } else {
+        evDate = new Date(selectedDate.value);
+      }
+
+      return {
+        id: ev.id || crypto.randomUUID(),
+        date: evDate,
+        title: ev.summary || 'Evento',
+        completed: false,
+        priority: 'Média',
+        description: ev.description || '',
+        location: ev.location || '',
+      };
+    });
+
+    // Update only detailed view if needed (we can set activitiesAll for calendar elsewhere)
+    // For now keep dayItems available by replacing activitiesAll entries for that day
+    // Remove existing activities on that day and add fetched ones
+    activitiesAll.value = activitiesAll.value.filter((a: any) => !isSameDate(a.date, selectedDate.value)).concat(dayItems);
+  } catch (err) {
+    console.error('Falha ao carregar eventos:', err);
+  }
+}
+
+async function loadAllUserEvents() {
+  try {
+    const items = await listUserEvents();
+    // items is array with merged local+google events
+    activitiesAll.value = (items || []).map((ev: any) => {
+      // ev.start may be ISO string or date-only; prefer to parse as local
+      let evDate: Date;
+      if (ev.start && typeof ev.start === 'string' && ev.start.includes('T')) {
+        evDate = new Date(ev.start);
+      } else if (ev.start && typeof ev.start === 'string' && ev.start.includes('-')) {
+        const [y, m, d] = ev.start.split('-').map(Number);
+        evDate = new Date(y, (m || 1) - 1, d || 1);
+      } else {
+        evDate = new Date();
+      }
+
+      return {
+        id: ev.id || crypto.randomUUID(),
+        date: evDate,
+        title: ev.summary || ev.title || 'Evento',
+        completed: false,
+        priority: 'Média',
+        description: ev.description || '',
+        location: ev.location || '',
+      };
+    });
+  } catch (err) {
+    console.error('Falha ao carregar eventos do usuário:', err);
+  }
+}
+
+type AddPayload = {
+  title?: string;
+  description?: string;
+  location?: string;
+  time?: string; // 'HH:mm'
+  emails?: string[];
+  isRemote?: boolean;
+  date?: Date | string;
+};
+
+async function addActivity(payload: AddPayload) {
+  try {
+    // garantir payload.date como Date local
+    let start = payload?.date ? new Date(payload.date as any) : new Date(selectedDate.value);
+    // se payload.date foi uma string no formato YYYY-MM-DD, new Date(...) pode interpretar em UTC;
+    // preferimos garantir local: se foi string com '-', criar localmente
+    if (payload?.date && typeof payload.date === 'string' && payload.date.includes('-')) {
+      const [y, m, d] = payload.date.split('-').map(Number);
+      start = new Date(y, (m || 1) - 1, d || 1);
+    }
+    if (payload?.time) {
+      const [hh = '9', mm = '0'] = String(payload.time).split(':');
+      start.setHours(Number(hh), Number(mm), 0, 0);
+    }
+    const end = new Date(start.getTime() + 60 * 60 * 1000);
+
+    await addCalendarEvent({
+      titulo: payload?.title || 'Novo evento',
+      descricao: payload?.description || '',
+      local: payload?.location || '',
+      inicio: start,
+      fim: end,
+      emails: payload?.emails || undefined,
+      remoto: !!payload?.isRemote,
+      notificar: true,
+    });
+
+    await loadEventsForSelectedDate();
+    isAddEventModalOpen.value = false;
+    const instance = getCurrentInstance();
+    const $notify = instance?.appContext.config.globalProperties.$notify;
+    ($notify?.success?.('Evento criado com sucesso!') || window.alert('Evento criado com sucesso!'));
+  } catch (err) {
+    console.error('Falha ao criar evento:', err);
+    const instance = getCurrentInstance();
+    const $notify = instance?.appContext.config.globalProperties.$notify;
+    ($notify?.error?.('Falha ao criar evento') || window.alert('Falha ao criar evento'));
+  }
+}
+
+onMounted(() => {
+  loadAllUserEvents();
+  loadEventsForSelectedDate();
+});
+watch(selectedDate, () => loadEventsForSelectedDate());
+
 </script>
 
 <style scoped>
