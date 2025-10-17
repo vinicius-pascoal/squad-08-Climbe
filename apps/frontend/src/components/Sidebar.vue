@@ -33,7 +33,10 @@
     <div v-if="!collapsed" class="bg-sidebar text-white duration-300 rounded-e-xl w-60 shadow-xl overflow-visible">
       <div ref="headerEl" class="px-7 py-5 overflow-hidden cursor-pointer" @click="toggleSidebar">
         <slot name="logo">
-          <img src="/img/logoPreta.png" alt="climbe" />
+          <!-- Light mode -->
+          <img src="/img/logoPreta.png" alt="climbe" class="block dark:hidden" />
+          <!-- Dark mode -->
+          <img src="/img/climbe-logo.png" alt="climbe" class="hidden dark:block" />
         </slot>
       </div>
 

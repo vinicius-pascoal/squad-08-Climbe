@@ -32,10 +32,11 @@
   /* destaque/teal */
   --border: #2C3652;
   /* bordas e separadores */
-  --sidebar: #0F2030;
+  --sidebar: #1E2436;
   /* barra lateral escura */
   --secondary: #172737;
   /* variação para seções secundárias */
+  --sidebarSecondary: #485780;
 }
 
 /* Utility classes to map Tailwind-like usage to CSS variables */
@@ -81,10 +82,13 @@ body,
   background-color: rgba(255, 255, 255, 0.03) !important;
 }
 
+/* fundo geral*/
 .dark .bg-gray-100 {
-  background-color: var(--card) !important;
+  background: #45588E;
+  background: linear-gradient(28deg, rgba(69, 88, 142, 1) 0%, rgba(35, 44, 67, 1) 51%, rgba(40, 51, 84, 1) 100%);
 }
 
+/* fundo geral B*/
 .dark .bg-gray-300 {
   background-color: var(--card) !important;
 }
@@ -107,7 +111,7 @@ body,
 }
 
 .dark .bg-secondary {
-  background-color: var(--secondary) !important;
+  background-color: var(--sidebarSecondary) !important;
 }
 
 .dark .text-white {
