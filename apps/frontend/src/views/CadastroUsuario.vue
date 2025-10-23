@@ -53,7 +53,8 @@ export default {
         async salvar() {
             try {
                 if (!this.form.nomeCompleto || !this.form.email || !this.form.senha || !this.form.cargoId) {
-                    return window.alert("Preencha nome, email, senha e cargo.");
+                    this.$notify?.warning("Preencha nome, email, senha e cargo.");
+                    return;
                 }
 
                 this.loading = true;
@@ -73,11 +74,11 @@ export default {
                     body: JSON.stringify(payload),
                 });
 
-                window.alert("Usuário criado com sucesso!");
+                this.$notify?.success("Usuário criado com sucesso!");
                 this.$router.push("/usuarios");
             } catch (e) {
                 console.error(e);
-                window.alert(e?.message || "Falha ao criar usuário.");
+                this.$notify?.error(e?.message || "Falha ao criar usuário.");
             } finally {
                 this.loading = false;
             }

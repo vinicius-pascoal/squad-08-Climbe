@@ -133,11 +133,13 @@
 
 <script setup>
 
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, getCurrentInstance } from 'vue';
 import { useRouter } from 'vue-router';
 import Calendar from '../components/Calendar.vue';
 
 const router = useRouter();
+const instance = getCurrentInstance();
+const notify = instance?.appContext.config.globalProperties.$notify;
 
 // Objeto reativo que armazena todos os dados do formulário da reunião
 const reuniao = ref({
@@ -211,7 +213,7 @@ function hideUserList() {
 async function agendarReuniao() {
     // Validação simples para campos obrigatórios
     if (!reuniao.value.titulo || !reuniao.value.data || !reuniao.value.comeco) {
-        alert('Por favor, preencha Título, Data e Hora.');
+        notify?.warning('Por favor, preencha Título, Data e Hora.');
         return;
     }
 
@@ -235,7 +237,7 @@ async function agendarReuniao() {
     // BACKEND: Substituir o console.log por uma chamada de API
     console.log('Payload da Reunião (simulando envio):', payload);
 
-    alert('Reunião agendada com sucesso!');
+    notify?.success('Reunião agendada com sucesso!');
     router.push('/agenda'); // Redireciona para a página da agenda
 }
 

@@ -96,11 +96,11 @@ if (props.selectedDate) {
 const handleSubmit = () => {
   // validações básicas
   if (!newEvent.value.title) {
-    ($notify?.warning?.('Por favor, informe um título para o evento.') || window.alert('Por favor, informe um título para o evento.'));
+    $notify?.warning('Por favor, informe um título para o evento.');
     return;
   }
   if (!newEvent.value.date) {
-    ($notify?.warning?.('Por favor, informe a data do evento.') || window.alert('Por favor, informe a data do evento.'));
+    $notify?.warning('Por favor, informe a data do evento.');
     return;
   }
 

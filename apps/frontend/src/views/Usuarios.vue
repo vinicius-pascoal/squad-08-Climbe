@@ -67,6 +67,7 @@ export default {
         this.page = 1;
       } catch (e) {
         this.error = e?.message || 'Erro ao carregar usuários';
+        this.$notify?.error(this.error);
       } finally {
         this.loading = false;
       }
@@ -123,6 +124,7 @@ export default {
     async onChangeStatus({ userId, status, cargoId }) {
       if ((status || '').toLowerCase() !== 'ativo') {
         this.error = 'Somente a aprovação está disponível no momento.';
+        this.$notify?.warning(this.error);
         return;
       }
       const idx = this.users.findIndex(u => u.id === userId);
@@ -141,12 +143,14 @@ export default {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ cargoId }),
         });
+        this.$notify?.success('Usuário aprovado com sucesso!');
       } catch (e) {
         // rollback
         this.users[idx].situacao = prev.situacao;
         this.users[idx].cargoId = prev.cargoId;
         this.users[idx].cargo = prev.cargo;
         this.error = e?.message || 'Falha ao aprovar usuário';
+        this.$notify?.error(this.error);
       } finally {
         this.$set?.(this.statusLoading, userId, false); // vue2 compat
         delete this.statusLoading[userId];
