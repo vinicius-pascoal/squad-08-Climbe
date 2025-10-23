@@ -37,7 +37,17 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="contract in contracts" :key="contract.id"
+        <tr v-if="loading">
+          <td colspan="5" class="p-4 text-center text-gray-500 dark:text-gray-400">
+            Carregando contratos...
+          </td>
+        </tr>
+        <tr v-else-if="contracts.length === 0">
+          <td colspan="5" class="p-4 text-center text-gray-500 dark:text-gray-400">
+            Nenhum contrato encontrado
+          </td>
+        </tr>
+        <tr v-else v-for="contract in contracts" :key="contract.id"
           class="bg-brand-f0f0f0 dark:bg-gray-800 rounded-lg shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] hover:bg-gray-50 dark:hover:bg-gray-700">
           <Contratocard :icon="contract.icon" :company="contract.company" :proposal="contract.proposal"
             :validity="contract.validity" :status="contract.status" />
@@ -48,16 +58,73 @@
   </div>
   <PopupCreatContract v-if="showModal" @close="toggleModal" />
 </template>
-<script setup>
-import { ref } from 'vue';
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
 import Contratocard from '../components/Contratocard.vue';
 import PopupCreatContract from '../components/PopupCreatContract.vue';
+import { listContratos, type ContratoResponse } from '../services/contract';
+import Swal from 'sweetalert2';
+
 const showModal = ref(false);
+const contracts = ref<any[]>([]);
+const loading = ref(false);
 
 const toggleModal = () => {
   showModal.value = !showModal.value;
+  // Recarrega a lista quando o modal é fechado
+  if (!showModal.value) {
+    loadContratos();
+  }
 };
 
+const formatDate = (date: Date | string | null | undefined) => {
+  if (!date) return '-';
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return '-';
+  return d.toLocaleDateString('pt-BR');
+};
+
+const loadContratos = async () => {
+  loading.value = true;
+  try {
+    const raw = await listContratos();
+    console.log('📥 Resposta bruta de /api/contratos:', raw);
+    const list: ContratoResponse[] = Array.isArray(raw)
+      ? raw
+      : (raw && Array.isArray((raw as any).data) ? (raw as any).data : []);
+    console.log('📋 Lista normalizada de contratos:', list);
+
+    contracts.value = list.map((contrato: ContratoResponse) => {
+      const prop = typeof contrato.propostaId === 'number' && contrato.propostaId > 0
+        ? `#${String(contrato.propostaId).padStart(5, '0')}`
+        : '-';
+      return {
+        id: contrato.id,
+        company: contrato.nome || '-',
+        proposal: prop,
+        validity: formatDate(contrato.dataFim as any),
+        status: contrato.status || '-',
+        icon: '/icones/pingu.svg',
+      };
+    });
+  } catch (error: any) {
+    console.error('Erro ao carregar contratos:', error);
+    Swal.fire({
+      icon: 'error',
+      title: 'Erro',
+      text: error?.message || 'Erro ao carregar contratos',
+    });
+  } finally {
+    loading.value = false;
+  }
+};
+
+onMounted(() => {
+  loadContratos();
+});
+
+// Dados de exemplo (comentados para referência)
+/*
 const contracts = ref([
   {
     id: 1,
@@ -84,6 +151,7 @@ const contracts = ref([
     icon: '/icones/pwalogo.svg', // This will render the 'Rescindido' span
   },
 ]);
+*/
 </script>
 <style scoped>
 .card-list {

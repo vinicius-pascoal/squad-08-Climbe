@@ -1,11 +1,32 @@
 import { prisma } from '../utils/prisma';
-import { ContratoDTO } from '../dtos/contrato.dto';
+
+type ContratoCreateInput = {
+  id: string;
+  nome: string;
+  propostaId: number | null;
+  status: string | null;
+  descricao: string | null;
+  valor: number;
+  dataInicio: Date;
+  dataFim: Date;
+  envolvidos: string | null;
+  acoes: string | null;
+  permissoes: string | null;
+};
 
 export const contratoRepo = {
-  async create(data: ContratoDTO) {
-    return prisma.contrato.create({
-      data,
-    });
+  async create(data: ContratoCreateInput) {
+    console.log('💾 Repo - Criando no banco:', data);
+    try {
+      const result = await prisma.contrato.create({
+        data,
+      });
+      console.log('✅ Repo - Criado com sucesso:', result);
+      return result;
+    } catch (error) {
+      console.error('❌ Repo - Erro ao criar:', error);
+      throw error;
+    }
   },
 
   async findAll() {
@@ -18,7 +39,7 @@ export const contratoRepo = {
     });
   },
 
-  async update(id: string, data: Partial<ContratoDTO>) {
+  async update(id: string, data: Partial<ContratoCreateInput>) {
     return prisma.contrato.update({
       where: { id },
       data,
