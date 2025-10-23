@@ -244,3 +244,168 @@ body,
   color: var(--text) !important;
   border-color: var(--border) !important;
 }
+
+/* Regras gerais para inputs, textareas e selects no modo escuro */
+.dark input[type="text"],
+.dark input[type="time"],
+.dark input[type="email"],
+.dark input[type="password"],
+.dark input[type="number"],
+.dark input[type="search"],
+.dark textarea,
+.dark select {
+  background-color: var(--card) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+.dark input[type="text"]::placeholder,
+.dark input[type="email"]::placeholder,
+.dark input[type="password"]::placeholder,
+.dark input[type="search"]::placeholder,
+.dark textarea::placeholder {
+  color: var(--muted) !important;
+}
+
+/* Botões genéricos no modo escuro */
+.dark button:not(.btn-cancelar):not(.btn-agendar) {
+  color: var(--text);
+}
+
+/* Chips e tags no modo escuro */
+.dark .chip {
+  background-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+/* Listas dropdown no modo escuro */
+.dark .user-list,
+.dark .dropdown-list {
+  background-color: var(--card) !important;
+  border-color: var(--border) !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+.dark .user-list li,
+.dark .dropdown-list li {
+  color: var(--text) !important;
+}
+
+.dark .user-list li:hover,
+.dark .dropdown-list li:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Radio buttons no modo escuro */
+.dark input[type="radio"] {
+  background-color: var(--border) !important;
+}
+
+.dark input[type="radio"]:checked {
+  background-color: var(--accent) !important;
+  border-color: var(--accent) !important;
+}
+
+/* Checkboxes no modo escuro */
+.dark input[type="checkbox"] {
+  background-color: var(--border) !important;
+  border-color: var(--border) !important;
+}
+
+.dark input[type="checkbox"]:checked {
+  background-color: var(--accent) !important;
+  border-color: var(--accent) !important;
+}
+
+/* AgendarReuniao - Time slots no modo escuro */
+.dark .time-slot {
+  background-color: var(--card) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+.dark .time-slot:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark .time-slot.selected {
+  background-color: var(--accent) !important;
+  color: var(--text) !important;
+  border-color: var(--accent) !important;
+}
+
+/* AgendarReuniao - Botões de navegação do calendário */
+.dark .prev-month,
+.dark .next-month {
+  background-color: var(--card) !important;
+}
+
+.dark .prev-month:hover,
+.dark .next-month:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* AgendarReuniao - Seção de eventos */
+.dark .eventos-section h3 {
+  color: var(--text) !important;
+}
+
+.dark .evento-item {
+  background-color: var(--card) !important;
+}
+
+.dark .evento-info p {
+  color: var(--text) !important;
+}
+
+.dark .evento-hora {
+  color: var(--muted) !important;
+}
+
+/* AgendarReuniao - Campo de data */
+.dark .date-input input {
+  background-color: var(--card) !important;
+}
+
+/* CadastroUsuario - Modo escuro */
+.dark .bg-brand-ffffff {
+  background-color: var(--panel) !important;
+}
+
+.dark .text-brand-5f6060 {
+  color: var(--text) !important;
+}
+
+.dark .border-gray-300 {
+  border-color: var(--border) !important;
+}
+
+/* CadastroUsuario - Botões de ação */
+.dark .bg-brand-c7d6fa {
+  background-color: rgba(37, 210, 212, 0.2) !important;
+}
+
+.dark .border-brand-4167c0 {
+  border-color: var(--accent) !important;
+}
+
+.dark .text-brand-2b5ddf {
+  color: var(--accent) !important;
+}
+
+.dark .bg-brand-f9cdcb {
+  background-color: rgba(239, 68, 68, 0.2) !important;
+}
+
+.dark .border-brand-b42839 {
+  border-color: #ef4444 !important;
+}
+
+.dark .text-brand-b42839 {
+  color: #ef4444 !important;
+}
+
+/* CadastroUsuario - Imagem de perfil borda */
+.dark .fotoperfil {
+  border-color: var(--border) !important;
+}
