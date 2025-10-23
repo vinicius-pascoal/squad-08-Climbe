@@ -1,5 +1,5 @@
 <template>
-  <div class=" bg-slate-100">
+  <div class=" ">
     <h1 class="font-bold mb-10 text-4xl">Gestão de Empresas</h1>
     <div class="mx-auto grid grid-cols-1 gap-6 lg:grid-cols-[280px,1fr]">
       <aside class="space-y-4">

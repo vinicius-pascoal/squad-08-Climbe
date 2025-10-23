@@ -245,7 +245,6 @@ watch(selectedDate, () => loadEventsForSelectedDate());
     "history history actions actions";
   gap: 1.5rem;
   padding: 2rem;
-  background-color: #f4f7f9;
 }
 
 .widget-card {

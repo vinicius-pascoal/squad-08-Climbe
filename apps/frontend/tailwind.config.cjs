@@ -1,4 +1,5 @@
 module.exports = {
+  darkMode: 'class',
   content: ["./index.html", "./src/**/*.{vue,ts}"], theme: {
     extend: {
       colors: {
@@ -6,7 +7,7 @@ module.exports = {
         secondary: "#16c3af",
         sidebar: "#0E9A97",
         dark: "#0A0A0A",
-      
+
         "brand-000": "#000",
         "brand-0a0a0a": "#0a0a0a",
         "brand-0e9989": "#0e9989",
@@ -117,7 +118,8 @@ module.exports = {
         "brand-ffddad": "#ffddad",
         "brand-ffecc6": "#ffecc6",
         "brand-fff": "#fff",
-        "brand-ffffff": "#ffffff",},
+        "brand-ffffff": "#ffffff",
+      },
     }
   }, plugins: []
 };

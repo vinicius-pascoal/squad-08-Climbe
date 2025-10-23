@@ -1,23 +1,23 @@
 <template>
-  <aside class="relative min-h-screen flex sombraTexto" :class="{ collapsed }" role="navigation">
+  <aside class="relative min-h-screen flex sombraTexto fundosidebar" :class="{ collapsed }" role="navigation">
+    <!-- COLUNA ESQUERDA (ÍCONES) -->
     <div class="h-full bg-secondary flex flex-col justify-between w-14 shadow-lg">
-      <button v-if="collapsed" @click="toggleSidebar">
+      <button v-if="collapsed" @click="toggleSidebar" class="relative">
         <img src="/img/logoCircular.svg" class="w-14 h-14 absolute left-20 top-3" alt="climbe" />
       </button>
-      <nav class="relative flex-1" :style="{ paddingTop: leftPad + 'px' }">
-        <ul class="menu px-2">
-          <li v-for="(item, i) in items" :key="item.to" class="relative">
-            <div style="height:10px"></div>
 
+      <nav class="relative flex-1" :style="{ paddingTop: leftPad + 'px' }">
+        <!-- espaçamento e altura padronizados -->
+        <ul class="menu px-2 flex flex-col gap-2">
+          <li v-for="item in items" :key="item.to" class="relative">
             <RouterLink :to="item.to"
-              class="flex items-center justify-center overflow-hidden text-center h-16 relative -left-2 rounded-md"
+              class="flex items-center justify-center overflow-hidden text-center h-12 relative -left-2 rounded-md"
               :class="{ 'border-l-4 border-white': isActive(item) }"
               :aria-current="isActive(item) ? 'page' : undefined">
-              <div class="relative flex items-center justify-center w-8 h-8">
+              <div class="relative grid place-items-center w-8 h-8">
                 <img :src="item.icon" alt="Ícone" class="min-w-6 h-6" />
               </div>
             </RouterLink>
-            <div style="height:10px"></div>
           </li>
         </ul>
       </nav>
@@ -28,28 +28,30 @@
         </button>
       </div>
     </div>
+
+    <!-- COLUNA DIREITA (LABELS) -->
     <div v-if="!collapsed" class="bg-sidebar text-white duration-300 rounded-e-xl w-60 shadow-xl overflow-visible">
       <div ref="headerEl" class="px-7 py-5 overflow-hidden cursor-pointer" @click="toggleSidebar">
         <slot name="logo">
-          <img src="/img/logoPreta.png" alt="climbe" />
+          <!-- Light mode -->
+          <img src="/img/logoPreta.png" alt="climbe" class="block dark:hidden" />
+          <!-- Dark mode -->
+          <img src="/img/climbe-logo.png" alt="climbe" class="hidden dark:block" />
         </slot>
       </div>
 
-      <div class="icon-bar p-2">
+      <div class="icon-bar px-2 mt-2">
         <nav class="relative flex-1">
-          <ul class="menu px-2">
-            <li v-for="(item, i) in items" :key="item.to" class="menu-item group relative overflow-visible">
-              <div class="h-3 bg-sidebar bordaT" :class="{ 'bordaT': isActive(item) }"></div>
-
+          <!-- mesmo espaçamento da coluna esquerda -->
+          <ul class="menu px-1 flex flex-col gap-2">
+            <li v-for="item in items" :key="item.to" class="menu-item group relative overflow-visible">
               <RouterLink :to="item.to"
-                class="menu-link flex items-center gap-3 rounded-full px-3 py-3 overflow-hidden text-center h-16 w-full"
+                class="menu-link flex items-center gap-3 rounded-full px-3 h-12 overflow-hidden text-center w-full"
                 :class="{ 'ativo': isActive(item) }" :aria-current="isActive(item) ? 'page' : undefined">
-                <span v-if="!collapsed" class="nav-label font-bold text-xl whitespace-nowrap">
+                <span class="nav-label font-bold text-xl whitespace-nowrap">
                   {{ item.label }}
                 </span>
               </RouterLink>
-
-              <div class="h-3 bg-sidebar bordaB" :class="{ 'bordaB': isActive(item) }"></div>
             </li>
           </ul>
         </nav>
@@ -130,7 +132,6 @@ function isActive(item: NavItem) {
   const target = normalize(item.to)
   if (isHomePath(target)) return isHomePath(current)
   if (item.exact) return current === target
-
   return current === target
 }
 
@@ -145,6 +146,7 @@ function logout() {
   localStorage.removeItem('user')
   router.replace('/')
 }
+
 watch(() => route.path, () => nextTick().then(measureHeader))
 </script>
 
@@ -163,10 +165,7 @@ watch(() => route.path, () => nextTick().then(measureHeader))
 
 .menu-link.ativo {
   background-color: rgb(255, 255, 255);
-  width: calc(100% + 1rem);
   color: #000;
-  border-bottom-right-radius: 0;
-  border-top-right-radius: 0;
   box-shadow: 3px 5px 10px -2px rgba(0, 0, 0, 0.75) inset;
   animation: largura 0.5s ease-in-out;
 }
@@ -175,37 +174,41 @@ watch(() => route.path, () => nextTick().then(measureHeader))
   background-color: rgba(255, 255, 255, 0.3);
 }
 
-.bordaT {
-  border-bottom-right-radius: 50px;
-  position: relative;
-  top: 10px;
-  height: 10px;
-  width: calc(100% + 1rem);
-}
-
-.bordaB {
-  border-top-right-radius: 50px;
-  position: relative;
-  bottom: 10px;
-  height: 10px;
-  width: calc(100% + 1rem);
-}
-
 .sombraTexto {
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.53);
-}
-
-.sidebar.collapsed .collapse-thumb {
-  right: -6px;
-}
-
-.collapse-thumb:hover {
-  background: #f3f3f3;
 }
 
 .footer {
   position: absolute;
   bottom: 0;
   width: 100%;
+}
+
+/* dark mode */
+:deep(.dark) .menu-link.ativo {
+  background-color: var(--panel) !important;
+  color: var(--text) !important;
+  box-shadow: none !important;
+  border-left: 4px solid var(--accent) !important;
+}
+
+:deep(.dark) .menu-link:hover {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+:deep(.dark) .bg-sidebar {
+  background-color: var(--sidebar) !important;
+}
+
+:deep(.dark) .bg-secondary {
+  background-color: var(--secondary) !important;
+}
+
+:deep(.dark) .hover\:bg-white\/20:hover {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+.dark .fundosidebar {
+  background-color: var(--sidebar) !important;
 }
 </style>

@@ -314,10 +314,13 @@ function autoResizeTextarea(event) {
 
 <style scoped>
 .page-container {
-    background-color: #f4f5f7;
     padding: 2rem;
     font-family: 'Roboto', sans-serif;
     color: #333;
+}
+
+:deep(.dark) .page-container {
+    color: var(--text);
 }
 
 .page-header {
@@ -332,6 +335,10 @@ function autoResizeTextarea(event) {
     font-weight: 700;
     line-height: 48px;
     letter-spacing: 0;
+}
+
+:deep(.dark) .page-header h1 {
+    color: var(--text);
 }
 
 .header-icons {
@@ -378,6 +385,11 @@ function autoResizeTextarea(event) {
     flex-direction: column;
 }
 
+:deep(.dark) .card {
+    background-color: var(--panel);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
 .form-content {
     flex-grow: 1;
 }
@@ -393,6 +405,10 @@ function autoResizeTextarea(event) {
     line-height: 1.5;
     letter-spacing: 0;
     margin-bottom: 0.5rem;
+}
+
+:deep(.dark) .form-group label {
+    color: var(--text);
 }
 
 input[type="text"],
@@ -419,6 +435,15 @@ textarea {
     box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
 }
 
+:deep(.dark) #titulo,
+:deep(.dark) #data,
+:deep(.dark) #empresa,
+:deep(.dark) #local,
+:deep(.dark) .participantes-box,
+:deep(.dark) #pauta {
+    box-shadow: 0px 2px 8px 0px rgba(0, 0, 0, 0.4);
+}
+
 textarea {
     resize: none;
     overflow: hidden;
@@ -441,6 +466,10 @@ textarea {
 .date-input input {
     padding-right: 2.5rem;
     background-color: #fff;
+}
+
+:deep(.dark) .date-input input {
+    background-color: var(--card);
 }
 
 .date-input span {
@@ -472,14 +501,30 @@ textarea {
     transition: background-color 0.2s, border-color 0.2s;
 }
 
+:deep(.dark) .time-slot {
+    background-color: var(--card);
+    border-color: var(--border);
+    color: var(--text);
+}
+
 .time-slot:hover {
     background-color: #e0e0e0;
+}
+
+:deep(.dark) .time-slot:hover {
+    background-color: rgba(255, 255, 255, 0.05);
 }
 
 .time-slot.selected {
     background-color: rgba(14, 154, 151, 1);
     color: rgba(255, 255, 255, 1);
     border-color: rgba(14, 154, 151, 1);
+}
+
+:deep(.dark) .time-slot.selected {
+    background-color: var(--accent);
+    color: var(--text);
+    border-color: var(--accent);
 }
 
 .radio-group {
@@ -646,9 +691,19 @@ textarea {
     transition: background-color 0.2s;
 }
 
+:deep(.dark) .prev-month,
+:deep(.dark) .next-month {
+    background-color: var(--card);
+}
+
 .prev-month:hover,
 .next-month:hover {
     background-color: #f0f0f0;
+}
+
+:deep(.dark) .prev-month:hover,
+:deep(.dark) .next-month:hover {
+    background-color: rgba(255, 255, 255, 0.05);
 }
 
 .prev-month {
@@ -690,6 +745,10 @@ textarea {
     margin-bottom: 1rem;
 }
 
+:deep(.dark) .eventos-section h3 {
+    color: var(--text);
+}
+
 .evento-item {
     display: flex;
     align-items: center;
@@ -698,6 +757,10 @@ textarea {
     padding: 0.75rem;
     border-radius: 4px;
     margin-bottom: 0.5rem;
+}
+
+:deep(.dark) .evento-item {
+    background-color: var(--card);
 }
 
 .evento-avatar {
@@ -720,12 +783,20 @@ textarea {
     letter-spacing: 0;
 }
 
+:deep(.dark) .evento-info p {
+    color: var(--text);
+}
+
 .evento-hora {
     font-family: 'Roboto', sans-serif;
     font-weight: 700;
     font-size: 16px;
     line-height: normal;
     letter-spacing: 0;
+}
+
+:deep(.dark) .evento-hora {
+    color: var(--muted);
 }
 
 .action-buttons {
