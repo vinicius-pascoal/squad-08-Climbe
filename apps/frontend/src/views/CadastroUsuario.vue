@@ -106,7 +106,8 @@ export default {
             </div>
         </div>
 
-        <div class="h-full mx-10 bg-brand-ffffff p-8 grid grid-cols-2 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg ">
+        <div
+            class="h-full mx-10 bg-brand-ffffff p-8 grid grid-cols-2 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg ">
             <div class="flex flex-col gap-8">
                 <div class="gap-8">
                     <div class="flex flex-col gap-1 mb-2">
