@@ -76,13 +76,12 @@ const form = ref({
   senha: '',
 });
 
-async function googleAccessToken()
-{
+async function googleAccessToken() {
   const params = new URLSearchParams(window.location.search)
-  if(!params) return;
+  if (!params) return;
 
   const access_token = params.get('access_token');
-  if(!access_token || access_token.length < 1) return; //Access Token nulo ou invalido
+  if (!access_token || access_token.length < 1) return; //Access Token nulo ou invalido
 
   const response = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
     headers: {
@@ -112,11 +111,11 @@ async function register() {
       body: JSON.stringify(form.value),
     });
     success.value = 'Cadastro realizado! Aguarde aprovação.';
-    await swal.fire({ icon: 'success', title: 'Solicitação de acesso criada', text: 'Seu cadastro foi enviado e está pendente de aprovação.', confirmButtonText: 'OK' });
+    await notify?.success('Solicitação de acesso criada. Seu cadastro foi enviado e está pendente de aprovação.');
     form.value = { nomeCompleto: '', email: '', contato: '', senha: '' };
   } catch (e: any) {
     error.value = e?.message || 'Falha ao cadastrar.';
-    await swal.fire({ icon: 'error', title: 'Não foi possível cadastrar', text: String(error.value), confirmButtonText: 'OK' });
+    await notify?.error(String(error.value));
   } finally {
     loading.value = false;
   }

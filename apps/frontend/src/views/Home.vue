@@ -216,12 +216,12 @@ async function addActivity(payload: AddPayload) {
     isAddEventModalOpen.value = false;
     const instance = getCurrentInstance();
     const $notify = instance?.appContext.config.globalProperties.$notify;
-    ($notify?.success?.('Evento criado com sucesso!') || window.alert('Evento criado com sucesso!'));
+    $notify?.success?.('Evento criado com sucesso!');
   } catch (err) {
     console.error('Falha ao criar evento:', err);
     const instance = getCurrentInstance();
     const $notify = instance?.appContext.config.globalProperties.$notify;
-    ($notify?.error?.('Falha ao criar evento') || window.alert('Falha ao criar evento'));
+    $notify?.error?.('Falha ao criar evento');
   }
 }
 
