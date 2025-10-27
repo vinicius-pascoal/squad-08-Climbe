@@ -232,5 +232,84 @@ npm run dev      # Iniciar servidor de desenvolvimento do frontend
 npm run build    # Construir frontend para produção
 npm run typecheck # Executar verificação de tipos TypeScript
 ```
-`
+
+## 📡 Endpoints da API
+
+### 🔐 Autenticação (`/api/auth`)
+
+| Método | Endpoint | Descrição | Autenticação |
+|--------|----------|-----------|--------------|
+| `POST` | `/api/auth/token` | Login com email/senha | ❌ Público |
+| `POST` | `/api/auth/google` | Login com Google OAuth | ❌ Público |
+
+### 👤 Usuários (`/api/usuarios`)
+
+| Método | Endpoint | Descrição | Autenticação |
+|--------|----------|-----------|--------------|
+| `POST` | `/api/usuarios/register` | Registro de novo usuário | ❌ Público |
+| `POST` | `/api/usuarios/admin` | Criar usuário como admin | ✅ Requerida |
+| `PATCH` | `/api/usuarios/:id/aprovar` | Aprovar usuário pendente | ✅ Requerida |
+| `GET` | `/api/usuarios` | Listar todos os usuários | ✅ Requerida |
+| `GET` | `/api/usuarios/:id` | Buscar usuário por ID | ✅ Requerida |
+| `DELETE` | `/api/usuarios/:id` | Remover usuário | ✅ Requerida |
+
+### 💼 Cargos (`/api/cargos`)
+
+| Método | Endpoint | Descrição | Autenticação |
+|--------|----------|-----------|--------------|
+| `GET` | `/api/cargos` | Listar todos os cargos | ❌ Público |
+
+### 📧 Email (`/api/emails`)
+
+| Método | Endpoint | Descrição | Autenticação |
+|--------|----------|-----------|--------------|
+| `POST` | `/api/emails/send` | Enviar email | ✅ Requerida |
+
+### 📄 Contratos (`/api/contratos`)
+
+| Método | Endpoint | Descrição | Autenticação |
+|--------|----------|-----------|--------------|
+| `GET` | `/api/contratos` | Listar todos os contratos | ✅ Requerida |
+| `POST` | `/api/contratos/register` | Criar novo contrato | ✅ Requerida |
+| `GET` | `/api/contratos/:id` | Buscar contrato por ID | ✅ Requerida |
+
+### 🏢 Empresas (`/api/empresas`)
+
+| Método | Endpoint | Descrição | Autenticação |
+|--------|----------|-----------|--------------|
+| `POST` | `/api/empresas` | Criar nova empresa | ✅ Requerida |
+| `GET` | `/api/empresas` | Listar todas as empresas | ✅ Requerida |
+| `GET` | `/api/empresas/:id` | Buscar empresa por ID | ✅ Requerida |
+| `PUT` | `/api/empresas/:id` | Atualizar empresa | ✅ Requerida |
+| `DELETE` | `/api/empresas/:id` | Remover empresa | ✅ Requerida |
+
+### ✅ Tarefas (`/api/tarefas`)
+
+| Método | Endpoint | Descrição | Autenticação |
+|--------|----------|-----------|--------------|
+| `POST` | `/api/tarefas` | Criar nova tarefa | ✅ Requerida |
+| `GET` | `/api/tarefas` | Listar todas as tarefas | ✅ Requerida |
+| `GET` | `/api/tarefas/:id` | Buscar tarefa por ID | ✅ Requerida |
+| `PUT` | `/api/tarefas/:id` | Atualizar tarefa | ✅ Requerida |
+| `DELETE` | `/api/tarefas/:id` | Remover tarefa | ✅ Requerida |
+
+### 📅 Eventos/Reuniões (`/api/events`)
+
+| Método | Endpoint | Descrição | Autenticação |
+|--------|----------|-----------|--------------|
+| `POST` | `/api/events/create` | Criar evento no Google Calendar | ✅ + Google Token |
+| `GET` | `/api/events` | Listar eventos do Google Calendar | ✅ + Google Token |
+| `GET` | `/api/events/user` | Listar eventos do usuário (local + Google) | ✅ Requerida |
+
+**Notas:**
+- Endpoints com ✅ requerem token JWT no header: `Authorization: Bearer <token>`
+- Endpoints de eventos requerem token do Google no header: `x-google-access-token: <token>`
+- Endpoint `/api/events` aceita query opcional: `?date=YYYY-MM-DD`
+
+### 🏥 Health Check
+
+| Método | Endpoint | Descrição | Autenticação |
+|--------|----------|-----------|--------------|
+| `GET` | `/api/health` | Verificar status da API | ❌ Público |
+
 Para ajuda adicional ou dúvidas, por favor abra uma issue no repositório.
