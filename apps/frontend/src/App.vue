@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import ToastHost from './components/ToastHost.vue';
 import { ref, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
 import Sidebar from './components/Sidebar.vue'
+import ThemeSwitch from './components/ThemeSwitch.vue'
 
 // Caminhos dos ícones
 const home = '/icones/home.svg'
@@ -40,16 +40,9 @@ watchEffect(() => {
 
     <main class="flex-1 bg-gray-100 min-h-screen p-6">
       <div v-if="showSidebar" class="flex justify-end mb-4">
+        <!--switch tema-->
         <div>
-          <button class="px-2 py-2 w-10 h-10 ">
-            <img src="/img/chat.svg" alt="">
-          </button>
-          <button class="px-2 py-2 w-10 h-10 ">
-            <img src="/img/acessibilidade.svg" alt="">
-          </button>
-          <button class="px-2 py-2 w-10 h-10 ">
-            <img src="/img/duvida.svg" alt="">
-          </button>
+          <ThemeSwitch />
         </div>
         <div class="">
           <img src="/img/usuario.svg" alt="Avatar" class="w-10 h-10 rounded-full ml-4" />
@@ -58,5 +51,5 @@ watchEffect(() => {
       <RouterView />
     </main>
   </div>
-  <ToastHost />
+
 </template>

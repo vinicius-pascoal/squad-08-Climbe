@@ -1,3 +1,311 @@
 <template>
-  <h1>Empresas</h1>
+  <div class=" ">
+    <h1 class="font-bold mb-10 text-4xl">Gestão de Empresas</h1>
+    <div class="mx-auto grid grid-cols-1 gap-6 lg:grid-cols-[280px,1fr]">
+      <aside class="space-y-4">
+        <div class="rounded-2xl bg-white p-4 shadow">
+          <div class="space-y-3">
+            <label class="block">
+              <span class="text-xs font-medium text-slate-600">CNPJ</span>
+              <div
+                class="mt-1 inline-flex w-full items-center gap-2 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 focus-within:border-sidebar focus-within:ring-2 focus-within:ring-sidebar">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-slate-500" fill="none"
+                  viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h8" />
+                </svg>
+                <input v-model="filters.cnpj" @keyup.enter="doSearch" placeholder="Digite o CNPJ"
+                  class="w-full bg-transparent text-sm outline-none" />
+              </div>
+            </label>
+
+            <label class="block">
+              <span class="text-xs font-medium text-slate-600">Representante Legal</span>
+              <div
+                class="mt-1 inline-flex w-full items-center gap-2 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 focus-within:border-sidebar focus-within:ring-2 focus-within:ring-sidebar">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-slate-500" viewBox="0 0 24 24"
+                  fill="currentColor">
+                  <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm-7 9a7 7 0 0 1 14 0z" />
+                </svg>
+                <input v-model="filters.representative" @keyup.enter="doSearch" placeholder="Nome do representante"
+                  class="w-full bg-transparent text-sm outline-none" />
+              </div>
+            </label>
+
+            <label class="block">
+              <span class="text-xs font-medium text-slate-600">E-mail</span>
+              <div
+                class="mt-1 inline-flex w-full items-center gap-2 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 focus-within:border-sidebar focus-within:ring-2 focus-within:ring-sidebar">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-slate-500" viewBox="0 0 24 24"
+                  fill="currentColor">
+                  <path
+                    d="M2 6.5A2.5 2.5 0 0 1 4.5 4h15A2.5 2.5 0 0 1 22 6.5v11A2.5 2.5 0 0 1 19.5 20h-15A2.5 2.5 0 0 1 2 17.5Zm2.05.128 7.45 4.653a1 1 0 0 0 1.01 0l7.44-4.645A1.5 1.5 0 0 0 19.5 5.5h-15a1.5 1.5 0 0 0-.45.128Z" />
+                </svg>
+                <input v-model="filters.email" @keyup.enter="doSearch" placeholder="email@empresa.com"
+                  class="w-full bg-transparent text-sm outline-none" />
+              </div>
+            </label>
+
+            <button @click="doSearch" :disabled="loading"
+              class="mt-2 w-full rounded-xl bg-sidebar py-2 text-sm font-semibold text-white shadow hover:bg-secondary disabled:opacity-60">
+              Buscar Empresa...
+            </button>
+          </div>
+        </div>
+
+        <nav class="space-y-3">
+          <div class="flex items-center gap-3 rounded-xl bg-white p-3 shadow hover:bg-slate-50">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-600" viewBox="0 0 24 24"
+              fill="currentColor">
+              <path d="M7 3h10a2 2 0 0 1 2 2v6H5V5a2 2 0 0 1 2-2Zm-2 10h14v4a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z" />
+            </svg>
+            <span class="text-sm font-medium text-slate-800">Propostas</span>
+          </div>
+          <div class="flex items-center gap-3 rounded-xl bg-white p-3 shadow hover:bg-slate-50">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-600" viewBox="0 0 24 24"
+              fill="currentColor">
+              <path d="M4 6a2 2 0 0 1 2-2h6l4 4v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" />
+            </svg>
+            <span class="text-sm font-medium text-slate-800">Contratos Ativos</span>
+          </div>
+          <div class="flex items-center gap-3 rounded-xl bg-white p-3 shadow hover:bg-slate-50">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-600" viewBox="0 0 24 24"
+              fill="currentColor">
+              <path
+                d="M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v3h18V6a2 2 0 0 0-2-2ZM3 20a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V10H3Z" />
+            </svg>
+            <span class="text-sm font-medium text-slate-800">Última Atualização</span>
+          </div>
+        </nav>
+
+        <button
+          class="w-full rounded-xl border border-indigo-300 bg-indigo-50 px-3 py-3 text-left font-medium text-indigo-700 shadow hover:bg-indigo-100"
+          @click="onCreate">
+          Cadastrar Empresa
+        </button>
+      </aside>
+
+      <section class="rounded-2xl bg-white p-4 shadow">
+        <header class="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <h2 class="text-base font-semibold text-slate-800">Empresas</h2>
+          <div class="flex items-center gap-2">
+            <label class="text-xs text-slate-600">Linhas</label>
+            <select v-model.number="pageSize" class="rounded-lg border border-slate-300 bg-white p-1.5 text-xs">
+              <option :value="10">10</option>
+              <option :value="25">25</option>
+              <option :value="50">50</option>
+            </select>
+          </div>
+        </header>
+
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-left text-sm">
+            <thead>
+              <tr class="border-b border-slate-200 text-slate-500">
+                <th class="px-3 py-2 font-semibold">Nome</th>
+                <th class="px-3 py-2 font-semibold">CNPJ</th>
+                <th class="px-3 py-2 font-semibold">E-mail do Representante</th>
+                <th class="px-3 py-2 font-semibold">Status</th>
+              </tr>
+            </thead>
+
+            <tbody v-if="loading">
+              <tr v-for="n in 8" :key="`sk-${n}`" class="border-b border-slate-100">
+                <td class="px-3 py-3">
+                  <div class="h-3 w-24 animate-pulse rounded bg-slate-200"></div>
+                </td>
+                <td class="px-3 py-3">
+                  <div class="h-3 w-28 animate-pulse rounded bg-slate-200"></div>
+                </td>
+                <td class="px-3 py-3">
+                  <div class="h-3 w-52 animate-pulse rounded bg-slate-200"></div>
+                </td>
+                <td class="px-3 py-3">
+                  <div class="h-6 w-16 animate-pulse rounded-full bg-slate-200"></div>
+                </td>
+              </tr>
+            </tbody>
+
+            <tbody v-else>
+              <tr v-if="companies.length === 0">
+                <td colspan="4" class="px-3 py-8 text-center text-sm text-slate-500">
+                  Nenhum registro encontrado.
+                </td>
+              </tr>
+
+              <tr v-for="c in companies" :key="c.id" class="border-b border-slate-100 hover:bg-slate-50/60">
+                <td class="px-3 py-3 font-semibold text-slate-800">{{ c.name }}</td>
+                <td class="px-3 py-3 tabular-nums text-slate-700">{{ c.cnpj }}</td>
+                <td class="px-3 py-3 text-slate-700">
+                  <span class="block max-w-[280px] truncate md:max-w-none">{{ c.representativeEmail }}</span>
+                </td>
+                <td class="px-3 py-3">
+                  <span :class="statusClasses(c.status)">{{ c.status }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
+          <p class="text-xs text-slate-500">
+            Exibindo {{ pageStart }}–{{ pageEnd }} de {{ total }} registros
+          </p>
+
+          <div class="flex items-center gap-1">
+            <button
+              class="h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm hover:bg-slate-50 disabled:opacity-50"
+              :disabled="page === 1 || loading" @click="goToPage(page - 1)">
+              Anterior
+            </button>
+
+            <button v-for="p in visiblePages" :key="p.key" :disabled="p.isEllipsis || loading"
+              @click="!p.isEllipsis && goToPage(p.num)" :class="[
+                'h-9 min-w-[2.25rem] rounded-lg px-2 text-sm',
+                p.isEllipsis
+                  ? 'cursor-default border border-transparent'
+                  : p.num === page
+                    ? 'bg-sidebar text-white'
+                    : 'border border-slate-300 bg-white hover:bg-slate-50'
+              ]">
+              {{ p.label }}
+            </button>
+
+            <button
+              class="h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm hover:bg-slate-50 disabled:opacity-50"
+              :disabled="page >= pageCount || loading" @click="goToPage(page + 1)">
+              Próximo
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <CompanyWizard v-model:open="wizardOpen" api-url="/api/companies" @saved="handleSaved" />
 </template>
+
+<script setup lang="ts">
+import { onMounted, ref, computed, watch } from 'vue'
+import CompanyWizard from '../components/modals/company-wizard/CompanyWizard.vue'
+
+type Status = 'Ativa' | 'Pendente' | 'Inativa'
+type Company = {
+  id: string
+  name: string
+  cnpj: string
+  representativeEmail: string
+  status: Status
+}
+
+const API_URL = '/api/companies'
+
+const filters = ref({
+  cnpj: '',
+  representative: '',
+  email: '',
+})
+
+const page = ref(1)
+const pageSize = ref(10)
+const total = ref(0)
+const companies = ref<Company[]>([])
+const loading = ref(false)
+const error = ref<string | null>(null)
+const wizardOpen = ref(false)
+const pageCount = computed(() => Math.max(1, Math.ceil(total.value / pageSize.value)))
+const pageStart = computed(() => (total.value === 0 ? 0 : (page.value - 1) * pageSize.value + 1))
+const pageEnd = computed(() => Math.min(total.value, page.value * pageSize.value))
+
+const visiblePages = computed(() => {
+  const n = pageCount.value
+  const cur = page.value
+  const parts: Array<number | '…'> = []
+  if (n <= 7) {
+    for (let i = 1; i <= n; i++) parts.push(i)
+  } else {
+    parts.push(1)
+    if (cur > 3) parts.push('…')
+    const s = Math.max(2, cur - 1)
+    const e = Math.min(n - 1, cur + 1)
+    for (let i = s; i <= e; i++) parts.push(i)
+    if (cur < n - 2) parts.push('…')
+    parts.push(n)
+  }
+  return parts.map((p, i) =>
+    p === '…'
+      ? { key: `e-${i}`, isEllipsis: true as const, num: -1, label: '…' }
+      : { key: `p-${p}`, isEllipsis: false as const, num: p as number, label: String(p) },
+  )
+})
+
+function statusClasses(status: Status) {
+  if (status === 'Ativa') return 'inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-sidebar ring-1 ring-primary/40'
+  if (status === 'Pendente') return 'inline-flex items-center rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 ring-1 ring-amber-200'
+  return 'inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200'
+}
+
+function goToPage(p: number) {
+  if (p < 1 || p > pageCount.value || p === page.value) return
+  page.value = p
+}
+
+function doSearch() {
+  page.value = 1
+  fetchCompanies()
+}
+
+async function fetchCompanies() {
+  loading.value = true
+  error.value = null
+
+  try {
+    const params = new URLSearchParams({
+      page: String(page.value),
+      size: String(pageSize.value),
+    })
+    if (filters.value.cnpj) params.append('cnpj', filters.value.cnpj)
+    if (filters.value.representative) params.append('representative', filters.value.representative)
+    if (filters.value.email) params.append('email', filters.value.email)
+
+    const mock: Company[] = [
+      { id: '1', name: 'RIHappy', cnpj: '12.345.678/0001-90', representativeEmail: 'joao.silva@alphatech.com', status: 'Ativa' },
+      { id: '2', name: 'TED talk', cnpj: '12.345.678/0001-90', representativeEmail: 'Pedro@gmail.com', status: 'Ativa' },
+      { id: '3', name: 'ABNT', cnpj: '12.345.678/0001-90', representativeEmail: 'Jose@gmail.com', status: 'Ativa' },
+      { id: '4', name: 'XOPs', cnpj: '12.345.678/0001-90', representativeEmail: 'Ricardo@gmail.com', status: 'Ativa' },
+      { id: '5', name: 'Pingu', cnpj: '12.345.678/0001-90', representativeEmail: 'Carlao@gmail.com', status: 'Ativa' },
+      { id: '6', name: 'Tech', cnpj: '12.345.678/0001-90', representativeEmail: 'Neyney@gmail.com', status: 'Ativa' },
+      { id: '7', name: 'Gbarbosa', cnpj: '12.345.678/0001-90', representativeEmail: 'Mariah@gmail.com', status: 'Ativa' },
+      { id: '8', name: 'OPPAA', cnpj: '12.345.678/0001-90', representativeEmail: 'HeitorCosta@gmail.com', status: 'Ativa' },
+      { id: '9', name: 'UNIT', cnpj: '12.345.678/0001-90', representativeEmail: 'LuizGomes@gmail.com', status: 'Ativa' },
+    ]
+
+    const filtered = mock.filter(m =>
+      (!filters.value.cnpj || m.cnpj.includes(filters.value.cnpj)) &&
+      (!filters.value.representative || m.name.toLowerCase().includes(filters.value.representative.toLowerCase())) &&
+      (!filters.value.email || m.representativeEmail.toLowerCase().includes(filters.value.email.toLowerCase())),
+    )
+
+    total.value = filtered.length
+    const start = (page.value - 1) * pageSize.value
+    companies.value = filtered.slice(start, start + pageSize.value)
+  } catch (e: any) {
+    error.value = e?.message ?? 'Erro ao carregar dados'
+  } finally {
+    loading.value = false
+  }
+}
+
+function handleSaved() {
+  fetchCompanies()
+  notify.success('Lista atualizada.')
+}
+
+function onCreate() {
+  wizardOpen.value = true
+}
+
+watch([page, pageSize], fetchCompanies)
+onMounted(fetchCompanies)
+</script>
+
+<style scoped></style>

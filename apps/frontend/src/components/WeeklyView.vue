@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-[#F0F0F0] rounded-xl w-full p-4 md:p-6 shadow-lg h-fit">
+  <div class="bg-brand-f0f0f0 rounded-xl w-full p-4 md:p-6 shadow-lg h-fit calendarioSemanal">
     <div class="gridTabela items-end text-center text-sm font-semibold text-slate-600 mb-2 mx-auto">
       <div v-for="d in weekDays" :key="d.date" class="pb-1">
         <div class="uppercase tracking-wide">{{ d.label }}</div>
@@ -18,8 +18,9 @@
           backgroundSize: '100% ' + pxPerHour + 'px'
         }">
           <div v-for="e in shapedEvents.filter(ev => ev.dayIndex === (day - 1))" :key="e.id"
-            class="absolute left-2 right-2 rounded-2xl shadow-md px-4 py-3 text-sm font-semibold select-none"
-            :class="colorClass(e.color)" :style="{ top: e.top + 'px', height: e.height + 'px' }" :title="e.resume">
+            class="absolute left-2 right-2 rounded-2xl shadow-md px-4 py-3 text-sm font-semibold select-none cursor-pointer"
+            @click="$emit('event-click', e)" :class="colorClass(e.color)"
+            :style="{ top: e.top + 'px', height: e.height + 'px' }" :title="e.resume">
             <div class="leading-4">{{ e.title }}</div>
             <div class="opacity-60 text-[11px] mt-1">{{ e.start }}–{{ e.end }}</div>
             <div class="text-[11px] h-3/5 overflow-hidden ">{{ e.resume }}</div>
@@ -31,6 +32,8 @@
 </template>
 
 <script setup lang="ts">
+const emit = defineEmits<{ (e: 'event-click', ev: any): void }>()
+
 import { computed } from 'vue'
 import type { CalendarEvent } from './calendar-types'
 
@@ -82,9 +85,9 @@ const shapedEvents = computed(() =>
 )
 
 function colorClass(c: CalendarEvent['color']) {
-  if (c === 'blue') return 'bg-[#93c5fd] text-slate-800'
-  if (c === 'green') return 'bg-[#22c55e] text-white'
-  return 'bg-[#bbf7d0] text-slate-800'
+  if (c === 'blue') return 'bg-brand-93c5fd text-slate-800'
+  if (c === 'green') return 'bg-brand-22c55e text-white'
+  return 'bg-brand-bbf7d0 text-slate-800'
 }
 
 </script>

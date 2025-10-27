@@ -1,5 +1,5 @@
 <template>
-  <section class=" bg-[#f4f4f6] text-slate-800 ">
+  <section class="  text-slate-800 ">
     <div class="mx-auto w-full max-w-7xl px-4 pt-6 pb-3 grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4 ">
       <div class="bg-white rounded-2xl p-5 shadow-lg">
         <p class="text-sm font-semibold tracking-wide">Contratos que&nbsp; vencem esse mês</p>
@@ -8,7 +8,7 @@
 
       <div class="bg-white rounded-2xl  p-4 md:px-6 md:py-4 flex items-center gap-4 shadow-lg">
         <div class="size-20 rounded-full grid place-items-center"
-          :style="{ background: `conic-gradient(#94a3b8 0 ${completedPct}%, #e2e8f0 ${completedPct}% 100%)` }">
+          :style="{ background: `conic-gradient(var(--color-94a3b8) 0 ${completedPct}%, var(--color-e2e8f0) ${completedPct}% 100%)` }">
           <div class="size-12 bg-white rounded-full"></div>
         </div>
         <div class="flex-1 ">
@@ -27,21 +27,21 @@
       </div>
 
       <div class="flex items-center justify-end">
-        <input type="button" value="Cadastrar reunião"
+        <input type="button" value="Cadastrar reunião" @click="goToAgendarReuniao"
           class="cadastro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-[#CAD8FD] border border-[#3B67D0] text-white rounded-lg px-4 py-2 hover cursor-pointer ml-16" />
       </div>
     </div>
 
     <div class="mx-auto w-full max-w-7xl px-4 pt-3 pb-0 flex items-center gap-4">
       <button class="pb-3 text-base font-semibold  rounded-t-xl px-6 py-1 "
-        :class="activeTab === 'agenda' ? 'text-[#10b981] bg-white' : 'text-slate-400 bg-gray-300'"
+        :class="activeTab === 'agenda' ? 'text-brand-10b981 bg-white' : 'text-slate-400 bg-gray-300'"
         @click="activeTab = 'agenda'">
         <span class=" text-shadow-lg">
           Agenda
         </span>
       </button>
       <button class="pb-3 text-base font-semibold  rounded-t-xl px-6 py-1"
-        :class="activeTab === 'board' ? 'text-[#10b981] bg-white' : 'text-slate-400 bg-gray-300'"
+        :class="activeTab === 'board' ? 'text-brand-10b981 bg-white' : 'text-slate-400 bg-gray-300'"
         @click="activeTab = 'board'">
         <span class=" text-shadow-lg">
           Task Board
@@ -67,13 +67,15 @@
 
       <div v-if="activeTab === 'agenda'" class="overflow-y-auto p-4">
         <WeeklyView v-if="view === 'week'" :start-hour="startHour" :end-hour="endHour" :week-start="weekStart"
-          :events="events" />
+          :events="events" @event-click="onEventClick" />
         <MonthlyPlaceholder v-else />
       </div>
       <div v-else class="p-4">
         <TaskBoard />
       </div>
     </div>
+
+    <EventDetailsModal v-model="showDetails" :event="selectedEvent" />
   </section>
 </template>
 
@@ -83,6 +85,8 @@ import WeeklyView from '../components/WeeklyView.vue'
 import type { CalendarEvent } from '../components/calendar-types'
 import MonthlyPlaceholder from '../components/MonthlyPlaceholder.vue'
 import TaskBoard from '../components/TaskBoard.vue'
+import EventDetailsModal from '../components/modals/EventDetailsModal.vue'
+import router from '../router'
 
 const activeTab = ref<'agenda' | 'board'>('agenda')
 const view = ref<'week' | 'month'>('week')
@@ -107,6 +111,34 @@ const events = ref<CalendarEvent[]>([
   { id: 'e7', dayIndex: 3, start: '15:00', end: '17:00', title: 'Almoço com a equipe', color: 'green', resume: 'Almoço com a equipe para fortalecer o relacionamento e discutir ideias.' },
   //{ id: 'e4', dayIndex: 4, start: '6:00', end: '20:00', title: 'demonstracao', color: 'green' },
 ])
+
+/** Modal de detalhes */
+const showDetails = ref(false)
+const selectedEvent = ref<any | null>(null)
+
+function onEventClick(ev: CalendarEvent) {
+  selectedEvent.value = {
+    ...ev,
+    contextTitle: 'Apresentação do Projeto',
+    label: 'Apresentação',
+    status: 'A seguir',
+    priority: 'Alta',
+    responsaveis: [
+      { name: 'The Rock', avatar: '/avatars/rock.jpg' },
+      { name: 'Davi Brito', avatar: '/avatars/davi.jpg' },
+    ],
+    comments: [
+      { id: 'c1', author: 'The Rock', text: 'Aqui está o link do drive para a apresentação: Drive', createdAt: '1h' }
+    ]
+  }
+  showDetails.value = true
+}
+
+
+/** Navega para /AgendarReuniao ao clicar no botão */
+const goToAgendarReuniao = () => {
+  router.push('/AgendarReuniao')
+}
 </script>
 
 <style>

@@ -43,7 +43,7 @@
             class="w-[4px] h-4/5 bg-gradient-to-br from-primary via-transparent to-transparent mx-5 hidden sm:block ">
           </div>
 
-          <div class="w-1/2 flex items-center justify-center p-10 hidden sm:block">
+          <div class="w-1/2 flex items-center justify-center p-10 sm:block">
             <h2 class="text-white w-full h-full text-center font-bold text-6xl">
               {{ typedText }}
               <span class=" border-r-4 border-primary animate-blink ml-1"></span>
@@ -56,7 +56,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, getCurrentInstance } from 'vue';
 import { http } from '../lib/http';
 
 const fullText = 'A melhor empresa precisa dos melhores orientadores';
@@ -65,6 +65,10 @@ const loading = ref(false);
 const error = ref<string | null>(null);
 const success = ref<string | null>(null);
 
+const _ins = getCurrentInstance();
+const swal = _ins?.appContext.config.globalProperties.$swal as any;
+const notify = _ins?.appContext.config.globalProperties.$notify as any;
+
 const form = ref({
   nomeCompleto: '',
   email: '',
@@ -72,13 +76,12 @@ const form = ref({
   senha: '',
 });
 
-async function googleAccessToken()
-{
+async function googleAccessToken() {
   const params = new URLSearchParams(window.location.search)
-  if(!params) return;
+  if (!params) return;
 
   const access_token = params.get('access_token');
-  if(!access_token || access_token.length < 1) return; //Access Token nulo ou invalido
+  if (!access_token || access_token.length < 1) return; //Access Token nulo ou invalido
 
   const response = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
     headers: {
@@ -108,9 +111,11 @@ async function register() {
       body: JSON.stringify(form.value),
     });
     success.value = 'Cadastro realizado! Aguarde aprovação.';
+    await notify?.success('Solicitação de acesso criada. Seu cadastro foi enviado e está pendente de aprovação.');
     form.value = { nomeCompleto: '', email: '', contato: '', senha: '' };
   } catch (e: any) {
-    error.value = e?.message || 'Falha ao cadastrar';
+    error.value = e?.message || 'Falha ao cadastrar.';
+    await notify?.error(String(error.value));
   } finally {
     loading.value = false;
   }

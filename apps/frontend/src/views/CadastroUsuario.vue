@@ -53,7 +53,8 @@ export default {
         async salvar() {
             try {
                 if (!this.form.nomeCompleto || !this.form.email || !this.form.senha || !this.form.cargoId) {
-                    return window.alert("Preencha nome, email, senha e cargo.");
+                    this.$notify?.warning("Preencha nome, email, senha e cargo.");
+                    return;
                 }
 
                 this.loading = true;
@@ -73,11 +74,11 @@ export default {
                     body: JSON.stringify(payload),
                 });
 
-                window.alert("Usuário criado com sucesso!");
+                this.$notify?.success("Usuário criado com sucesso!");
                 this.$router.push("/usuarios");
             } catch (e) {
                 console.error(e);
-                window.alert(e?.message || "Falha ao criar usuário.");
+                this.$notify?.error(e?.message || "Falha ao criar usuário.");
             } finally {
                 this.loading = false;
             }
@@ -99,17 +100,18 @@ export default {
             <h1 class="font-bold text-[40px]"> Cadastro de usuário</h1>
             <div class="flex ">
                 <input type="button" value="Salvar" @click="salvar" :disabled="loading"
-                    class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-[#C7D6FA] border border-[#4167C0] text-[#2B5DDF] text-[25px] rounded-lg mb-8 w-[151px] h-[39px] hover cursor-pointer ml-16" />
+                    class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-brand-c7d6fa border border-brand-4167c0 text-brand-2b5ddf text-[25px] rounded-lg mb-8 w-[151px] h-[39px] hover cursor-pointer ml-16" />
                 <input type="button" value="Cancelar" @click="cancelar"
-                    class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-[#F9CDCB] border border-[#B42839] text-[#B42839] text-[25px] rounded-lg mb-8 w-[151px] h-[39px] hover cursor-pointer ml-16" />
+                    class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-brand-f9cdcb border border-brand-b42839 text-brand-b42839 text-[25px] rounded-lg mb-8 w-[151px] h-[39px] hover cursor-pointer ml-16" />
             </div>
         </div>
 
-        <div class="h-full mx-10 bg-[#FFFFFF] p-8 grid grid-cols-2 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg ">
+        <div
+            class="h-full mx-10 bg-brand-ffffff p-8 grid grid-cols-2 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg ">
             <div class="flex flex-col gap-8">
                 <div class="gap-8">
                     <div class="flex flex-col gap-1 mb-2">
-                        <label for="nome" class=" font-bold text-[#5F6060]">Nome Completo</label>
+                        <label for="nome" class=" font-bold text-brand-5f6060">Nome Completo</label>
                         <input type="text" id="nome" name="nome" placeholder="Digite o nome completo"
                             v-model="form.nomeCompleto"
                             class="border border-gray-300  w-5/6  h-[37px] focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg px-2" />
@@ -118,7 +120,7 @@ export default {
 
                 <div>
                     <div class="flex flex-col gap-1 mb-2">
-                        <label for="cargo" class=" font-bold text-[#5F6060]">Cargo</label>
+                        <label for="cargo" class=" font-bold text-brand-5f6060">Cargo</label>
                         <select id="cargo" name="cargo" v-model="form.cargoId"
                             class="border border-gray-300 w-5/6  h-[37px] focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg px-2">
                             <option value="" disabled>Selecione o cargo</option>
@@ -138,14 +140,14 @@ export default {
                 </div>
 
                 <div class="flex flex-col gap-1 mb-2">
-                    <label for="email_corp" class=" font-bold text-[#5F6060]">Email corporativo</label>
+                    <label for="email_corp" class=" font-bold text-brand-5f6060">Email corporativo</label>
                     <input type="email" id="email_corp" name="email_corp" placeholder="Digite o email"
                         v-model="form.email"
                         class="border border-gray-300 w-5/6 h-[37px] focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg px-2" />
                 </div>
 
                 <div class="flex flex-col gap-1 mb-2">
-                    <label for="senha" class=" font-bold text-[#5F6060]">Senha</label>
+                    <label for="senha" class=" font-bold text-brand-5f6060">Senha</label>
                     <input type="password" id="senha" name="senha" placeholder="Digite a senha" v-model="form.senha"
                         class="border border-gray-300 w-5/6  h-[37px] focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg px-2" />
                 </div>
@@ -153,21 +155,21 @@ export default {
                 <div>
                     <div class="grid grid-cols-2 gap-4 mt-4">
                         <div class="flex flex-col ">
-                            <label for="telefone" class=" font-bold text-[#5F6060]">Telefone</label>
+                            <label for="telefone" class=" font-bold text-brand-5f6060">Telefone</label>
                             <input type="text" id="telefone" name="telefone" placeholder="Digite o seu telefone"
                                 v-model="form.contato"
                                 class="border border-gray-300 w-[178px] h-8 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg px-2" />
                         </div>
 
                         <div class="flex flex-col ">
-                            <label for="email_adicional" class=" font-bold text-[#5F6060]">E-mail Adicional</label>
+                            <label for="email_adicional" class=" font-bold text-brand-5f6060">E-mail Adicional</label>
                             <input type="text" id="email_adicional" name="email_adicional"
                                 placeholder="Digite o seu email adicional"
                                 class="border border-gray-300 w-[178px] h-8 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg px-2" />
                         </div>
 
                         <div class="flex flex-col ">
-                            <label for="departamento" class=" font-bold text-[#5F6060]">Departamento</label>
+                            <label for="departamento" class=" font-bold text-brand-5f6060">Departamento</label>
                             <select id="departamento" name="departamento"
                                 class="border border-gray-300 w-[178px] h-8 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg px-2">
                                 <option value="analista-marketing">Analista de Marketing</option>
@@ -178,7 +180,7 @@ export default {
                         </div>
 
                         <div class="flex flex-col ">
-                            <label for="gestor" class=" font-bold text-[#5F6060]">Gestor responsável</label>
+                            <label for="gestor" class=" font-bold text-brand-5f6060">Gestor responsável</label>
                             <input type="text" id="gestor" name="gestor" placeholder="Digite o seu gestor"
                                 class="border border-gray-300 w-[178px] h-8 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg px-2" />
                         </div>
@@ -190,12 +192,12 @@ export default {
                 <div class="flex h-fit w-full items-center justify-start">
                     <img src="../icones/usuario.svg"
                         class="w-[15vh] h-[15vh] fotoperfil rounded-full border border-gray-300" />
-                    <h1 class="w-700 text-bold text-[#5F6060] text-[24px] ml-3">John Lenon</h1>
+                    <h1 class="w-700 text-bold text-brand-5f6060 text-[24px] ml-3">John Lenon</h1>
                 </div>
 
                 <div>
                     <div class="flex flex-col ">
-                        <label for="status" class=" font-bold text-[#5F6060]">Status</label>
+                        <label for="status" class=" font-bold text-brand-5f6060">Status</label>
                         <select id="status" name="status" v-model="statusSelecionado"
                             class="border border-gray-300 w-[410px] h-8 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg px-2">
                             <option value="ativo">Ativo</option>
@@ -205,7 +207,7 @@ export default {
                     </div>
 
                     <div class="p-8 mt-40">
-                        <h2 class="text-xl font-bold mb-4 text-[#5F6060]">Permissões</h2>
+                        <h2 class="text-xl font-bold mb-4 text-brand-5f6060">Permissões</h2>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <PermissionCheckbox id="criar-propostas" label="Criar Propostas"

@@ -6,9 +6,9 @@
   <td class="p-3 text-center">{{ proposal }}</td>
   <td class="p-3 text-center">{{ validity }}</td>
   <td class="p-3 text-center">
-                <span v-if="status === 'Aprovado'" class="aprovado px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-[#BAECC9] border border-[#128A3A] text-[#128A3A]">Aprovado</span>
-                <span v-else-if="status === 'Em revisão'" class="revisao px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-[#FFDDAD] border border-[#D08415] text-[#D79334]">Em revisão</span>
-                <span v-else-if="status === 'Rescindido'" class="rescindido px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-[#F5CCC9] border border-[#BF1F2B] text-[#BF1F2B]">Rescindido</span>
+                <span v-if="status === 'Aprovado'" class="aprovado px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-brand-baecc9 border border-brand-128a3a text-brand-128a3a">Aprovado</span>
+                <span v-else-if="status === 'Em revisão'" class="revisao px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-brand-ffddad border border-brand-d08415 text-brand-d79334">Em revisão</span>
+                <span v-else-if="status === 'Rescindido'" class="rescindido px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-brand-f5ccc9 border border-brand-bf1f2b text-brand-bf1f2b">Rescindido</span>
             </td>
             <td class="text-center p-3">
                 <button class="py-1 px-3 text-center border shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] font-bold rounded-sm bg-white">Abrir</button>

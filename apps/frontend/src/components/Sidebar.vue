@@ -1,50 +1,57 @@
 <template>
-  <aside class="relative min-h-screen flex sombraTexto" :class="{ collapsed }" role="navigation">
+  <aside class="relative min-h-screen flex sombraTexto fundosidebar" :class="{ collapsed }" role="navigation">
+    <!-- COLUNA ESQUERDA (ÍCONES) -->
     <div class="h-full bg-secondary flex flex-col justify-between w-14 shadow-lg">
-      <button v-if="collapsed" @click="toggleSidebar">
+      <button v-if="collapsed" @click="toggleSidebar" class="relative">
         <img src="/img/logoCircular.svg" class="w-14 h-14 absolute left-20 top-3" alt="climbe" />
       </button>
-      <nav class="relative flex-1 mt-20">
-        <ul class="menu px-2 ">
-          <li v-for="(item, i) in items" :key="item.to" class=" relative ">
+
+      <nav class="relative flex-1" :style="{ paddingTop: leftPad + 'px' }">
+        <!-- espaçamento e altura padronizados -->
+        <ul class="menu px-2 flex flex-col gap-2">
+          <li v-for="item in items" :key="item.to" class="relative">
             <RouterLink :to="item.to"
-              class=" flex items-center px-3 overflow-hidden text-center my-7 first-of-type:mt-8 h-14 relative -left-2  "
-              :class="{ 'border-l-4 border-white ': isActive(item) }"
+              class="flex items-center justify-center overflow-hidden text-center h-12 relative -left-2 rounded-md"
+              :class="{ 'border-l-4 border-white': isActive(item) }"
               :aria-current="isActive(item) ? 'page' : undefined">
-              <div class="relative flex items-center justify-center w-8 h-8 ">
-                <img :src="item.icon" alt="Ícone" class=" min-w-6 h-6" />
+              <div class="relative grid place-items-center w-8 h-8">
+                <img :src="item.icon" alt="Ícone" class="min-w-6 h-6" />
               </div>
             </RouterLink>
           </li>
         </ul>
       </nav>
-      <div class=" hover:bg-white/10 flex justify-center mb-5 ">
+
+      <div class="hover:bg-white/10 flex justify-center mb-5">
         <button>
-          <img src="/icones/config.svg" alt="">
+          <img src="/icones/config.svg" alt="configurações">
         </button>
       </div>
     </div>
 
-    <!-- Sidebar Expandida (Labels + Logo) -->
-    <div v-if="!collapsed" class="bg-sidebar text-white duration-300 rounded-e-xl w-60 shadow-xl">
-      <div class="px-7 py-5 overflow-hidden" @click="toggleSidebar">
+    <!-- COLUNA DIREITA (LABELS) -->
+    <div v-if="!collapsed" class="bg-sidebar text-white duration-300 rounded-e-xl w-60 shadow-xl overflow-visible">
+      <div ref="headerEl" class="px-7 py-5 overflow-hidden cursor-pointer" @click="toggleSidebar">
         <slot name="logo">
-          <img src="/img/logoPreta.png" class="" alt="climbe" />
+          <!-- Light mode -->
+          <img src="/img/logoPreta.png" alt="climbe" class="block dark:hidden" />
+          <!-- Dark mode -->
+          <img src="/img/climbe-logo.png" alt="climbe" class="hidden dark:block" />
         </slot>
       </div>
-      <div class="icon-bar p-2">
+
+      <div class="icon-bar px-2 mt-2">
         <nav class="relative flex-1">
-          <ul class="menu px-2 ">
-            <li v-for="(item, i) in items" :key="item.to" class="menu-item group relative">
-              <div class="h-3 bg-sidebar bordaT " :class="{ 'bordaT ': isActive(item) }"></div>
+          <!-- mesmo espaçamento da coluna esquerda -->
+          <ul class="menu px-1 flex flex-col gap-2">
+            <li v-for="item in items" :key="item.to" class="menu-item group relative overflow-visible">
               <RouterLink :to="item.to"
-                class="menu-link flex items-center gap-3 rounded-full px-3 py-3 overflow-hidden text-center h-16"
+                class="menu-link flex items-center gap-3 rounded-full px-3 h-12 overflow-hidden text-center w-full"
                 :class="{ 'ativo': isActive(item) }" :aria-current="isActive(item) ? 'page' : undefined">
-                <span v-if="!collapsed" class="nav-label font-bold text-xl whitespace-nowrap">
+                <span class="nav-label font-bold text-xl whitespace-nowrap">
                   {{ item.label }}
                 </span>
               </RouterLink>
-              <div class="h-3 bg-sidebar bordaB " :class="{ 'bordaB ': isActive(item) }"></div>
             </li>
           </ul>
         </nav>
@@ -64,7 +71,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, nextTick, onBeforeUnmount, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 type NavItem = {
@@ -77,32 +84,70 @@ type NavItem = {
 const props = withDefaults(defineProps<{
   items: NavItem[]
   storageKey?: string
+  homeAliases?: string[]
 }>(), {
-  storageKey: 'sidebar:collapsed'
+  storageKey: 'sidebar:collapsed',
+  homeAliases: ['/', '/home']
 })
 
 const route = useRoute()
+const router = useRouter()
 const collapsed = ref(false)
 
+const headerEl = ref<HTMLElement | null>(null)
+const leftPad = ref(0)
+const CAP_TOP = 10
+
+function measureHeader() {
+  const h = headerEl.value?.offsetHeight ?? 0
+  leftPad.value = h + CAP_TOP
+}
+
+onMounted(async () => {
+  const saved = localStorage.getItem(props.storageKey!)
+  if (saved === '1') collapsed.value = true
+
+  await nextTick()
+  measureHeader()
+  window.addEventListener('resize', measureHeader)
+  setTimeout(measureHeader, 0)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', measureHeader)
+})
+
+function normalize(path: string) {
+  if (path === '/') return '/'
+  return path.replace(/\/+$/, '')
+}
+
+function isHomePath(path: string) {
+  const p = normalize(path)
+  return props.homeAliases!.map(normalize).includes(p)
+}
+
 function isActive(item: NavItem) {
-  return route.path === item.to || (item.exact && route.path === item.to)
+  const current = normalize(route.path)
+  const target = normalize(item.to)
+  if (isHomePath(target)) return isHomePath(current)
+  if (item.exact) return current === target
+  return current === target
 }
 
 function toggleSidebar() {
   collapsed.value = !collapsed.value
   localStorage.setItem(props.storageKey!, collapsed.value ? '1' : '0')
+  nextTick().then(measureHeader)
 }
-
-
-const router = useRouter();
 
 function logout() {
-  localStorage.removeItem('access_token');
-  localStorage.removeItem('user');
-
-  router.replace('/');
+  localStorage.removeItem('access_token')
+  localStorage.removeItem('user')
+  router.replace('/')
 }
 
+watch(() => route.path, () => nextTick().then(measureHeader))
 </script>
 
 <style scoped>
@@ -120,10 +165,7 @@ function logout() {
 
 .menu-link.ativo {
   background-color: rgb(255, 255, 255);
-  width: calc(100% + 1rem);
   color: #000;
-  border-bottom-right-radius: 0;
-  border-top-right-radius: 0;
   box-shadow: 3px 5px 10px -2px rgba(0, 0, 0, 0.75) inset;
   animation: largura 0.5s ease-in-out;
 }
@@ -132,37 +174,41 @@ function logout() {
   background-color: rgba(255, 255, 255, 0.3);
 }
 
-.bordaT {
-  border-bottom-right-radius: 50px;
-  position: relative;
-  top: 10px;
-  height: 10px;
-  width: calc(100% + 1rem);
-}
-
-.bordaB {
-  border-top-right-radius: 50px;
-  position: relative;
-  bottom: 10px;
-  height: 10px;
-  width: calc(100% + 1rem);
-}
-
 .sombraTexto {
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.53);
-}
-
-.sidebar.collapsed .collapse-thumb {
-  right: -6px;
-}
-
-.collapse-thumb:hover {
-  background: #f3f3f3;
 }
 
 .footer {
   position: absolute;
   bottom: 0;
   width: 100%;
+}
+
+/* dark mode */
+:deep(.dark) .menu-link.ativo {
+  background-color: var(--panel) !important;
+  color: var(--text) !important;
+  box-shadow: none !important;
+  border-left: 4px solid var(--accent) !important;
+}
+
+:deep(.dark) .menu-link:hover {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+:deep(.dark) .bg-sidebar {
+  background-color: var(--sidebar) !important;
+}
+
+:deep(.dark) .bg-secondary {
+  background-color: var(--secondary) !important;
+}
+
+:deep(.dark) .hover\:bg-white\/20:hover {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+.dark .fundosidebar {
+  background-color: var(--sidebar) !important;
 }
 </style>

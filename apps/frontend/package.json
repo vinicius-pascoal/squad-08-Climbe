@@ -5,12 +5,13 @@
     "dev": "vite",
     "build": "vite build",
     "typecheck": "vue-tsc --noEmit",
-    "lint": "echo \"(lint n\u00e3o configurado)\"",
-    "format": "echo \"(format n\u00e3o configurado)\""
+    "lint": "echo \"(lint não configurado)\"",
+    "format": "echo \"(format não configurado)\""
   },
   "dependencies": {
     "vue": "^3.4.0",
-    "vue-router": "^4.3.0"
+    "vue-router": "^4.3.0",
+    "sweetalert2": "^11.11.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.0",

@@ -113,14 +113,20 @@ model Proposta {
 }
 
 model Contrato {
-  id         Int         @id @default(autoincrement()) @map("id_contrato")
-  propostaId Int         @map("proposta_id")
-  dataInicio DateTime    @map("data_inicio")
-  dataFim    DateTime?   @map("data_fim")
-  status     String?     @db.VarChar(255)
-  proposta   Proposta    @relation(fields: [propostaId], references: [id])
-  planilhas  Planilha[]
-  relatorios Relatorio[]
+  id         String      @id @default(uuid()) @map("id_contrato")
+  nome       String
+  propostaId Int?        @map("id_proposta")
+  status     String?
+  descricao  String?
+  valor      Float
+  dataInicio DateTime
+  dataFim    DateTime
+  envolvidos String?
+  acoes      String?
+  permissoes String?
+  Proposta   Proposta?   @relation(fields: [propostaId], references: [id])
+  Planilha   Planilha[]
+  Relatorio  Relatorio[]
 
   @@index([propostaId])
   @@map("contratos")
@@ -128,7 +134,7 @@ model Contrato {
 
 model Planilha {
   id                    Int      @id @default(autoincrement()) @map("id_planilha")
-  contratoId            Int      @map("contrato_id")
+  contratoId            String   @map("id_contrato")
   urlGoogleSheets       String?  @map("url_google_sheets") @db.VarChar(255)
   bloqueada             Boolean?
   permissaoVisualizacao String?  @map("permissao_visualizacao") @db.VarChar(255)
@@ -140,7 +146,7 @@ model Planilha {
 
 model Relatorio {
   id         Int       @id @default(autoincrement()) @map("id_relatorio")
-  contratoId Int       @map("contrato_id")
+  contratoId String    @map("id_contrato")
   urlPdf     String?   @map("url_pdf") @db.VarChar(255)
   dataEnvio  DateTime? @map("data_envio")
   contrato   Contrato  @relation(fields: [contratoId], references: [id])

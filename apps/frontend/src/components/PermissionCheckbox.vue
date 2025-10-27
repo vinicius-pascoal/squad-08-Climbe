@@ -7,7 +7,7 @@
       @change="handleChange"
       class="form-checkbox h-5 w-5 rounded border-gray-300"
     />
-    <label :for="id" class="text-sm cursor-pointer text-[#5F6060] font-bold">{{ label }}</label>
+    <label :for="id" class="text-sm cursor-pointer text-brand-5f6060 font-bold">{{ label }}</label>
   </div>
 </template>
 

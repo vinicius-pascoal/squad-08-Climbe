@@ -1,34 +1,26 @@
 <template>
-  <div class="w-full">
+  <div class="w-full taskboard">
     <div class="flex items-center gap-3 mb-4">
       <span class="font-semibold text-lg">Evento</span>
-      <div class="flex items-center bg-white border rounded-xl shadow px-3 py-2 w-full max-w-md">
-        <input v-model="query" type="text" placeholder="Buscar evento" class="flex-1 outline-none text-sm" />
+      <div class="flex items-center border rounded-xl shadow px-3 py-2 w-full max-w-md">
+        <input v-model="query" type="text" placeholder="Buscar evento" class="flex-1 outline-none text-sm busca" />
         <span class="text-slate-400">•••</span>
       </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-5 gap-4">
-      <div v-for="col in columns" :key="col.key" class="bg-white rounded-2xl shadow p-3">
+      <div v-for="col in columns" :key="col.key" class="rounded-2xl shadow p-3">
         <div class="flex items-center justify-between mb-2">
           <h3 class="font-semibold">{{ col.title }}</h3>
           <span class="text-slate-400">•••</span>
         </div>
 
-        <div
-          class="min-h-[240px] space-y-3"
+        <div class="min-h-[240px] space-y-3"
           :class="dropping === col.key ? 'ring-2 ring-emerald-400 ring-offset-2 rounded-xl p-1' : ''"
-          @dragover.prevent="onDragOver(col.key)"
-          @dragleave="onDragLeave"
-          @drop="onDrop(col.key)"
-        >
-          <div
-            v-for="t in filteredBy(col.key)"
-            :key="t.id"
-            class="bg-white border rounded-2xl shadow-sm p-3 cursor-grab active:cursor-grabbing"
-            draggable="true"
-            @dragstart="onDragStart(t.id)"
-          >
+          @dragover.prevent="onDragOver(col.key)" @dragleave="onDragLeave" @drop="onDrop(col.key)">
+          <div v-for="t in filteredBy(col.key)" :key="t.id"
+            class="bg-white border rounded-2xl shadow-sm p-3 cursor-grab active:cursor-grabbing" draggable="true"
+            @dragstart="onDragStart(t.id)">
             <div class="flex items-center justify-between mb-2">
               <span :class="['px-3 py-0.5 rounded-full text-xs font-semibold', tagClass(t.tag)]">{{ t.tag }}</span>
               <span class="text-slate-400">⋮⋮</span>
@@ -36,17 +28,22 @@
             <div class="text-sm font-semibold leading-snug mb-2">{{ t.title }}</div>
             <div class="flex items-center gap-3 text-xs text-slate-500">
               <span class="inline-flex items-center gap-1">
-                <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 7h8M7 12h10M10 17h4"/></svg>
+                <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M8 7h8M7 12h10M10 17h4" />
+                </svg>
                 {{ t.date }}
               </span>
               <span class="inline-flex items-center gap-1">
-                <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 6v12m6-6H6"/></svg>
+                <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 6v12m6-6H6" />
+                </svg>
                 {{ t.points }}
               </span>
             </div>
           </div>
 
-          <button v-if="col.key !== 'done'" class="mt-2 text-xs text-slate-500 hover:text-emerald-600" @click="addCard(col.key)">
+          <button v-if="col.key !== 'done'" class="mt-2 text-xs text-slate-500 hover:text-emerald-600"
+            @click="addCard(col.key)">
             + Adicionar Card
           </button>
         </div>
@@ -60,7 +57,7 @@
             <span>{{ g.done }}/{{ g.total }}</span>
           </div>
           <div class="h-1.5 bg-slate-200 rounded-full overflow-hidden">
-            <div class="h-full bg-emerald-500" :style="{ width: ((g.done/g.total)*100) + '%' }"></div>
+            <div class="h-full bg-emerald-500" :style="{ width: ((g.done / g.total) * 100) + '%' }"></div>
           </div>
         </div>
       </div>
@@ -83,10 +80,10 @@ type Task = {
 }
 
 const columns: { key: StatusKey; title: string }[] = [
-  { key: 'todo',   title: 'A Fazer' },
-  { key: 'doing',  title: 'Em Andamento' },
+  { key: 'todo', title: 'A Fazer' },
+  { key: 'doing', title: 'Em Andamento' },
   { key: 'review', title: 'Em Revisão' },
-  { key: 'done',   title: 'Concluído' },
+  { key: 'done', title: 'Concluído' },
 ]
 
 const state = reactive<{ tasks: Task[] }>({
@@ -138,8 +135,8 @@ function addCard(status: StatusKey) {
 
 const groups = computed(() => {
   const total = (tag: Task['tag']) => state.tasks.filter(t => t.tag === tag).length
-  const done  = (tag: Task['tag']) => state.tasks.filter(t => t.tag === tag && t.status === 'done').length
-  const tags: Task['tag'][] = ['Desenvolvimento','Vendas','UI Design','Documentação','Marketing']
+  const done = (tag: Task['tag']) => state.tasks.filter(t => t.tag === tag && t.status === 'done').length
+  const tags: Task['tag'][] = ['Desenvolvimento', 'Vendas', 'UI Design', 'Documentação', 'Marketing']
   return tags.map(label => ({ label, total: total(label), done: done(label) }))
 })
 

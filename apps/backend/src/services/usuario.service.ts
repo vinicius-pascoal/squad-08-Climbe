@@ -94,7 +94,7 @@ export const usuarioService = {
     const adminCargoId = Number((roles as any)?.adminCargoId ?? 9);
     const users = await usuarioRepo.list();
     // mantém quem não tem cargo (null) e quem tem cargo diferente do Admin
-    return users.filter(u => u.cargoId == null || Number(u.cargoId) !== adminCargoId);
+    return users.filter(u => Number(u.cargoId) !== adminCargoId);
   },
 
   findById: (id: number) => usuarioRepo.findById(id),
