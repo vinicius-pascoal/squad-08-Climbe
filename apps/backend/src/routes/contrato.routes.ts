@@ -7,5 +7,6 @@ import { requireAuth } from '../middlewares/auth';
 export const contratoRouter = Router();
 
 // Protegido por auth; ajuste para checar perfil se necessário
+contratoRouter.get('/', requireAuth, contratoController.list);
 contratoRouter.post('/register', requireAuth, validate({ body: contratoSchema }), contratoController.register);
 contratoRouter.get('/:id', requireAuth, contratoController.getById);
