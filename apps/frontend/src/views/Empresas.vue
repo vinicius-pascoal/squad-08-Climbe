@@ -181,23 +181,25 @@
     </div>
   </div>
 
-  <CompanyWizard v-model:open="wizardOpen" api-url="/api/companies" @saved="handleSaved" />
+  <CompanyWizard v-model:open="wizardOpen" api-url="/api/empresas" @saved="handleSaved" />
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, computed, watch } from 'vue'
+import { onMounted, ref, computed, watch, getCurrentInstance } from 'vue'
 import CompanyWizard from '../components/modals/company-wizard/CompanyWizard.vue'
+import { http } from '../lib/http'
 
 type Status = 'Ativa' | 'Pendente' | 'Inativa'
 type Company = {
-  id: string
+  id: number
   name: string
   cnpj: string
   representativeEmail: string
   status: Status
 }
 
-const API_URL = '/api/companies'
+const instance = getCurrentInstance();
+const notify = instance?.appContext.config.globalProperties.$notify;
 
 const filters = ref({
   cnpj: '',
@@ -259,27 +261,19 @@ async function fetchCompanies() {
   error.value = null
 
   try {
-    const params = new URLSearchParams({
-      page: String(page.value),
-      size: String(pageSize.value),
-    })
-    if (filters.value.cnpj) params.append('cnpj', filters.value.cnpj)
-    if (filters.value.representative) params.append('representative', filters.value.representative)
-    if (filters.value.email) params.append('email', filters.value.email)
+    const data = await http('/api/empresas')
 
-    const mock: Company[] = [
-      { id: '1', name: 'RIHappy', cnpj: '12.345.678/0001-90', representativeEmail: 'joao.silva@alphatech.com', status: 'Ativa' },
-      { id: '2', name: 'TED talk', cnpj: '12.345.678/0001-90', representativeEmail: 'Pedro@gmail.com', status: 'Ativa' },
-      { id: '3', name: 'ABNT', cnpj: '12.345.678/0001-90', representativeEmail: 'Jose@gmail.com', status: 'Ativa' },
-      { id: '4', name: 'XOPs', cnpj: '12.345.678/0001-90', representativeEmail: 'Ricardo@gmail.com', status: 'Ativa' },
-      { id: '5', name: 'Pingu', cnpj: '12.345.678/0001-90', representativeEmail: 'Carlao@gmail.com', status: 'Ativa' },
-      { id: '6', name: 'Tech', cnpj: '12.345.678/0001-90', representativeEmail: 'Neyney@gmail.com', status: 'Ativa' },
-      { id: '7', name: 'Gbarbosa', cnpj: '12.345.678/0001-90', representativeEmail: 'Mariah@gmail.com', status: 'Ativa' },
-      { id: '8', name: 'OPPAA', cnpj: '12.345.678/0001-90', representativeEmail: 'HeitorCosta@gmail.com', status: 'Ativa' },
-      { id: '9', name: 'UNIT', cnpj: '12.345.678/0001-90', representativeEmail: 'LuizGomes@gmail.com', status: 'Ativa' },
-    ]
+    // Mapear dados do backend para o formato esperado
+    const allCompanies = (Array.isArray(data) ? data : []).map((emp: any) => ({
+      id: emp.id,
+      name: emp.nomeFantasia || emp.razaoSocial || 'Sem nome',
+      cnpj: emp.cnpj || 'N/A',
+      representativeEmail: emp.email || 'Não informado',
+      status: 'Ativa' as Status, // Backend não tem status, assumir Ativa
+    }))
 
-    const filtered = mock.filter(m =>
+    // Aplicar filtros localmente
+    const filtered = allCompanies.filter((m: Company) =>
       (!filters.value.cnpj || m.cnpj.includes(filters.value.cnpj)) &&
       (!filters.value.representative || m.name.toLowerCase().includes(filters.value.representative.toLowerCase())) &&
       (!filters.value.email || m.representativeEmail.toLowerCase().includes(filters.value.email.toLowerCase())),
@@ -289,7 +283,8 @@ async function fetchCompanies() {
     const start = (page.value - 1) * pageSize.value
     companies.value = filtered.slice(start, start + pageSize.value)
   } catch (e: any) {
-    error.value = e?.message ?? 'Erro ao carregar dados'
+    error.value = e?.message ?? 'Erro ao carregar empresas'
+    notify?.error(error.value)
   } finally {
     loading.value = false
   }
@@ -297,7 +292,7 @@ async function fetchCompanies() {
 
 function handleSaved() {
   fetchCompanies()
-  notify.success('Lista atualizada.')
+  notify?.success('Empresa salva com sucesso!')
 }
 
 function onCreate() {

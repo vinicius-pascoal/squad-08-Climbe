@@ -11,16 +11,21 @@
     <div class="rounded-2xl bg-white shadow border border-slate-200">
       <form @submit.prevent="onSubmit" class="p-6 space-y-6">
         <section>
-          <label class="block text-sm font-semibold text-slate-800 mb-2">Criar Proposta</label>
+          <label class="block text-sm font-semibold text-slate-800 mb-2">
+            Empresa <span class="text-red-500">*</span>
+          </label>
           <select v-model="form.empresaId" required
             class="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500">
             <option value="" disabled>Selecione uma empresa</option>
             <option v-for="e in empresas" :key="e.id" :value="e.id">{{ e.nomeFantasia || e.razaoSocial }}</option>
           </select>
+          <p class="text-xs text-slate-500 mt-1">Selecione a empresa para a qual a proposta será criada</p>
         </section>
 
         <section>
-          <label class="block text-sm font-semibold text-slate-800 mb-2">Anexo de Documento</label>
+          <label class="block text-sm font-semibold text-slate-800 mb-2">
+            Anexo de Documento (Opcional)
+          </label>
           <div class="rounded-xl border-2 border-dashed border-sky-200 bg-sky-50 p-6 text-slate-600"
             @dragover.prevent="isDragging = true" @dragleave.prevent="isDragging = false" @drop.prevent="onDrop">
             <div class="flex flex-col items-center justify-center gap-2 pointer-events-none select-none"
@@ -29,30 +34,29 @@
                 <path
                   d="M12 16v-7m0 0-3 3m3-3 3 3M6 19h12a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2h-1.5a5.5 5.5 0 0 0-11 0H4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2Z" />
               </svg>
-              <p class="text-sm">Arraste ou carregue o documento</p>
+              <p class="text-sm">Arraste ou carregue o documento (PDF, DOC, DOCX)</p>
               <p v-if="fileName" class="text-xs text-slate-500 truncate max-w-full">
                 Selecionado: <span class="font-medium text-slate-700">{{ fileName }}</span>
               </p>
-              <input ref="fileInput" type="file" class="hidden" @change="onFileChange" />
+              <input ref="fileInput" type="file" class="hidden" accept=".pdf,.doc,.docx" @change="onFileChange" />
               <button type="button" @click="fileInput?.click()"
-                class="mt-1 rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100">
+                class="mt-1 rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100 pointer-events-auto">
                 Escolher arquivo
               </button>
             </div>
           </div>
-        </section>
-
-        <section>
-          <label class="block text-sm font-semibold text-slate-800 mb-2">Observações</label>
-          <input v-model="form.observacoes" type="text"
-            class="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500" />
+          <p class="text-xs text-slate-500 mt-1">O documento poderá ser anexado posteriormente</p>
         </section>
 
         <div class="flex items-center justify-end gap-3 pt-2">
           <button type="button" @click="onCancel"
-            class="rounded-lg bg-slate-200 text-slate-700 font-medium px-4 py-2">Cancelar</button>
-          <button type="submit" :disabled="submitting"
-            class="rounded-lg bg-emerald-700 text-white font-semibold px-6 py-2 disabled:opacity-60">Enviar</button>
+            class="rounded-lg bg-slate-200 text-slate-700 font-medium px-4 py-2 hover:bg-slate-300 transition">
+            Cancelar
+          </button>
+          <button type="submit" :disabled="submitting || !form.empresaId"
+            class="rounded-lg bg-emerald-700 text-white font-semibold px-6 py-2 hover:bg-emerald-800 disabled:opacity-60 disabled:cursor-not-allowed transition">
+            {{ submitting ? 'Criando...' : 'Criar Proposta' }}
+          </button>
         </div>
       </form>
     </div>
@@ -62,12 +66,12 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, getCurrentInstance } from 'vue';
 import { useRouter } from 'vue-router';
+import { http } from '../lib/http';
 
 type Empresa = { id: number; razaoSocial?: string; nomeFantasia?: string };
 
 const router = useRouter();
 const _ins = getCurrentInstance();
-const swal = _ins?.appContext.config.globalProperties.$swal as any;
 const notify = _ins?.appContext.config.globalProperties.$notify as any;
 
 const empresas = ref<Empresa[]>([]);
@@ -78,17 +82,16 @@ const fileName = ref<string>('');
 
 const form = reactive({
   empresaId: '' as unknown as number | '',
-  observacoes: '' as string,
 });
 const submitting = ref(false);
 
 async function loadEmpresas() {
-  // TODO: integrar com backend (ex.: const data = await http<Empresa[]>('/api/empresas');)
-  empresas.value = [
-    { id: 1, nomeFantasia: 'ACME' },
-    { id: 2, nomeFantasia: 'Globex' },
-    { id: 3, nomeFantasia: 'Initech' },
-  ];
+  try {
+    const data = await http('/api/empresas');
+    empresas.value = Array.isArray(data) ? data : [];
+  } catch (error: any) {
+    notify?.error(`Erro ao carregar empresas: ${error.message}`);
+  }
 }
 
 function onDrop(ev: DragEvent) {
@@ -116,19 +119,30 @@ async function onSubmit() {
       notify?.warning('Selecione uma empresa');
       return;
     }
-    if (!file.value) {
-      notify?.warning('Anexe um documento');
-      return;
-    }
+
     submitting.value = true;
 
-    // TODO: integrar backend com FormData
-    await new Promise((r) => setTimeout(r, 600));
+    // Criar payload básico
+    const payload: any = {
+      empresaId: Number(form.empresaId),
+    };
 
-    notify?.success('Proposta enviada com sucesso!');
+    // TODO: Se houver arquivo, fazer upload para Google Drive e adicionar documentoUrl
+    if (file.value) {
+      // payload.documentoUrl = await uploadToGoogleDrive(file.value);
+      notify?.info('Upload de documentos será implementado em breve');
+    }
+
+    await http('/api/propostas', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+
+    notify?.success('Proposta criada com sucesso!');
     router.push('/Propostas');
   } catch (e: any) {
-    notify?.error(e?.message || 'Erro ao enviar a proposta.');
+    const message = e?.message || 'Erro ao criar a proposta.';
+    notify?.error(message);
   } finally {
     submitting.value = false;
   }
