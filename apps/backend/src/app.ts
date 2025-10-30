@@ -11,6 +11,7 @@ import { tarefaRouter } from './routes/tarefa.routes';
 import { contratoRouter } from './routes/contrato.routes';
 import eventRouter from './routes/event.router';
 import { empresaRouter } from './routes/empresa.routes';
+import { driveRouter } from './routes/drive.routes';
 
 export const app = express();
 app.use(cors());
@@ -26,6 +27,7 @@ app.use('/api/usuarios', usuarioRouter);
 app.use('/api/cargos', cargoRouter);
 app.use('/api/emails', emailRouter);
 app.use('/api/contratos', contratoRouter);
+app.use('/api/drive', driveRouter);
 // servir frontend estático (vite build)
 app.use('/api/tarefas', tarefaRouter);
 app.use('/api/events', eventRouter);
