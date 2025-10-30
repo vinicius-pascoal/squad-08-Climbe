@@ -3,6 +3,7 @@ import { roles } from '../config/env';
 import { RegisterDTO, AprovarDTO } from '../dtos/usuario.dto';
 import { hashPassword } from '../utils/password';
 import { prisma } from '../utils/prisma';
+import { permissionService } from './permission.service';
 import { sendTemplate } from './email.service';
 
 const SITUACAO = { PENDENTE: 'pendente', APROVADO: 'aprovado' } as const;
@@ -48,6 +49,8 @@ export const usuarioService = {
     } catch (err) {
       console.warn('Falha ao enviar e-mail de boas-vindas:', (err as Error).message);
     }
+    // sincroniza permissoes do cargo para o usuario
+    try { await permissionService.syncPermissionsForUserFromCargo(updated.id, cargoId); } catch (e) { console.warn('Falha ao sincronizar permissoes do cargo:', (e as Error).message); }
     return updated;
   },
 
@@ -85,6 +88,8 @@ export const usuarioService = {
       } catch (err) {
         console.warn('Falha ao enviar e-mail de boas-vindas:', (err as Error).message);
       }
+      // sincroniza permissoes do cargo para o usuario (admin create)
+      try { await permissionService.syncPermissionsForUserFromCargo(created.id, cargoId); } catch (e) { console.warn('Falha ao sincronizar permissoes do cargo (adminCreate):', (e as Error).message); }
     }
     return created;
   },
@@ -94,7 +99,7 @@ export const usuarioService = {
     const adminCargoId = Number((roles as any)?.adminCargoId ?? 9);
     const users = await usuarioRepo.list();
     // mantém quem não tem cargo (null) e quem tem cargo diferente do Admin
-    return users.filter(u => Number(u.cargoId) !== adminCargoId);
+    return users.filter((u: any) => Number(u.cargoId) !== adminCargoId);
   },
 
   findById: (id: number) => usuarioRepo.findById(id),

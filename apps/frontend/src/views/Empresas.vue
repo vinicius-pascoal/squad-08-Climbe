@@ -77,11 +77,14 @@
           </div>
         </nav>
 
-        <button
+        <button v-if="currentUser && (currentUser.value?.cargoNome === 'Admin')"
           class="w-full rounded-xl border border-indigo-300 bg-indigo-50 px-3 py-3 text-left font-medium text-indigo-700 shadow hover:bg-indigo-100"
           @click="onCreate">
           Cadastrar Empresa
         </button>
+        <button v-else disabled
+          class="w-full rounded-xl border border-gray-200 bg-gray-100 px-3 py-3 text-left text-gray-500">Sem
+          permissão</button>
       </aside>
 
       <section class="rounded-2xl bg-white p-4 shadow">
@@ -188,6 +191,7 @@
 import { onMounted, ref, computed, watch, getCurrentInstance } from 'vue'
 import CompanyWizard from '../components/modals/company-wizard/CompanyWizard.vue'
 import { http } from '../lib/http'
+import { currentUser } from '../services/auth'
 
 type Status = 'Ativa' | 'Pendente' | 'Inativa'
 type Company = {

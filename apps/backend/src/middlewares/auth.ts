@@ -15,10 +15,12 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
   if (!header?.startsWith('Bearer ')) return res.status(401).json({ error: 'Unauthorized' });
   const token = header.slice(7);
 
-  // Try internal JWT first
+  // Try internal JWT first. If valid, attach the decoded payload to the request so downstream
+  // permission checks can read cargo/permissoes without another DB roundtrip.
   try {
-    const payload = jwt.verify(token, env.jwtSecret) as { sub: string };
-    (req as any).userId = Number(payload.sub);
+    const payload = jwt.verify(token, env.jwtSecret) as any;
+    (req as any).tokenPayload = payload;
+    if (payload?.sub) (req as any).userId = Number(payload.sub);
     return next();
   } catch {
     // ignore and try Google ID token fallback

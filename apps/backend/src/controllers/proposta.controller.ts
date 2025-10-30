@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { propostaService } from '../services/proposta.service';
+import { enviarResposta } from '../middlewares/auditoria';
 
 export const propostaController = {
   async create(req: Request, res: Response) {
@@ -10,7 +11,7 @@ export const propostaController = {
       }
 
       const proposta = await propostaService.createProposta(req.body, usuarioId);
-      return res.status(201).json(proposta);
+      return enviarResposta(res, 201, proposta);
     } catch (error: any) {
       return res.status(400).json({ message: error.message });
     }
@@ -39,7 +40,7 @@ export const propostaController = {
     try {
       const id = parseInt(req.params.id);
       const proposta = await propostaService.updateProposta(id, req.body);
-      return res.status(200).json(proposta);
+      return enviarResposta(res, 200, proposta);
     } catch (error: any) {
       return res.status(400).json({ message: error.message });
     }
@@ -49,6 +50,7 @@ export const propostaController = {
     try {
       const id = parseInt(req.params.id);
       await propostaService.deleteProposta(id);
+      res.locals.entidadeId = id;
       return res.status(204).send();
     } catch (error: any) {
       return res.status(400).json({ message: error.message });

@@ -1,6 +1,7 @@
 <script>
 import Card from '../components/cardUsers.vue';
 import { http } from '../lib/http';
+import { hasPermission as hasPerm, currentUser } from '../services/auth';
 
 export default {
   name: 'GestaoUsuario',
@@ -101,6 +102,8 @@ export default {
     },
 
     getPermissao(_user) { return '—'; },
+    hasPermission(desc) { try { return hasPerm(desc); } catch (e) { return false; } },
+    isAdmin() { try { return currentUser && (currentUser.value?.cargoNome === 'Admin' || currentUser.value?.cargoNome === 'ADMIN'); } catch (e) { return false; } },
 
     toggleFilters() { this.showFilters = !this.showFilters; },
     applyFilters() { this.page = 1; this.showFilters = false; },
@@ -180,8 +183,11 @@ export default {
       <input ref="filtersBtn" type="button" value="Filtros" @click="toggleFilters"
         class="filtro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-brand-e1e5e5 text-brand-5f6060 rounded-lg px-4 py-2 hover cursor-pointer" />
 
-      <input type="button" value="Cadastrar usuário" @click="openCadastro"
+      <input v-if="hasPermission('Usuários — Criar') || isAdmin() || hasPermission('Usuários — Aceitar/Aprovar')"
+        type="button" value="Cadastrar usuário" @click="openCadastro"
         class="cadastro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-brand-cad8fd border border-brand-3b67d0 text-white rounded-lg px-4 py-2 hover cursor-pointer ml-16" />
+      <input v-else disabled type="button" value="Cadastrar usuário"
+        class="cadastro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-slate-300 text-white rounded-lg px-4 py-2 ml-16 opacity-60" />
     </div>
 
     <div v-if="showFilters" ref="filtersDropdown"
@@ -244,7 +250,7 @@ export default {
             <Card v-for="u in paginatedUsers" :key="u.id" :userId="u.id" :name="u.nomeCompleto || '—'"
               :email="u.email || '—'" :cargo="cargoName(u)" :permisao="getPermissao(u)"
               :status="mapSituacao(u.situacao)" :updating="Boolean(statusLoading[u.id])" :cargos="cargos"
-              @change-status="onChangeStatus" />
+              :canApprove="hasPermission('Usuários — Aceitar/Aprovar')" @change-status="onChangeStatus" />
           </tbody>
         </table>
 

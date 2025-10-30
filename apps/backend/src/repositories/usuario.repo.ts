@@ -14,7 +14,7 @@ export const usuarioRepo = {
   },
 
   async findById(id: number) {
-    return prisma.usuario.findUnique({ where: { id }, include: { cargo: true } });
+    return prisma.usuario.findUnique({ where: { id }, include: { cargo: true, usuarioPermissoes: { include: { permissao: true } } } });
   },
 
   async delete(id: number) {
@@ -28,7 +28,7 @@ export const usuarioRepo = {
 
     return prisma.usuario.findMany({
       where,
-      include: { cargo: true },
+      include: { cargo: true, usuarioPermissoes: { include: { permissao: true } } },
       orderBy: { id: 'asc' },
     });
   },

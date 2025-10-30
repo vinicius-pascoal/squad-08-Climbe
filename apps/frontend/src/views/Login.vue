@@ -63,6 +63,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, getCurrentInstance } from "vue";
+import { initAuth } from "../services/auth";
 import { useRouter } from "vue-router";
 import { loginApi, loginGoogle } from "../services/auth";
 
@@ -82,13 +83,15 @@ async function login() {
     const res = await loginApi({ username: email.value, password: password.value });
     localStorage.setItem('access_token', res.access_token);
     localStorage.setItem('user', JSON.stringify(res.user));
+    // refresh currentUser and permissions immediately so UI reflects the logged-in user
+    try { await initAuth(); } catch (e) { /* ignore init errors, we'll still redirect */ }
     await notify?.success(`Bem-vindo!`);
     router.push("/Home");
   } catch (e: any) {
     if (e?.status === 403) error.value = "Seu cadastro está pendente de aprovação.";
     else if (e?.status === 400) error.value = "Credenciais inválidas.";
     else error.value = e?.message || "Falha ao autenticar.";
-  await notify?.error(error.value as string);
+    await notify?.error(error.value as string);
   } finally {
     loading.value = false;
   }

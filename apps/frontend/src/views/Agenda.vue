@@ -27,8 +27,11 @@
       </div>
 
       <div class="flex items-center justify-end">
-        <input type="button" value="Cadastrar reunião" @click="goToAgendarReuniao"
+        <input v-if="hasPerm('Reuniões — Agendar') || (currentUser && currentUser.value?.cargoNome === 'Admin')"
+          type="button" value="Cadastrar reunião" @click="goToAgendarReuniao"
           class="cadastro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-[#CAD8FD] border border-[#3B67D0] text-white rounded-lg px-4 py-2 hover cursor-pointer ml-16" />
+        <input v-else disabled type="button" value="Cadastrar reunião"
+          class="cadastro rounded-lg bg-slate-300 text-white px-4 py-2 ml-16 opacity-60" />
       </div>
     </div>
 
@@ -81,6 +84,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { hasPermission as hasPerm, currentUser } from '../services/auth'
 import WeeklyView from '../components/WeeklyView.vue'
 import type { CalendarEvent } from '../components/calendar-types'
 import MonthlyPlaceholder from '../components/MonthlyPlaceholder.vue'

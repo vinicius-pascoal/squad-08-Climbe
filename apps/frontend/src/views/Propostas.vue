@@ -17,10 +17,13 @@
 
       <div class="flex items-center gap-2">
         <button
+          v-if="hasPerm('Propostas Comerciais — Criar') || (currentUser && currentUser.value?.cargoNome === 'Admin')"
           class="cadastro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-brand-cad8fd border border-brand-3b67d0 text-white rounded-lg px-4 py-2 hover cursor-pointer ml-16"
           @click="onCriarProposta">
           Criar Proposta
         </button>
+        <button v-else disabled class="cadastro rounded-lg bg-slate-300 text-white px-4 py-2 ml-16 opacity-60">Sem
+          permissão</button>
       </div>
     </div>
 
@@ -215,13 +218,18 @@
 
       <DonutStatus :aprovado=aprovado :revisao=revisao :reprovado=reprovado />
     </div>
+
+    <!-- Modal de Detalhes -->
+    <PropostaDetailsModal v-model:open="modalOpen" :proposta-id="selectedPropostaId" @updated="onPropostaUpdated" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, getCurrentInstance, onMounted, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { hasPermission as hasPerm, currentUser } from '../services/auth'
 import DonutStatus from '../components/DonutStatus.vue'
+import PropostaDetailsModal from '../components/modals/PropostaDetailsModal.vue'
 import { http } from '../lib/http'
 
 type Status = 'APROVADA' | 'REVISAO' | 'REPROVADA' | 'PENDENTE'
@@ -247,6 +255,8 @@ const histSearch = ref('')
 const aprovado = ref(0)
 const revisao = ref(0)
 const reprovado = ref(0)
+const modalOpen = ref(false)
+const selectedPropostaId = ref<number | null>(null)
 
 async function fetchPropostas() {
   loading.propostas = true
@@ -379,7 +389,16 @@ function percent(s: Status) {
 }
 
 function onCriarProposta() { router.push('/CreateProposta') }
-function abrirProposta(p: Proposta) { console.log('Abrir', p.id) }
+
+function abrirProposta(p: Proposta) {
+  selectedPropostaId.value = p.id
+  modalOpen.value = true
+}
+
+function onPropostaUpdated() {
+  modalOpen.value = false
+  fetchPropostas()
+}
 
 function formatDate(d: string | Date) {
   const date = new Date(d)

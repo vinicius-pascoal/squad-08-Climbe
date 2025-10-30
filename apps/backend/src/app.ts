@@ -12,6 +12,8 @@ import { contratoRouter } from './routes/contrato.routes';
 import eventRouter from './routes/event.router';
 import { empresaRouter } from './routes/empresa.routes';
 import propostaRouter from './routes/proposta.routes';
+import auditoriaRouter from './routes/auditoria.routes';
+import meRouter from './routes/me.routes';
 
 export const app = express();
 app.use(cors());
@@ -31,6 +33,8 @@ app.use('/api/tarefas', tarefaRouter);
 app.use('/api/events', eventRouter);
 app.use('/api/empresas', empresaRouter);
 app.use('/api/propostas', propostaRouter);
+app.use('/api/auditorias', auditoriaRouter);
+app.use('/api/me', meRouter);
 
 // Servir frontend estático (vite build)
 const distDir = path.resolve(__dirname, '../../frontend');

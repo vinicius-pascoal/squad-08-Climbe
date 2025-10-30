@@ -3,6 +3,9 @@ import { propostaController } from '../controllers/proposta.controller';
 import { validate } from '../middlewares/validate';
 import { createPropostaSchema, updatePropostaSchema, propostaIdSchema } from '../dtos/proposta.dto';
 import { requireAuth } from '../middlewares/auth';
+import { requirePermission } from '../middlewares/permission';
+import { registrarAuditoria, capturarDadosOriginais } from '../middlewares/auditoria';
+import { propostaRepo } from '../repositories/proposta.repo';
 
 const router = Router();
 
@@ -13,6 +16,8 @@ router.use(requireAuth);
 router.post(
   '/',
   validate({ body: createPropostaSchema }),
+  requirePermission('Propostas Comerciais — Criar'),
+  registrarAuditoria('Proposta', 'Criar'),
   propostaController.create
 );
 
@@ -49,6 +54,12 @@ router.get(
 router.put(
   '/:id',
   validate({ params: propostaIdSchema, body: updatePropostaSchema }),
+  requirePermission('Propostas Comerciais — Validar'),
+  capturarDadosOriginais(async (req) => {
+    const id = parseInt(req.params.id);
+    return await propostaRepo.findById(id);
+  }),
+  registrarAuditoria('Proposta', 'Atualizar'),
   propostaController.update
 );
 
@@ -56,6 +67,12 @@ router.put(
 router.delete(
   '/:id',
   validate({ params: propostaIdSchema }),
+  requirePermission('Propostas Comerciais — Validar'),
+  capturarDadosOriginais(async (req) => {
+    const id = parseInt(req.params.id);
+    return await propostaRepo.findById(id);
+  }),
+  registrarAuditoria('Proposta', 'Deletar'),
   propostaController.delete
 );
 

@@ -53,10 +53,13 @@
             class="rounded-lg bg-slate-200 text-slate-700 font-medium px-4 py-2 hover:bg-slate-300 transition">
             Cancelar
           </button>
-          <button type="submit" :disabled="submitting || !form.empresaId"
+          <button v-if="hasPermission('Propostas Comerciais — Criar')" type="submit"
+            :disabled="submitting || !form.empresaId"
             class="rounded-lg bg-emerald-700 text-white font-semibold px-6 py-2 hover:bg-emerald-800 disabled:opacity-60 disabled:cursor-not-allowed transition">
             {{ submitting ? 'Criando...' : 'Criar Proposta' }}
           </button>
+          <button v-else disabled class="rounded-lg bg-slate-300 text-white font-semibold px-6 py-2 opacity-60">Sem
+            permissão</button>
         </div>
       </form>
     </div>
@@ -67,6 +70,7 @@
 import { ref, reactive, onMounted, getCurrentInstance } from 'vue';
 import { useRouter } from 'vue-router';
 import { http } from '../lib/http';
+import { hasPermission } from '../services/auth';
 
 type Empresa = { id: number; razaoSocial?: string; nomeFantasia?: string };
 
