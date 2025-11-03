@@ -18,7 +18,7 @@ const env = process.env.JWT_SECRET || 'dev-secret';
 
     const cargoPerms = await p.cargoPermissao.findMany({ where: { cargoId: cargo.id }, include: { permissao: true } });
     const userPerms = await p.usuarioPermissao.findMany({ where: { usuarioId: user.id }, include: { permissao: true } });
-    const perms = Array.from(new Set([...(userPerms||[]).map(u=>u.permissao?.descricao).filter(Boolean), ...(cargoPerms||[]).map(c=>c.permissao?.descricao).filter(Boolean)]));
+    const perms = Array.from(new Set([...(userPerms || []).map(u => u.permissao?.descricao).filter(Boolean), ...(cargoPerms || []).map(c => c.permissao?.descricao).filter(Boolean)]));
 
     const payload = { cargoId: cargo.id, cargoNome: cargo.nomeCargo, permissoes: perms };
     const token = jwt.sign(payload, env, { subject: String(user.id), expiresIn: '30m' });

@@ -40,7 +40,7 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     try {
       const user = await usuarioRepo.findByEmail(payload.email);
       if (user?.id) (req as any).userId = user.id;
-    } catch {}
+    } catch { }
 
     return next();
   } catch {

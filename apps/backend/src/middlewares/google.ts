@@ -84,8 +84,8 @@ app.get('/oauth2callback', async (req: Request, res: Response) => {
       });
     }
 
-  // Issue our app JWT (now includes cargo and permissoes in payload)
-  const access_token = await signAccessToken(user.id);
+    // Issue our app JWT (now includes cargo and permissoes in payload)
+    const access_token = await signAccessToken(user.id);
 
     // Redirect to frontend with app access_token, user and google_access_token to use Calendar
     const redirect = new URL(FRONTEND_ORIGIN.replace(/\/$/, '') + '/auth');

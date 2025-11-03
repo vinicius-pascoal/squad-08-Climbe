@@ -22,14 +22,8 @@
     <!--Widget da Agenda-->
     <AgendaWidget class="main-agenda-widget" />
 
-    <!--Widget das Estatísticas-->
-    <StatsWidget class="stats-widget" />
-
-    <!--Widget do Histórico-->
-    <HistoryWidget class="history-widget" />
-
-    <!--Widget de Ultimas Ações-->
-    <ActionsWidget class="actions-widget" />
+    <!-- Componentes específicos para o cargo do usuário (preenchem as áreas stats/history/actions) -->
+    <component :is="roleComponent" />
 
     <!--Modal do Calendario-->
     <AddEventModal v-if="isAddEventModalOpen" @close="closeAddEventModal" @add="addActivity"
@@ -48,9 +42,15 @@ import AddEventModal from '../components/AddEventModal.vue';
 
 // Placeholders dos outros widgets
 import AgendaWidget from '../components/AgendaWidget.vue';
-import StatsWidget from '../components/StatsWidget.vue';
-import HistoryWidget from '../components/HistoryWidget.vue';
-import ActionsWidget from '../components/ActionsWidget.vue';
+// Role-specific components (placed in components/home)
+import RoleAdmin from '../components/home/RoleAdmin.vue';
+import RoleCEO from '../components/home/RoleCEO.vue';
+import RoleAnalista from '../components/home/RoleAnalista.vue';
+import RoleCompliance from '../components/home/RoleCompliance.vue';
+import RoleCFO from '../components/home/RoleCFO.vue';
+import RoleCSOCMO from '../components/home/RoleCSOCMO.vue';
+import RoleMembroConselho from '../components/home/RoleMembroConselho.vue';
+import { currentUser } from '../services/auth';
 
 // Serviços
 import calendarApi, { listCalendarEvents, listUserEvents, addCalendarEvent } from '../services/calendar';
@@ -231,6 +231,31 @@ onMounted(() => {
 });
 watch(selectedDate, () => loadEventsForSelectedDate());
 
+// Computed que retorna o componente de acordo com o cargo do usuário
+const roleComponent = computed(() => {
+  const cargoRaw = currentUser?.value?.cargoNome || currentUser?.value?.cargo || '';
+  const cargo = String(cargoRaw || '').toLowerCase().trim();
+
+  const map: Record<string, any> = {
+    admin: RoleAdmin,
+    ceo: RoleCEO,
+    compliance: RoleCompliance,
+    cfo: RoleCFO,
+    cso: RoleCSOCMO,
+    cmo: RoleCSOCMO,
+    'membro do conselho': RoleMembroConselho,
+    'membroconselho': RoleMembroConselho,
+    analista: RoleAnalista,
+  };
+
+  // busca correspondência exata ou por inclusão
+  if (map[cargo]) return map[cargo];
+  const byInclude = Object.keys(map).find(k => cargo.includes(k));
+  if (byInclude) return map[byInclude];
+  // fallback para analista
+  return RoleAnalista;
+});
+
 </script>
 
 <style scoped>
@@ -241,8 +266,8 @@ watch(selectedDate, () => loadEventsForSelectedDate());
   grid-template-rows: auto auto auto;
   grid-template-areas:
     "calendar calendar main-agenda main-agenda"
-    "stats stats main-agenda main-agenda"
-    "history history actions actions";
+    "calendar calendar main-agenda main-agenda"
+    "stats history actions actions";
   gap: 1.5rem;
   padding: 2rem;
 }
@@ -325,5 +350,23 @@ watch(selectedDate, () => loadEventsForSelectedDate());
 
 .calendar-display-block {
   flex: 1.5;
+}
+
+/* Garantir que os widgets atribuídos às áreas do grid ocupem toda a largura disponível
+   e se estiquem verticalmente para alinhar com o layout (evita que fiquem confinados
+   em um canto quando renderizados como componentes dinâmicos). */
+.home-dashboard-grid>.stats-widget,
+.home-dashboard-grid>.history-widget,
+.home-dashboard-grid>.actions-widget {
+  width: 100%;
+  align-self: stretch;
+  justify-self: stretch;
+  min-width: 0;
+  /* permite que o conteúdo encolha corretamente em layouts flex/grid */
+}
+
+/* Aplicar min-width global para filhos do grid para evitar overflow causado por elementos internos */
+.home-dashboard-grid>* {
+  min-width: 0;
 }
 </style>

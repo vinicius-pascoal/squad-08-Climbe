@@ -1,0 +1,44 @@
+<template>
+  <div class="widget p-6 stats-widget">
+    <h3 class="text-lg font-bold text-gray-800 mb-4">Auditoria do Sistema (Logs Recentes)</h3>
+    <div class="space-y-3 text-sm font-mono bg-gray-800 text-gray-200 p-4 rounded-lg overflow-x-auto">
+      <p><span class="text-blue-400">[2025-10-21 16:10:02]</span> <span class="text-green-400">USER_CREATE:</span>
+        Usuário 'ceo' criou o usuário 'ana.paula'.</p>
+      <p><span class="text-blue-400">[2025-10-21 16:08:51]</span> <span class="text-yellow-400">CONTRACT_EDIT:</span>
+        Usuário 'compliance' editou o Contrato #2025-A80.</p>
+      <p><span class="text-blue-400">[2025-10-21 16:05:15]</span> <span class="text-red-400">LOGIN_FAIL:</span>
+        Tentativa de login falhou para o IP 192.168.1.10.</p>
+      <p><span class="text-blue-400">[2025-10-21 16:02:30]</span> <span class="text-green-400">PROPOSAL_VALIDATE:</span>
+        Usuário 'cfo' validou a Proposta #PC-014.</p>
+    </div>
+  </div>
+
+  <div class="widget p-6 history-widget">
+    <h3 class="text-lg font-bold text-gray-800 mb-4">Atalhos de Admin</h3>
+    <div class="grid grid-cols-2 gap-4">
+      <button
+        class="flex flex-col items-center justify-center p-4 bg-indigo-50 hover:bg-indigo-100 rounded-lg text-indigo-700 transition-colors"><span
+          class="mb-2">👤</span><span class="text-sm font-semibold text-center">Criar Usuário</span></button>
+      <button
+        class="flex flex-col items-center justify-center p-4 bg-indigo-50 hover:bg-indigo-100 rounded-lg text-indigo-700 transition-colors"><span
+          class="mb-2">👥</span><span class="text-sm font-semibold text-center">Gerenciar Perfis</span></button>
+      <button
+        class="flex flex-col items-center justify-center p-4 bg-indigo-50 hover:bg-indigo-100 rounded-lg text-indigo-700 transition-colors"><span
+          class="mb-2">🛡️</span><span class="text-sm font-semibold text-center">Ver Permissões</span></button>
+      <button
+        class="flex flex-col items-center justify-center p-4 bg-indigo-50 hover:bg-indigo-100 rounded-lg text-indigo-700 transition-colors"><span
+          class="mb-2">📜</span><span class="text-sm font-semibold text-center">Acessar Logs</span></button>
+    </div>
+  </div>
+
+  <div class="widget p-6 actions-widget">
+    <h3 class="text-lg font-bold text-gray-800 mb-4">Painel Admin</h3>
+    <p class="text-sm text-gray-500">Ações rápidas e gerenciamento global.</p>
+  </div>
+</template>
+
+<script setup lang="ts">
+// Componente que provê as áreas (stats, history, actions) já com as classes usadas pelo grid na Home
+</script>
+
+<style scoped></style>
