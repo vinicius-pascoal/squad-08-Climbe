@@ -19,8 +19,8 @@ export const usuarioRepo = {
   },
 
   async delete(id: number) {
-  // Ao invés de deletar fisicamente (causa FK violations), marcamos como desativado e desvinculamos cargo
-  return prisma.usuario.update({ where: { id }, data: { situacao: 'desativado', cargoId: null } });
+    // Ao invés de deletar fisicamente (causa FK violations), marcamos como desativado e desvinculamos cargo
+    return prisma.usuario.update({ where: { id }, data: { situacao: 'desativado', cargoId: null } });
   },
 
   async list(opts?: { excludeCargoIds?: number[] }) {
