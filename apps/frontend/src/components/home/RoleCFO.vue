@@ -1,8 +1,8 @@
 <template>
-  <div class="widget p-6 stats-widget">
+  <div class="bg-white rounded-lg p-6 shadow stats-widget w-full h-full">
     <h3 class="text-lg font-bold text-gray-800 mb-4">Propostas para Validação Financeira</h3>
     <div class="space-y-4">
-      <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+      <div class="flex items-center justify-between p-3 bg-white shadow-sm rounded-lg w-full">
         <div class="flex-1">
           <p class="font-medium">Validar Proposta Comercial #PC-018</p>
           <p class="text-sm text-gray-500">Cliente: FutureTech | Criado por: CSO</p>
@@ -13,13 +13,13 @@
     </div>
   </div>
 
-  <div class="widget p-6 history-widget">
+  <div class="bg-white rounded-lg p-6 shadow history-widget w-full h-full">
     <h3 class="text-lg font-bold text-gray-800 mb-4">Gerenciar Alocação de Analistas</h3>
     <div class="space-y-4">
-      <div class="flex items-end gap-4 p-3 bg-gray-50 rounded-lg">
+      <div class="flex items-end gap-4 p-3 bg-white shadow-sm rounded-lg w-full">
         <div class="flex-1">
           <label class="text-sm font-medium text-gray-700">Anexar Analista ao Contrato</label>
-          <select class="mt-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2">
+          <select class="mt-1 bg-white border border-gray-200 text-gray-900 text-sm rounded-lg block w-full p-2">
             <option>Contrato #2025-C40 (Quantum)</option>
           </select>
         </div>
@@ -28,7 +28,7 @@
     </div>
   </div>
 
-  <div class="widget p-6 actions-widget">
+  <div class="bg-white rounded-lg p-6 shadow actions-widget w-full h-full">
     <h3 class="text-lg font-bold text-gray-800 mb-4">Relatórios Financeiros</h3>
     <div class="space-y-3">
       <a href="#" class="flex items-center gap-2 text-blue-700 hover:underline">Criar Novo Relatório</a>

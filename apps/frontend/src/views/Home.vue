@@ -22,10 +22,10 @@
     <!--Widget da Agenda-->
     <AgendaWidget class="main-agenda-widget" />
 
-    <!-- Componentes específicos para o cargo do usuário (preenchem as áreas stats/history/actions) -->
-    <component :is="roleComponent" />
+    <div class="role-row">
+      <component :is="roleComponent" />
+    </div>
 
-    <!--Modal do Calendario-->
     <AddEventModal v-if="isAddEventModalOpen" @close="closeAddEventModal" @add="addActivity"
       :selectedDate="selectedDate" />
   </div>
@@ -259,15 +259,14 @@ const roleComponent = computed(() => {
 </script>
 
 <style scoped>
-/* Define o layout principal do dashboard com CSS Grid. */
 .home-dashboard-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: auto auto auto;
   grid-template-areas:
-    "calendar calendar main-agenda main-agenda"
-    "calendar calendar main-agenda main-agenda"
-    "stats history actions actions";
+    "calendar calendar main-agenda"
+    "calendar calendar main-agenda"
+    "stats history actions";
   gap: 1.5rem;
   padding: 2rem;
 }
@@ -352,9 +351,6 @@ const roleComponent = computed(() => {
   flex: 1.5;
 }
 
-/* Garantir que os widgets atribuídos às áreas do grid ocupem toda a largura disponível
-   e se estiquem verticalmente para alinhar com o layout (evita que fiquem confinados
-   em um canto quando renderizados como componentes dinâmicos). */
 .home-dashboard-grid>.stats-widget,
 .home-dashboard-grid>.history-widget,
 .home-dashboard-grid>.actions-widget {
@@ -362,11 +358,33 @@ const roleComponent = computed(() => {
   align-self: stretch;
   justify-self: stretch;
   min-width: 0;
-  /* permite que o conteúdo encolha corretamente em layouts flex/grid */
 }
 
-/* Aplicar min-width global para filhos do grid para evitar overflow causado por elementos internos */
 .home-dashboard-grid>* {
   min-width: 0;
+}
+
+.role-row {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+}
+
+.role-row>* {
+  width: 100%;
+  min-width: 0;
+}
+
+.role-row>*:nth-child(1) {
+  grid-column: 1 / 2;
+}
+
+.role-row>*:nth-child(2) {
+  grid-column: 2 / 3;
+}
+
+.role-row>*:nth-child(n+3) {
+  grid-column: 1 / 2;
 }
 </style>

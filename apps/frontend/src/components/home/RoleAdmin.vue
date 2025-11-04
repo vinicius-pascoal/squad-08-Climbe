@@ -1,5 +1,5 @@
 <template>
-  <div class="widget p-6 stats-widget">
+  <div class="bg-white rounded-lg p-6 shadow stats-widget w-full h-full">
     <h3 class="text-lg font-bold text-gray-800 mb-4">Auditoria do Sistema (Logs Recentes)</h3>
     <div class="space-y-3 text-sm font-mono bg-gray-800 text-gray-200 p-4 rounded-lg overflow-x-auto">
       <p><span class="text-blue-400">[2025-10-21 16:10:02]</span> <span class="text-green-400">USER_CREATE:</span>
@@ -13,25 +13,25 @@
     </div>
   </div>
 
-  <div class="widget p-6 history-widget">
+  <div class="bg-white rounded-lg p-6 shadow history-widget w-full h-full">
     <h3 class="text-lg font-bold text-gray-800 mb-4">Atalhos de Admin</h3>
     <div class="grid grid-cols-2 gap-4">
       <button
-        class="flex flex-col items-center justify-center p-4 bg-indigo-50 hover:bg-indigo-100 rounded-lg text-indigo-700 transition-colors"><span
-          class="mb-2">👤</span><span class="text-sm font-semibold text-center">Criar Usuário</span></button>
+        class="flex flex-col items-center justify-center p-4 bg-white shadow-sm rounded-lg text-indigo-700 transition-colors w-full text-center"><span
+          class="mb-2">👤</span><span class="text-sm font-semibold">Criar Usuário</span></button>
       <button
-        class="flex flex-col items-center justify-center p-4 bg-indigo-50 hover:bg-indigo-100 rounded-lg text-indigo-700 transition-colors"><span
-          class="mb-2">👥</span><span class="text-sm font-semibold text-center">Gerenciar Perfis</span></button>
+        class="flex flex-col items-center justify-center p-4 bg-white shadow-sm rounded-lg text-indigo-700 transition-colors w-full text-center"><span
+          class="mb-2">👥</span><span class="text-sm font-semibold">Gerenciar Perfis</span></button>
       <button
-        class="flex flex-col items-center justify-center p-4 bg-indigo-50 hover:bg-indigo-100 rounded-lg text-indigo-700 transition-colors"><span
-          class="mb-2">🛡️</span><span class="text-sm font-semibold text-center">Ver Permissões</span></button>
+        class="flex flex-col items-center justify-center p-4 bg-white shadow-sm rounded-lg text-indigo-700 transition-colors w-full text-center"><span
+          class="mb-2">🛡️</span><span class="text-sm font-semibold">Ver Permissões</span></button>
       <button
-        class="flex flex-col items-center justify-center p-4 bg-indigo-50 hover:bg-indigo-100 rounded-lg text-indigo-700 transition-colors"><span
-          class="mb-2">📜</span><span class="text-sm font-semibold text-center">Acessar Logs</span></button>
+        class="flex flex-col items-center justify-center p-4 bg-white shadow-sm rounded-lg text-indigo-700 transition-colors w-full text-center"><span
+          class="mb-2">📜</span><span class="text-sm font-semibold">Acessar Logs</span></button>
     </div>
   </div>
 
-  <div class="widget p-6 actions-widget">
+  <div class="bg-white rounded-lg p-6 shadow actions-widget w-full h-full">
     <h3 class="text-lg font-bold text-gray-800 mb-4">Painel Admin</h3>
     <p class="text-sm text-gray-500">Ações rápidas e gerenciamento global.</p>
   </div>
