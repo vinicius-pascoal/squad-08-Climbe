@@ -6,7 +6,7 @@ import { prisma } from '../utils/prisma';
 import { permissionService } from './permission.service';
 import { sendTemplate } from './email.service';
 
-const SITUACAO = { PENDENTE: 'pendente', APROVADO: 'aprovado' } as const;
+const SITUACAO = { PENDENTE: 'pendente', APROVADO: 'aprovado', DESATIVADO: 'desativado' } as const;
 
 export const usuarioService = {
   async register(input: RegisterDTO) {
@@ -56,8 +56,8 @@ export const usuarioService = {
 
   async adminCreate(input: any) {
     const { nomeCompleto, email, contato, senha, cargoId } = input;
-    let situacao = String(input.situacao || 'pendente').toLowerCase();
-    if (!['aprovado', 'pendente', 'inativo'].includes(situacao)) situacao = 'pendente';
+  let situacao = String(input.situacao || 'pendente').toLowerCase();
+  if (!['aprovado', 'pendente', 'desativado'].includes(situacao)) situacao = 'pendente';
 
     const exists = await usuarioRepo.findByEmail(email);
     if (exists) {

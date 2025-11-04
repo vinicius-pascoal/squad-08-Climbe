@@ -94,7 +94,7 @@ export default {
       const s = (situacao || '').toString().toLowerCase();
       if (s === 'aprovado' || s === 'ativo') return 'ativo';
       if (s === 'pendente') return 'pendente';
-      return 'inativo';
+      return 'desativado';
     },
 
     cargoName(u) {
@@ -161,6 +161,14 @@ export default {
         delete this.statusLoading[userId];
       }
     },
+      // Handler quando um Card emite que o usuário foi removido
+      onUserRemoved({ userId }) {
+        const idx = this.users.findIndex(u => Number(u.id) === Number(userId));
+        if (idx === -1) return;
+        this.users.splice(idx, 1);
+        this.$notify?.success('Usuário removido com sucesso.');
+        if (this.page > this.totalPages) this.page = this.totalPages;
+      },
   },
 
   mounted() {
@@ -203,7 +211,7 @@ export default {
         <option value="">Todos</option>
         <option value="ativo">Ativo</option>
         <option value="pendente">Pendente</option>
-        <option value="inativo">Inativo</option>
+  <option value="desativado">Desativado</option>
       </select>
 
       <label class="block text-sm text-brand-5f6060 mb-1">Cargo</label>
@@ -252,7 +260,8 @@ export default {
             <Card v-for="u in paginatedUsers" :key="u.id" :userId="u.id" :name="u.nomeCompleto || '—'"
               :email="u.email || '—'" :cargo="cargoName(u)" :permisao="getPermissao(u)"
               :status="mapSituacao(u.situacao)" :updating="Boolean(statusLoading[u.id])" :cargos="cargos"
-              :canApprove="hasPermission('Usuários — Aceitar/Aprovar')" @change-status="onChangeStatus" />
+              :canApprove="hasPermission('Usuários — Aceitar/Aprovar')" :canRemove="hasPermission('Usuários — Remover') || isAdmin()"
+              @change-status="onChangeStatus" @removed="onUserRemoved" />
           </tbody>
         </table>
 

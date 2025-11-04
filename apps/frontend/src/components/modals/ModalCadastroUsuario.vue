@@ -52,7 +52,7 @@
               <select v-model="statusSelecionado" class="w-full rounded border px-2 py-2">
                 <option value="ativo">Ativo</option>
                 <option value="pendente">Pendente</option>
-                <option value="inativo">Inativo</option>
+                <option value="desativado">Desativado</option>
               </select>
             </div>
 
@@ -90,7 +90,7 @@ function mapStatusToSituacao(status: string) {
   const s = String(status).toLowerCase();
   if (s === 'ativo') return 'aprovado';
   if (s === 'pendente') return 'pendente';
-  return 'inativo';
+  return 'desativado';
 }
 
 async function carregarCargos() {

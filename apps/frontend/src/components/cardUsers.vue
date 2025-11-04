@@ -1,9 +1,11 @@
 <script>
 import StatusPill from './StatusPill.vue';
+import { http } from '../lib/http';
+import Swal from 'sweetalert2';
 
 export default {
   components: { StatusPill },
-  emits: ['change-status'],
+  emits: ['change-status', 'removed'],
   props: {
     userId: { type: [Number, String], required: true },
     name: { type: String, default: 'João Silva' },
@@ -14,13 +16,14 @@ export default {
     status: {
       type: String,
       default: 'pendente',
-      validator: (v) => ['ativo', 'pendente', 'inativo'].includes((v || '').toLowerCase()),
+      validator: (v) => ['ativo', 'pendente', 'desativado'].includes((v || '').toLowerCase()),
     },
     cargos: { type: Array, default: () => [] }, // [{id, nomeCargo}]
     updating: { type: Boolean, default: false },
+    canRemove: { type: Boolean, default: false },
   },
   data() {
-    return { open: false, selectedCargoId: '' };
+    return { open: false, selectedCargoId: '', removing: false };
   },
   computed: {
     isDisabled() {
@@ -39,6 +42,31 @@ export default {
       this.$emit('change-status', { userId: Number(this.userId), status: 'ativo', cargoId: id });
       this.open = false;
       this.selectedCargoId = '';
+    },
+    async onRemove() {
+      if (!this.canRemove || this.updating) return;
+      const confirm = await Swal.fire({
+        title: 'Confirmar remoção',
+        text: 'Tem certeza que deseja remover este usuário? Esta ação não pode ser desfeita.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Remover',
+        cancelButtonText: 'Cancelar'
+      });
+
+      if (!confirm || !confirm.isConfirmed) return;
+
+      this.removing = true;
+      try {
+        await http(`/api/usuarios/${this.userId}`, { method: 'DELETE' });
+        await Swal.fire({ icon: 'success', title: 'Removido', text: 'Usuário removido com sucesso.' });
+        this.$emit('removed', { userId: Number(this.userId) });
+      } catch (e) {
+        console.error('Erro ao remover usuário', e);
+        await Swal.fire({ icon: 'error', title: 'Erro', text: e?.message || 'Falha ao remover usuário.' });
+      } finally {
+        this.removing = false;
+      }
     },
     close() { this.open = false; },
   },
@@ -67,15 +95,29 @@ export default {
     </td>
 
     <td class="[0_4px_4px_0_rgba(0,0,0,0.25)] py-4 px-6 flex justify-center items-center relative">
-      <button class="inline-flex items-center gap-1 focus:outline-none disabled:opacity-60" @click.stop="toggle"
-        :disabled="isDisabled" :title="isDisabled ? 'Usuário já está ativo' : 'Aprovar usuário'">
+      <div class="flex items-center gap-2">
+        <button class="inline-flex items-center gap-1 focus:outline-none disabled:opacity-60" @click.stop="toggle"
+          :disabled="isDisabled" :title="isDisabled ? 'Usuário já está ativo' : 'Aprovar usuário'">
         <StatusPill :status="status" />
         <svg class="w-4 h-4 opacity-70" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
           <path fill-rule="evenodd"
             d="M5.23 7.21a.75.75 0 011.06.02L10 10.585l3.71-3.355a.75.75 0 011.04 1.08l-4.24 3.835a.75.75 0 01-1.04 0L5.25 8.29a.75.75 0 01-.02-1.08z"
             clip-rule="evenodd" />
         </svg>
-      </button>
+        </button>
+
+        <button v-if="canRemove"
+          class="inline-flex items-center gap-1 text-red-600 hover:text-red-800 focus:outline-none"
+          :disabled="updating || removing" @click.stop="onRemove" title="Remover usuário">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+            <path d="M10 11v6"></path>
+            <path d="M14 11v6"></path>
+            <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path>
+          </svg>
+        </button>
+      </div>
 
       <div v-if="open"
         class="absolute top-[48px] right-0 z-50 bg-white border border-gray-200 rounded-lg shadow-lg min-w-[240px] p-3">
