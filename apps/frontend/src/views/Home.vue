@@ -23,8 +23,13 @@
     <AgendaWidget class="main-agenda-widget" />
 
     <div class="role-row">
-      <component :is="roleComponent" />
+      <component :is="roleComponent" v-bind="roleModalHandlers" />
     </div>
+
+    <!-- Modals for quick creation (opened by role buttons) -->
+    <ModalCreateProposta v-if="showPropostaModal" @close="showPropostaModal = false" />
+    <ModalNovoContrato v-if="showContratoModal" @close="showContratoModal = false" />
+    <ModalCadastroUsuario v-if="showCadastroModal" @close="showCadastroModal = false" />
 
     <AddEventModal v-if="isAddEventModalOpen" @close="closeAddEventModal" @add="addActivity"
       :selectedDate="selectedDate" />
@@ -51,6 +56,9 @@ import RoleCFO from '../components/home/RoleCFO.vue';
 import RoleCSOCMO from '../components/home/RoleCSOCMO.vue';
 import RoleMembroConselho from '../components/home/RoleMembroConselho.vue';
 import { currentUser } from '../services/auth';
+import ModalCreateProposta from '../components/modals/ModalCreateProposta.vue';
+import ModalNovoContrato from '../components/modals/ModalNovoContrato.vue';
+import ModalCadastroUsuario from '../components/modals/ModalCadastroUsuario.vue';
 
 // Serviços
 import calendarApi, { listCalendarEvents, listUserEvents, addCalendarEvent } from '../services/calendar';
@@ -255,6 +263,17 @@ const roleComponent = computed(() => {
   // fallback para analista
   return RoleAnalista;
 });
+
+// modals exposed to role components
+const showPropostaModal = ref(false);
+const showContratoModal = ref(false);
+const showCadastroModal = ref(false);
+
+const roleModalHandlers = computed(() => ({
+  openCreateProposta: () => { showPropostaModal.value = true },
+  openNovoContrato: () => { showContratoModal.value = true },
+  openCadastroUsuario: () => { showCadastroModal.value = true },
+}));
 
 </script>
 

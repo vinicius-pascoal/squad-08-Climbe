@@ -1,11 +1,12 @@
 <script>
 import Card from '../components/cardUsers.vue';
+import ModalCadastroUsuario from '../components/modals/ModalCadastroUsuario.vue';
 import { http } from '../lib/http';
 import { hasPermission as hasPerm, currentUser } from '../services/auth';
 
 export default {
   name: 'GestaoUsuario',
-  components: { Card },
+  components: { Card, ModalCadastroUsuario },
 
   data() {
     return {
@@ -22,6 +23,7 @@ export default {
 
       page: 1,
       pageSize: 5,
+      showCreateModal: false,
 
       statusLoading: {}, // { [userId]: boolean }
     };
@@ -113,7 +115,7 @@ export default {
     prevPage() { if (this.page > 1) this.page -= 1; },
     nextPage() { if (this.page < this.totalPages) this.page += 1; },
 
-    openCadastro() { this.$router.push('/CadastroUsuario'); },
+    openCadastro() { this.showCreateModal = true; },
 
     handleClickOutside(e) {
       const dropdown = this.$refs.filtersDropdown;
@@ -267,6 +269,7 @@ export default {
         </div>
       </div>
     </div>
+    <ModalCadastroUsuario v-if="showCreateModal" @close="showCreateModal = false" />
   </div>
 </template>
 

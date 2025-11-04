@@ -17,7 +17,7 @@
   <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow dark:shadow-none history-widget w-full h-full">
     <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">Atalhos de Compliance</h3>
     <div class="grid grid-cols-2 gap-4">
-      <button
+      <button @click="props.openNovoContrato?.()"
         class="p-4 bg-white dark:bg-gray-700 shadow-sm dark:shadow-transparent rounded-lg text-red-700 dark:text-red-300 w-full hover:bg-red-100 dark:hover:bg-red-600">Novo
         Contrato</button>
       <button
@@ -30,6 +30,10 @@
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const props = defineProps<{
+  openNovoContrato?: () => void
+}>()
+</script>
 
 <style scoped></style>

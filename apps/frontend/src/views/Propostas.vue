@@ -221,6 +221,8 @@
 
     <!-- Modal de Detalhes -->
     <PropostaDetailsModal v-model:open="modalOpen" :proposta-id="selectedPropostaId" @updated="onPropostaUpdated" />
+    <!-- Modal de criação (removida rota -> modal) -->
+    <ModalCreateProposta v-if="propostaModalOpen" @close="propostaModalOpen = false" />
   </div>
 </template>
 
@@ -231,6 +233,7 @@ import { hasPermission as hasPerm, currentUser } from '../services/auth'
 import DonutStatus from '../components/DonutStatus.vue'
 import PropostaDetailsModal from '../components/modals/PropostaDetailsModal.vue'
 import { http } from '../lib/http'
+import ModalCreateProposta from '../components/modals/ModalCreateProposta.vue'
 
 type Status = 'APROVADA' | 'REVISAO' | 'REPROVADA' | 'PENDENTE'
 type Proposta = { id: number; empresa: string; data: string | Date; status: Status; responsavel: string }
@@ -256,6 +259,7 @@ const aprovado = ref(0)
 const revisao = ref(0)
 const reprovado = ref(0)
 const modalOpen = ref(false)
+const propostaModalOpen = ref(false)
 const selectedPropostaId = ref<number | null>(null)
 
 async function fetchPropostas() {
@@ -388,7 +392,7 @@ function percent(s: Status) {
   return Math.round((qtd / total) * 100)
 }
 
-function onCriarProposta() { router.push('/CreateProposta') }
+function onCriarProposta() { propostaModalOpen.value = true }
 
 function abrirProposta(p: Proposta) {
   selectedPropostaId.value = p.id
