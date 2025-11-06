@@ -22,17 +22,6 @@
     <!--Widget da Agenda-->
     <AgendaWidget ref="agendaRef" class="main-agenda-widget" @event-click="onAgendaEventClick" />
 
-    <!-- Ações rápidas -->
-    <div class="widget-card actions-widget">
-      <div class="flex items-center justify-between">
-        <h3 class="text-base font-semibold text-slate-800">Ações</h3>
-        <button v-if="canStartFlow" @click="showStartFlow = true"
-          class="rounded-lg bg-sidebar px-3 py-1.5 text-sm font-semibold text-white">
-          Iniciar Fluxo
-        </button>
-      </div>
-    </div>
-
     <div class="role-row">
       <component :is="roleComponent" v-bind="roleModalHandlers" />
     </div>
@@ -139,8 +128,10 @@ const canStartFlow = computed(() => {
 
 function onFlowStarted() {
   // re-carregar eventos do usuário para refletir nova reunião
-  loadAllUserEvents();
-  agendaRef.value?.loadEvents();
+  setTimeout(() => {
+    loadAllUserEvents();
+    agendaRef.value?.loadEvents();
+  }, 500);
 }
 
 async function onAgendaEventClick(ev: any) {
@@ -195,9 +186,13 @@ async function onPropostaSaved(proposta: any) {
     try {
       await linkProposta(currentFlowContext.value.flowId, proposta.id);
       await advanceFlow(currentFlowContext.value.flowId);
-      $notify?.success?.('Proposta vinculada e fluxo avançado!');
-      loadAllUserEvents();
-      agendaRef.value?.loadEvents();
+      $notify?.success?.('Proposta vinculada! Avançando para próxima etapa...');
+
+      // Aguardar um pouco para garantir que o backend processou
+      setTimeout(() => {
+        loadAllUserEvents();
+        agendaRef.value?.loadEvents();
+      }, 500);
     } catch (e: any) {
       $notify?.error?.(e?.message || 'Erro ao vincular proposta');
     }
@@ -213,9 +208,13 @@ async function onContratoSaved(contrato: any) {
     try {
       await linkContrato(currentFlowContext.value.flowId, contrato.id);
       await advanceFlow(currentFlowContext.value.flowId);
-      $notify?.success?.('Contrato vinculado e fluxo avançado!');
-      loadAllUserEvents();
-      agendaRef.value?.loadEvents();
+      $notify?.success?.('Contrato vinculado! Avançando para próxima etapa...');
+
+      // Aguardar um pouco para garantir que o backend processou
+      setTimeout(() => {
+        loadAllUserEvents();
+        agendaRef.value?.loadEvents();
+      }, 500);
     } catch (e: any) {
       $notify?.error?.(e?.message || 'Erro ao vincular contrato');
     }
@@ -235,9 +234,13 @@ async function onEmpresaSaved(empresa: any) {
         body: JSON.stringify({ empresaId: empresa.id }),
       });
       await advanceFlow(currentFlowContext.value.flowId);
-      $notify?.success?.('Empresa criada, fluxo concluído!');
-      loadAllUserEvents();
-      agendaRef.value?.loadEvents();
+      $notify?.success?.('Empresa criada! Fluxo concluído com sucesso! 🎉');
+
+      // Aguardar um pouco para garantir que o backend processou
+      setTimeout(() => {
+        loadAllUserEvents();
+        agendaRef.value?.loadEvents();
+      }, 500);
     } catch (e: any) {
       $notify?.error?.(e?.message || 'Erro ao vincular empresa');
     }
@@ -411,6 +414,7 @@ const roleModalHandlers = computed(() => ({
   openCreateProposta: () => { showPropostaModal.value = true },
   openNovoContrato: () => { showContratoModal.value = true },
   openCadastroUsuario: () => { showCadastroModal.value = true },
+  openIniciarFluxo: canStartFlow.value ? () => { showStartFlow.value = true } : undefined,
 }));
 
 </script>

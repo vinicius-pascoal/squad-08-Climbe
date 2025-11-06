@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { flowService } from '../services/flow.service';
 import { flowRepo } from '../repositories/flow.repo';
+import { enviarResposta } from '../middlewares/auditoria';
 
 export const flowController = {
   async start(req: Request, res: Response) {
@@ -16,35 +17,35 @@ export const flowController = {
       when,
       participantIds
     );
-    return res.status(201).json(created);
+    return enviarResposta(res, 201, created);
   },
 
   async advance(req: Request, res: Response) {
     const id = Number(req.params.id);
     const when = req.body?.scheduledAt ? new Date(req.body.scheduledAt) : undefined;
     const result = await flowService.advance(id, when);
-    return res.status(200).json(result);
+    return enviarResposta(res, 200, result);
   },
 
   async scheduleStep(req: Request, res: Response) {
     const stepId = Number(req.params.stepId);
     const when = new Date(req.body.scheduledAt);
     const upd = await flowService.scheduleStep(stepId, when);
-    return res.status(200).json(upd);
+    return enviarResposta(res, 200, upd);
   },
 
   async linkProposta(req: Request, res: Response) {
     const id = Number(req.params.id);
     const { propostaId } = req.body || {};
     const upd = await flowService.linkProposta(id, Number(propostaId));
-    return res.status(200).json(upd);
+    return enviarResposta(res, 200, upd);
   },
 
   async linkContrato(req: Request, res: Response) {
     const id = Number(req.params.id);
     const { contratoId } = req.body || {};
     const upd = await flowService.linkContrato(id, String(contratoId));
-    return res.status(200).json(upd);
+    return enviarResposta(res, 200, upd);
   },
 
   async updateFlow(req: Request, res: Response) {
@@ -52,7 +53,7 @@ export const flowController = {
     const { empresaId } = req.body || {};
     if (empresaId) {
       const upd = await flowService.updateEmpresa(id, Number(empresaId));
-      return res.status(200).json(upd);
+      return enviarResposta(res, 200, upd);
     }
     return res.status(400).json({ error: 'empresaId é obrigatório' });
   },

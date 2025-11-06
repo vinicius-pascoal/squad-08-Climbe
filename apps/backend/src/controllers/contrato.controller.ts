@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { contratoService } from "../services/contrato.service";
 import { contratoSchema } from "../dtos/contrato.dto";
+import { enviarResposta } from "../middlewares/auditoria";
 
 export const contratoController = {
   // POST
@@ -27,7 +28,7 @@ export const contratoController = {
       const created = await contratoService.create(validatedData);
       console.log('✅ Contrato criado:', created);
 
-      return res.status(201).json({
+      return enviarResposta(res, 201, {
         success: true,
         data: created,
       });
@@ -62,7 +63,7 @@ export const contratoController = {
       }
 
       const updated = await contratoService.update(id, validatedData);
-      return res.status(200).json({
+      return enviarResposta(res, 200, {
         success: true,
         data: updated,
       });
@@ -102,6 +103,7 @@ export const contratoController = {
   async remove(req: Request, res: Response) {
     const id: string = req.params.id;
     await contratoService.remove(id);
+    res.locals.entidadeId = id;
     res.status(204).send();
   },
 };
