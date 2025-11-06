@@ -12,7 +12,7 @@ eventRouter.use(requireAuth);
 /**
  * Helper to extract a Google access token from body, header or query.
  */
-function extractGoogleAccessToken(req: any): string | null {
+export function extractGoogleAccessToken(req: any): string | null {
   const b = req.body || {};
   return (
     b.googleAccessToken ||

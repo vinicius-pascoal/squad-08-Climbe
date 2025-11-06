@@ -23,6 +23,7 @@ app.get('/login', (_req: Request, res: Response) => {
       'openid',
       'email',
       'profile',
+      'https://www.googleapis.com/auth/drive',
       'https://www.googleapis.com/auth/calendar.events',
     ].join(' '),
     access_type: 'offline',
