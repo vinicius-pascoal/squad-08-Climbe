@@ -17,10 +17,13 @@
 
       <div class="flex items-center gap-2">
         <button
+          v-if="hasPerm('Propostas Comerciais — Criar') || (currentUser && currentUser.value?.cargoNome === 'Admin')"
           class="cadastro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-brand-cad8fd border border-brand-3b67d0 text-white rounded-lg px-4 py-2 hover cursor-pointer ml-16"
           @click="onCriarProposta">
           Criar Proposta
         </button>
+        <button v-else disabled class="cadastro rounded-lg bg-slate-300 text-white px-4 py-2 ml-16 opacity-60">Sem
+          permissão</button>
       </div>
     </div>
 
@@ -30,6 +33,7 @@
         <span class="text-slate-400">▾</span>
         <select v-model="filters.status" class="pill-select">
           <option value="">Todos</option>
+          <option value="PENDENTE">Pendente</option>
           <option value="APROVADA">Aprovada</option>
           <option value="REVISAO">Em Revisão</option>
           <option value="REPROVADA">Reprovada</option>
@@ -214,19 +218,31 @@
 
       <DonutStatus :aprovado=aprovado :revisao=revisao :reprovado=reprovado />
     </div>
+
+    <!-- Modal de Detalhes -->
+    <PropostaDetailsModal v-model:open="modalOpen" :proposta-id="selectedPropostaId" @updated="onPropostaUpdated" />
+    <!-- Modal de criação (removida rota -> modal) -->
+    <ModalCreateProposta v-if="propostaModalOpen" @close="propostaModalOpen = false" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { computed, getCurrentInstance, onMounted, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { hasPermission as hasPerm, currentUser } from '../services/auth'
 import DonutStatus from '../components/DonutStatus.vue'
+import PropostaDetailsModal from '../components/modals/PropostaDetailsModal.vue'
+import { http } from '../lib/http'
+import ModalCreateProposta from '../components/modals/ModalCreateProposta.vue'
 
-type Status = 'APROVADA' | 'REVISAO' | 'REPROVADA'
-type Proposta = { id: string; empresa: string; data: string | Date; status: Status; responsavel: string }
+type Status = 'APROVADA' | 'REVISAO' | 'REPROVADA' | 'PENDENTE'
+type Proposta = { id: number; empresa: string; data: string | Date; status: Status; responsavel: string }
 type Historico = { id: string; data: string | Date; usuario: string; acao: string; status: Status; versao: string; comentario: string }
 
 const router = useRouter();
+const instance = getCurrentInstance();
+const notify = instance?.appContext.config.globalProperties.$notify;
+
 const ui = reactive({ page: 1, pageSize: 5, search: '' })
 const uiHist = reactive({ page: 1, pageSize: 6 })
 
@@ -239,34 +255,46 @@ const propostas = ref<Proposta[]>([])
 const historico = ref<Historico[]>([])
 const loading = reactive({ propostas: true, historico: true })
 const histSearch = ref('')
-const aprovado = 68
-const revisao = 22
-const reprovado = 10
-
+const aprovado = ref(0)
+const revisao = ref(0)
+const reprovado = ref(0)
+const modalOpen = ref(false)
+const propostaModalOpen = ref(false)
+const selectedPropostaId = ref<number | null>(null)
 
 async function fetchPropostas() {
   loading.propostas = true
   try {
-    // Mock 
-    propostas.value = [
-      { id: 'PROP-2025-001', empresa: 'RIHappy', data: '2025-08-21', status: 'APROVADA', responsavel: 'Luiz Gomes' },
-      { id: 'PROP-2025-002', empresa: 'TED talk', data: '2025-08-18', status: 'REVISAO', responsavel: 'Vanessa' },
-      { id: 'PROP-2025-003', empresa: 'XOPs', data: '2025-08-28', status: 'APROVADA', responsavel: 'Luiz Gomes' },
-      { id: 'PROP-2025-004', empresa: 'ABNT', data: '2025-09-05', status: 'REPROVADA', responsavel: 'Neymar' },
-    ]
+    const data = await http('/api/propostas')
+
+    propostas.value = data.map((p: any) => ({
+      id: p.id,
+      empresa: p.empresa?.nomeFantasia || p.empresa?.razaoSocial || 'Sem empresa',
+      data: p.dataCriacao,
+      status: p.status as Status,
+      responsavel: p.usuario?.nomeCompleto || 'Não atribuído',
+    }))
+
+    // Calcular estatísticas
+    const total = propostas.value.length || 1
+    aprovado.value = Math.round((propostas.value.filter((p: Proposta) => p.status === 'APROVADA').length / total) * 100)
+    revisao.value = Math.round((propostas.value.filter((p: Proposta) => p.status === 'REVISAO').length / total) * 100)
+    reprovado.value = Math.round((propostas.value.filter((p: Proposta) => p.status === 'REPROVADA').length / total) * 100)
+
+    responsaveis.value = Array.from(new Set(propostas.value.map((p: Proposta) => p.responsavel))).sort()
+  } catch (error: any) {
+    notify?.error(`Erro ao carregar propostas: ${error.response?.data?.message || error.message}`)
   } finally {
     loading.propostas = false
-    responsaveis.value = Array.from(new Set(propostas.value.map(p => p.responsavel))).sort()
   }
 }
 
 async function fetchHistorico() {
   loading.historico = true
   try {
-    //mock
-    historico.value = [
-      { id: 'h1', data: '2025-08-21', usuario: 'Neymar', acao: 'Upload', status: 'REVISAO', versao: 'V2', comentario: 'Primeira versão anexada.' }
-    ]
+    // TODO: Implementar endpoint de histórico quando disponível
+    // Por enquanto mantém vazio
+    historico.value = []
   } finally {
     loading.historico = false
   }
@@ -298,7 +326,7 @@ const filtered = computed(() => {
       if (ed && d > ed) return false
     }
     if (!q) return true
-    return p.id.toLowerCase().includes(q) || p.empresa.toLowerCase().includes(q) || p.responsavel.toLowerCase().includes(q)
+    return String(p.id).toLowerCase().includes(q) || p.empresa.toLowerCase().includes(q) || p.responsavel.toLowerCase().includes(q)
   })
 
   if (!sortKey.value) return list
@@ -364,8 +392,17 @@ function percent(s: Status) {
   return Math.round((qtd / total) * 100)
 }
 
-function onCriarProposta() { router.push('/CreateProposta') }
-function abrirProposta(p: Proposta) { console.log('Abrir', p.id) }
+function onCriarProposta() { propostaModalOpen.value = true }
+
+function abrirProposta(p: Proposta) {
+  selectedPropostaId.value = p.id
+  modalOpen.value = true
+}
+
+function onPropostaUpdated() {
+  modalOpen.value = false
+  fetchPropostas()
+}
 
 function formatDate(d: string | Date) {
   const date = new Date(d)
@@ -374,12 +411,13 @@ function formatDate(d: string | Date) {
 }
 
 function badgeText(s: Status) {
-  return s === 'APROVADA' ? 'Aprovada' : s === 'REVISAO' ? 'Em Revisão' : 'Reprovada'
+  return s === 'APROVADA' ? 'Aprovada' : s === 'REVISAO' ? 'Em Revisão' : s === 'REPROVADA' ? 'Reprovada' : 'Pendente'
 }
 function badgeClass(s: Status) {
   if (s === 'APROVADA') return 'bg-emerald-100 text-emerald-700 ring-emerald-200'
   if (s === 'REVISAO') return 'bg-amber-100 text-amber-700 ring-amber-200'
-  return 'bg-rose-100 text-rose-700 ring-rose-200'
+  if (s === 'REPROVADA') return 'bg-rose-100 text-rose-700 ring-rose-200'
+  return 'bg-slate-100 text-slate-700 ring-slate-200'
 }
 
 function goFirst() { ui.page = 1 }

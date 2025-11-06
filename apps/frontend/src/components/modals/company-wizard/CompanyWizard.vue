@@ -63,7 +63,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineProps, defineEmits, reactive, ref } from 'vue'
+import { computed, defineProps, defineEmits, reactive, ref, getCurrentInstance } from 'vue'
+import { http } from '../../../lib/http'
 import StepBasic from './StepBasic.vue'
 import StepAddress from './StepAddress.vue'
 import StepRepresentative from './StepRepresentative.vue'
@@ -78,10 +79,13 @@ type Extra = { companySize: string; area: string; files: File[] }
 type Payload = { basic: Basic; address: Address; representative: Representative; extra: Extra }
 
 const props = withDefaults(defineProps<{ open: boolean; apiUrl?: string; closeOnBackdrop?: boolean }>(), {
-  apiUrl: '/api/companies',
+  apiUrl: '/api/empresas',
   closeOnBackdrop: true
 })
 const emit = defineEmits<{ (e: 'update:open', v: boolean): void; (e: 'saved'): void }>()
+
+const instance = getCurrentInstance();
+const notify = instance?.appContext.config.globalProperties.$notify;
 
 const open = computed({ get: () => props.open, set: (v: boolean) => emit('update:open', v) })
 const steps = [
@@ -112,7 +116,11 @@ function close() {
 async function next() {
   error.value = null
   const ok = (await stepRef.value?.validate?.()) ?? true
-  if (!ok) { error.value = 'Verifique os campos obrigatórios.'; notify.warning('Preencha os campos obrigatórios.'); return }
+  if (!ok) {
+    error.value = 'Verifique os campos obrigatórios.';
+    notify?.warning('Preencha os campos obrigatórios.');
+    return
+  }
   if (currentStep.value < 5) currentStep.value++
 }
 
@@ -125,31 +133,34 @@ async function submit() {
   error.value = null
   loading.value = true
   try {
-    const hasFiles = (form.extra.files?.length ?? 0) > 0
-    if (hasFiles) {
-      const fd = new FormData()
-      fd.append('basic', JSON.stringify(form.basic))
-      fd.append('address', JSON.stringify(form.address))
-      fd.append('representative', JSON.stringify(form.representative))
-      fd.append('extra', JSON.stringify({ companySize: form.extra.companySize, area: form.extra.area }))
-      form.extra.files.forEach((f, i) => fd.append(`files[${i}]`, f, f.name))
+    // Mapear dados do formulário para o formato do backend
+    const payload = {
+      razaoSocial: form.basic.corporateName,
+      nomeFantasia: form.basic.name,
+      cnpj: form.basic.cnpj,
+      logradouro: form.address.street,
+      numero: form.address.number,
+      bairro: form.address.neighborhood,
+      cidade: form.address.city,
+      uf: form.address.state,
+      cep: form.address.zip,
+      telefone: form.basic.phone,
+      email: form.basic.email,
+      representanteCpf: form.representative.cpf,
+      representanteContato: form.representative.phone1,
+    };
 
-      const res = await fetch(props.apiUrl!, { method: 'POST', body: fd })
-      if (!res.ok) throw new Error(`Falha ao salvar (HTTP ${res.status})`)
-    } else {
-      const res = await fetch(props.apiUrl!, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form)
-      })
-      if (!res.ok) throw new Error(`Falha ao salvar (HTTP ${res.status})`)
-    }
-    notify.success('Empresa cadastrada com sucesso!');
+    await http(props.apiUrl!, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+
+    notify?.success('Empresa cadastrada com sucesso!');
     emit('saved')
     close()
   } catch (e: any) {
     error.value = e?.message ?? 'Erro ao salvar';
-    notify.error(error.value)
+    notify?.error(error.value)
   } finally {
     loading.value = false
   }

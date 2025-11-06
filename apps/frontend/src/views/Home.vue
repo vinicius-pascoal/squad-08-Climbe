@@ -22,16 +22,15 @@
     <!--Widget da Agenda-->
     <AgendaWidget class="main-agenda-widget" />
 
-    <!--Widget das Estatísticas-->
-    <StatsWidget class="stats-widget" />
+    <div class="role-row">
+      <component :is="roleComponent" v-bind="roleModalHandlers" />
+    </div>
 
-    <!--Widget do Histórico-->
-    <HistoryWidget class="history-widget" />
+    <!-- Modals for quick creation (opened by role buttons) -->
+    <ModalCreateProposta v-if="showPropostaModal" @close="showPropostaModal = false" />
+    <ModalNovoContrato v-if="showContratoModal" @close="showContratoModal = false" />
+    <ModalCadastroUsuario v-if="showCadastroModal" @close="showCadastroModal = false" />
 
-    <!--Widget de Ultimas Ações-->
-    <ActionsWidget class="actions-widget" />
-
-    <!--Modal do Calendario-->
     <AddEventModal v-if="isAddEventModalOpen" @close="closeAddEventModal" @add="addActivity"
       :selectedDate="selectedDate" />
   </div>
@@ -48,9 +47,18 @@ import AddEventModal from '../components/AddEventModal.vue';
 
 // Placeholders dos outros widgets
 import AgendaWidget from '../components/AgendaWidget.vue';
-import StatsWidget from '../components/StatsWidget.vue';
-import HistoryWidget from '../components/HistoryWidget.vue';
-import ActionsWidget from '../components/ActionsWidget.vue';
+// Role-specific components (placed in components/home)
+import RoleAdmin from '../components/home/RoleAdmin.vue';
+import RoleCEO from '../components/home/RoleCEO.vue';
+import RoleAnalista from '../components/home/RoleAnalista.vue';
+import RoleCompliance from '../components/home/RoleCompliance.vue';
+import RoleCFO from '../components/home/RoleCFO.vue';
+import RoleCSOCMO from '../components/home/RoleCSOCMO.vue';
+import RoleMembroConselho from '../components/home/RoleMembroConselho.vue';
+import { currentUser } from '../services/auth';
+import ModalCreateProposta from '../components/modals/ModalCreateProposta.vue';
+import ModalNovoContrato from '../components/modals/ModalNovoContrato.vue';
+import ModalCadastroUsuario from '../components/modals/ModalCadastroUsuario.vue';
 
 // Serviços
 import calendarApi, { listCalendarEvents, listUserEvents, addCalendarEvent } from '../services/calendar';
@@ -231,18 +239,53 @@ onMounted(() => {
 });
 watch(selectedDate, () => loadEventsForSelectedDate());
 
+// Computed que retorna o componente de acordo com o cargo do usuário
+const roleComponent = computed(() => {
+  const cargoRaw = currentUser?.value?.cargoNome || currentUser?.value?.cargo || '';
+  const cargo = String(cargoRaw || '').toLowerCase().trim();
+
+  const map: Record<string, any> = {
+    admin: RoleAdmin,
+    ceo: RoleCEO,
+    compliance: RoleCompliance,
+    cfo: RoleCFO,
+    cso: RoleCSOCMO,
+    cmo: RoleCSOCMO,
+    'membro do conselho': RoleMembroConselho,
+    'membroconselho': RoleMembroConselho,
+    analista: RoleAnalista,
+  };
+
+  // busca correspondência exata ou por inclusão
+  if (map[cargo]) return map[cargo];
+  const byInclude = Object.keys(map).find(k => cargo.includes(k));
+  if (byInclude) return map[byInclude];
+  // fallback para analista
+  return RoleAnalista;
+});
+
+// modals exposed to role components
+const showPropostaModal = ref(false);
+const showContratoModal = ref(false);
+const showCadastroModal = ref(false);
+
+const roleModalHandlers = computed(() => ({
+  openCreateProposta: () => { showPropostaModal.value = true },
+  openNovoContrato: () => { showContratoModal.value = true },
+  openCadastroUsuario: () => { showCadastroModal.value = true },
+}));
+
 </script>
 
 <style scoped>
-/* Define o layout principal do dashboard com CSS Grid. */
 .home-dashboard-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: auto auto auto;
   grid-template-areas:
-    "calendar calendar main-agenda main-agenda"
-    "stats stats main-agenda main-agenda"
-    "history history actions actions";
+    "calendar calendar main-agenda"
+    "calendar calendar main-agenda"
+    "stats history actions";
   gap: 1.5rem;
   padding: 2rem;
 }
@@ -325,5 +368,42 @@ watch(selectedDate, () => loadEventsForSelectedDate());
 
 .calendar-display-block {
   flex: 1.5;
+}
+
+.home-dashboard-grid>.stats-widget,
+.home-dashboard-grid>.history-widget,
+.home-dashboard-grid>.actions-widget {
+  width: 100%;
+  align-self: stretch;
+  justify-self: stretch;
+  min-width: 0;
+}
+
+.home-dashboard-grid>* {
+  min-width: 0;
+}
+
+.role-row {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+}
+
+.role-row>* {
+  width: 100%;
+  min-width: 0;
+}
+
+.role-row>*:nth-child(1) {
+  grid-column: 1 / 2;
+}
+
+.role-row>*:nth-child(2) {
+  grid-column: 2 / 3;
+}
+
+.role-row>*:nth-child(n+3) {
+  grid-column: 1 / 2;
 }
 </style>

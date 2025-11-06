@@ -23,6 +23,6 @@ export const adminCreateSchema = z.object({
   contato: z.string().optional().nullable(),
   senha: z.string().min(8),
   cargoId: z.number().int(),
-  situacao: z.enum(['aprovado','pendente','inativo']).default('pendente'),
+  situacao: z.enum(['aprovado', 'pendente', 'desativado']).default('pendente'),
 });
 export type AdminCreateDTO = z.infer<typeof adminCreateSchema>;

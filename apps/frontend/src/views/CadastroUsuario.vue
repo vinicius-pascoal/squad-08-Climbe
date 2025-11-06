@@ -37,7 +37,7 @@ export default {
             const s = String(status).toLowerCase();
             if (s === "ativo") return "aprovado";
             if (s === "pendente") return "pendente";
-            return "inativo";
+            return "desativado";
         },
 
         async carregarCargos() {
@@ -202,7 +202,7 @@ export default {
                             class="border border-gray-300 w-[410px] h-8 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] rounded-lg px-2">
                             <option value="ativo">Ativo</option>
                             <option value="pendente">Pendente</option>
-                            <option value="inativo">Inativo</option>
+                            <option value="desativado">Desativado</option>
                         </select>
                     </div>
 

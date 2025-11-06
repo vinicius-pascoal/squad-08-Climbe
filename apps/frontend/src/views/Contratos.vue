@@ -56,16 +56,19 @@
 
     </table>
   </div>
-  <PopupCreatContract v-if="showModal" @close="toggleModal" />
+  <PopupCreatContract v-if="showModal" @close="toggleModal" @open-new="openNovoContrato" />
+  <ModalNovoContrato v-if="showNewContractModal" @close="() => (showNewContractModal = false)" />
 </template>
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import Contratocard from '../components/Contratocard.vue';
 import PopupCreatContract from '../components/PopupCreatContract.vue';
+import ModalNovoContrato from '../components/modals/ModalNovoContrato.vue';
 import { listContratos, type ContratoResponse } from '../services/contract';
-import Swal from 'sweetalert2';
+import { getCurrentInstance } from 'vue';
 
 const showModal = ref(false);
+const showNewContractModal = ref(false);
 const contracts = ref<any[]>([]);
 const loading = ref(false);
 
@@ -77,43 +80,34 @@ const toggleModal = () => {
   }
 };
 
-const formatDate = (date: Date | string | null | undefined) => {
-  if (!date) return '-';
+function openNovoContrato() {
+  // close the creator options popup and open the full contract modal
+  showModal.value = false;
+  showNewContractModal.value = true;
+}
+
+const formatDate = (date: Date | string) => {
   const d = new Date(date);
-  if (isNaN(d.getTime())) return '-';
   return d.toLocaleDateString('pt-BR');
 };
 
+const _ins = getCurrentInstance();
+const notify = _ins?.appContext.config.globalProperties.$notify as any;
 const loadContratos = async () => {
   loading.value = true;
   try {
-    const raw = await listContratos();
-    console.log('📥 Resposta bruta de /api/contratos:', raw);
-    const list: ContratoResponse[] = Array.isArray(raw)
-      ? raw
-      : (raw && Array.isArray((raw as any).data) ? (raw as any).data : []);
-    console.log('📋 Lista normalizada de contratos:', list);
-
-    contracts.value = list.map((contrato: ContratoResponse) => {
-      const prop = typeof contrato.propostaId === 'number' && contrato.propostaId > 0
-        ? `#${String(contrato.propostaId).padStart(5, '0')}`
-        : '-';
-      return {
-        id: contrato.id,
-        company: contrato.nome || '-',
-        proposal: prop,
-        validity: formatDate(contrato.dataFim as any),
-        status: contrato.status || '-',
-        icon: '/icones/pingu.svg',
-      };
-    });
+    const data = await listContratos();
+    contracts.value = data.map((contrato: ContratoResponse) => ({
+      id: contrato.id,
+      company: contrato.nome,
+      proposal: `#${String(contrato.propostaId).padStart(5, '0')}`,
+      validity: formatDate(contrato.dataFim),
+      status: contrato.status,
+      icon: '/icones/pingu.svg', // Pode ajustar conforme necessário
+    }));
   } catch (error: any) {
     console.error('Erro ao carregar contratos:', error);
-    Swal.fire({
-      icon: 'error',
-      title: 'Erro',
-      text: error?.message || 'Erro ao carregar contratos',
-    });
+    notify?.error(error?.message || 'Erro ao carregar contratos');
   } finally {
     loading.value = false;
   }

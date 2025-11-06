@@ -19,12 +19,18 @@ export const authService = {
       e.statusCode = 400;
       throw e;
     }
-    if ((String(user.situacao || '')).toLowerCase() !== SITUACAO.APROVADO) {
+    const sit = (String(user.situacao || '')).toLowerCase();
+    if (sit === 'desativado') {
+      const e: any = new Error('Usuário desativado');
+      e.statusCode = 403;
+      throw e;
+    }
+    if (sit !== SITUACAO.APROVADO) {
       const e: any = new Error('Usuário pendente de aprovação');
       e.statusCode = 403;
       throw e;
     }
-    const access_token = signAccessToken(user.id);
+    const access_token = await signAccessToken(user.id);
     return {
       access_token,
       token_type: 'Bearer' as const,
@@ -71,7 +77,7 @@ export const authService = {
       throw e;
     }
 
-    const access_token = signAccessToken(user.id);
+    const access_token = await signAccessToken(user.id);
     return {
       access_token,
       token_type: 'Bearer' as const,
