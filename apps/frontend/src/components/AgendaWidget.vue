@@ -20,6 +20,9 @@
             <p v-if="ev.start" class="text-xs text-slate-500 mt-0.5">
               {{ formatDate(ev.start) }}
             </p>
+            <p v-else-if="ev.source === 'flow'" class="text-xs text-slate-500 mt-0.5 italic">
+              Pendente - aguardando agendamento
+            </p>
             <p v-if="ev.description" class="text-xs text-slate-600 mt-1 line-clamp-2">{{ ev.description }}</p>
           </div>
           <span v-if="ev.source === 'flow'" class="text-xs font-semibold text-sidebar">Fluxo</span>
@@ -69,8 +72,14 @@ async function loadEvents() {
     loading.value = true
     const items = await listUserEvents()
     eventos.value = (items || [])
-      .filter((ev: any) => ev.start) // apenas eventos com data
-      .sort((a: any, b: any) => new Date(a.start).getTime() - new Date(b.start).getTime())
+      .filter((ev: any) => ev.source === 'flow' || ev.start) // eventos de fluxo sempre aparecem, outros precisam de data
+      .sort((a: any, b: any) => {
+        // Eventos sem data (fluxo) vêm primeiro, depois ordenar por data
+        if (!a.start && !b.start) return 0
+        if (!a.start) return -1
+        if (!b.start) return 1
+        return new Date(a.start).getTime() - new Date(b.start).getTime()
+      })
       .map((ev: any) => ({
         id: ev.id,
         source: ev.source || 'calendar',

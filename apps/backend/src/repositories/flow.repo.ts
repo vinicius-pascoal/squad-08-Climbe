@@ -24,7 +24,7 @@ export const flowRepo = {
         finalEmpresaId = tempEmpresa.id;
       }
 
-      // 2. Criar o fluxo
+      // 2. Criar o fluxo com TODAS as etapas
       const flow = await tx.contractFlow.create({
         data: {
           nome: nome ?? null,
@@ -32,7 +32,12 @@ export const flowRepo = {
           iniciadorId,
           status: 'ATIVO',
           steps: {
-            create: [{ type: 'REUNIAO', status: 'PENDENTE', scheduledAt: scheduledAt ?? null } as any],
+            create: [
+              { type: 'REUNIAO', status: 'PENDENTE', scheduledAt: scheduledAt ?? null } as any,
+              { type: 'PROPOSTA', status: 'NAO_INICIADO', scheduledAt: null } as any,
+              { type: 'CONTRATO', status: 'NAO_INICIADO', scheduledAt: null } as any,
+              { type: 'CRIACAO_EMPRESA', status: 'NAO_INICIADO', scheduledAt: null } as any,
+            ],
           },
           participantes: participants?.length
             ? { createMany: { data: participants.map((usuarioId) => ({ usuarioId })) } }
@@ -60,13 +65,15 @@ export const flowRepo = {
         });
 
         // 4. Adicionar participantes à reunião
+        // O modelo `ParticipanteReuniao` possui apenas `reuniaoId` e `usuarioId`.
+        // Não existe campo `status` na tabela, então apenas inserimos os pares.
         if (participants?.length) {
           await tx.participanteReuniao.createMany({
             data: participants.map((usuarioId) => ({
               reuniaoId: reuniao.id,
               usuarioId,
-              status: 'CONFIRMADO',
             })),
+            skipDuplicates: true,
           });
         }
       }
@@ -109,29 +116,40 @@ export const flowRepo = {
 
     const ordered: any[] = ['REUNIAO', 'PROPOSTA', 'CONTRATO', 'CRIACAO_EMPRESA'];
     const steps = flow.steps.sort((a: any, b: any) => ordered.indexOf(a.type) - ordered.indexOf(b.type));
-    const current = steps.find((s: any) => s.status !== 'CONCLUIDO' && s.status !== 'CANCELADO');
+    const current = steps.find((s: any) => s.status === 'PENDENTE');
 
     return prisma.$transaction(async (tx: any) => {
-      let nextType: any | null = null;
-      if (current) {
-        await tx.contractFlowStep.update({ where: { id: current.id }, data: { status: 'CONCLUIDO', completedAt: new Date() } });
-        const curIdx = ordered.indexOf(current.type as any);
-        if (curIdx >= 0 && curIdx < ordered.length - 1) {
-          nextType = ordered[curIdx + 1];
-        }
-      } else {
-        nextType = 'REUNIAO';
+      if (!current) {
+        throw new Error('Nenhuma etapa pendente encontrada');
       }
 
-      if (!nextType) {
+      // Marcar etapa atual como concluída
+      await tx.contractFlowStep.update({
+        where: { id: current.id },
+        data: { status: 'CONCLUIDO', completedAt: new Date() }
+      });
+
+      // Encontrar próxima etapa
+      const curIdx = ordered.indexOf(current.type as any);
+      if (curIdx >= 0 && curIdx < ordered.length - 1) {
+        const nextType = ordered[curIdx + 1];
+
+        // Encontrar a etapa NAO_INICIADO e ativar
+        const nextStep = steps.find((s: any) => s.type === nextType);
+        if (nextStep) {
+          const updated = await tx.contractFlowStep.update({
+            where: { id: nextStep.id },
+            data: { status: 'PENDENTE', scheduledAt: nextScheduledAt ?? null },
+          });
+          return updated;
+        }
+      } else {
+        // Última etapa concluída - marcar fluxo como concluído
         await tx.contractFlow.update({ where: { id: flowId }, data: { status: 'CONCLUIDO' } });
         return { done: true };
       }
 
-      const created = await tx.contractFlowStep.create({
-        data: { flowId, type: nextType, status: 'PENDENTE', scheduledAt: nextScheduledAt ?? null } as any,
-      });
-      return created;
+      return { done: true };
     });
   },
 

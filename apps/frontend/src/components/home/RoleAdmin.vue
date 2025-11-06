@@ -36,10 +36,6 @@
     </div>
   </div>
 
-  <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow dark:shadow-none actions-widget w-full h-full">
-    <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">Painel Admin</h3>
-    <p class="text-sm text-gray-500 dark:text-gray-300">Ações rápidas e gerenciamento global.</p>
-  </div>
 </template>
 
 <script setup lang="ts">

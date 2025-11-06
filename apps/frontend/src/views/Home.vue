@@ -121,6 +121,13 @@ const activitiesForSelectedDate = computed(() =>
 const openAddEventModal = () => { isAddEventModalOpen.value = true; };
 const closeAddEventModal = () => { isAddEventModalOpen.value = false; };
 
+const updateActivity = (updatedActivity: any) => {
+  const index = activitiesAll.value.findIndex((a: any) => a.id === updatedActivity.id);
+  if (index !== -1) {
+    activitiesAll.value[index] = { ...activitiesAll.value[index], ...updatedActivity };
+  }
+};
+
 const canStartFlow = computed(() => {
   const cargo = String(currentUser?.value?.cargoNome || currentUser?.value?.cargo || '').toLowerCase();
   return cargo.includes('admin') || cargo.includes('ceo');
@@ -144,9 +151,21 @@ async function onAgendaEventClick(ev: any) {
 
     // Mapa de etapas para modais
     const stepMap: Record<string, () => void> = {
-      REUNIAO: () => {
-        // Para reunião, podemos abrir o modal de criar evento ou um aviso
-        $notify?.info?.('Reunião agendada. Use o calendário para adicionar mais detalhes.');
+      REUNIAO: async () => {
+        // Para reunião, perguntar se deseja marcar como concluída e avançar
+        const confirmar = confirm('Reunião agendada. Deseja marcar como concluída e avançar para a próxima etapa (Proposta)?');
+        if (confirmar && currentFlowContext.value?.flowId) {
+          try {
+            await advanceFlow(currentFlowContext.value.flowId);
+            $notify?.success?.('Reunião concluída! Avançando para Proposta...');
+            setTimeout(() => {
+              loadAllUserEvents();
+              agendaRef.value?.loadEvents();
+            }, 500);
+          } catch (e: any) {
+            $notify?.error?.(e?.message || 'Erro ao avançar fluxo');
+          }
+        }
       },
       PROPOSTA: () => {
         showPropostaModal.value = true;
@@ -185,8 +204,8 @@ async function onPropostaSaved(proposta: any) {
   if (currentFlowContext.value?.flowId) {
     try {
       await linkProposta(currentFlowContext.value.flowId, proposta.id);
-      await advanceFlow(currentFlowContext.value.flowId);
-      $notify?.success?.('Proposta vinculada! Avançando para próxima etapa...');
+        // NÃO avançar automaticamente - aguardar aprovação da proposta
+        $notify?.success?.('Proposta vinculada! Aguardando aprovação para avançar...');
 
       // Aguardar um pouco para garantir que o backend processou
       setTimeout(() => {
