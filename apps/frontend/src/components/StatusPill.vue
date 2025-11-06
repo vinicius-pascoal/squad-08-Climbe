@@ -2,7 +2,7 @@
   <div :class="['status-pill', statusClass]">
     <img v-if="status === 'ativo'" src="/icones/certo.svg" alt="Ativo" class="icon" />
     <img v-if="status === 'pendente'" src="/icones/pendente.svg" alt="Pendente" class="icon" />
-  <img v-if="status === 'desativado'" src="/icones/inativo.svg" alt="Desativado" class="icon" />
+    <img v-if="status === 'desativado'" src="/icones/inativo.svg" alt="Desativado" class="icon" />
     <span>{{ status }}</span>
   </div>
 </template>
@@ -35,8 +35,10 @@ export default {
 
 <style scoped>
 .status-pill {
-  display: flex; /* This is key to making the children side-by-side */
-  align-items: center; /* This centers the icon and text vertically */
+  display: flex;
+  /* This is key to making the children side-by-side */
+  align-items: center;
+  /* This centers the icon and text vertically */
   border-radius: 9999px;
   padding: 4px 12px;
   font-size: 14px;
@@ -49,7 +51,8 @@ export default {
 .icon {
   width: 16px;
   height: 16px;
-  margin-right: 8px; /* Add some space between the icon and the text */
+  margin-right: 8px;
+  /* Add some space between the icon and the text */
 }
 
 .ativo-style {
