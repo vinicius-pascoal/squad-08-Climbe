@@ -4,14 +4,15 @@
       <div class="modal-header">
         <h2 class="modal-title">Criar Novo Contrato</h2>
         <button @click="$emit('close')" class="close-btn">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="w-6 h-6">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
         </button>
       </div>
-      
+
       <p class="modal-description">Comece criando seu contrato selecionando o tipo mais relevante</p>
-      
+
       <div class="options-container">
         <div class="option-card">
           <img src="/icones/contratobranco.svg" alt="Contrato em branco" class="option-icon" />
@@ -19,7 +20,7 @@
           <p class="option-description">Crie em um template <br> Em branco</p>
           <div class="radio-button"></div>
         </div>
-        
+
         <div class="option-card">
           <img src="/icones/importamodelo.svg" alt="Importe modelo" class="option-icon" />
           <h3 class="option-title">Importe um Modelo</h3>
@@ -27,15 +28,16 @@
           <div class="radio-button"></div>
         </div>
 
-        <router-link to="/NovoContrato" class="option-card">
+        <button @click="$emit('open-new'); $emit('close')" type="button" class="option-card">
           <img src="/icones/modelopronto.svg" alt="Contractor" class="option-icon" />
           <h3 class="option-title">Contractor</h3>
           <p class="option-description">Use modelo pronto</p>
           <div class="radio-button"></div>
-        </router-link>
+        </button>
       </div>
-      
-      <button class="confirm-btn  border border-brand-3b67d0 bg-brand-cad8fd text-brand-2551b2 rounded-lg">Confirmar</button>
+
+      <button
+        class="confirm-btn  border border-brand-3b67d0 bg-brand-cad8fd text-brand-2551b2 rounded-lg">Confirmar</button>
     </div>
   </div>
 </template>

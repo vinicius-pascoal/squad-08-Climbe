@@ -21,24 +21,27 @@ model Usuario {
   participantes      ParticipanteReuniao[]
   documentosAnalista Documento[]           @relation("Documento_Analista")
   usuarioPermissoes  UsuarioPermissao[]
-  tarefas     Tarefa[]
+  tarefas            Tarefa[]
+  auditorias         Auditoria[]
 
   @@index([cargoId])
   @@map("usuarios")
 }
 
 model Cargo {
-  id        Int       @id @default(autoincrement()) @map("id_cargo")
-  nomeCargo String    @unique @map("nome_cargo") @db.VarChar(255)
-  usuarios  Usuario[]
+  id              Int              @id @default(autoincrement()) @map("id_cargo")
+  nomeCargo       String           @unique @map("nome_cargo") @db.VarChar(255)
+  usuarios        Usuario[]
+  cargoPermissoes CargoPermissao[]
 
   @@map("cargos")
 }
 
 model Permissao {
-  id        Int                @id @default(autoincrement()) @map("id_permissao")
-  descricao String             @db.VarChar(255)
-  usuarios  UsuarioPermissao[]
+  id              Int                @id @default(autoincrement()) @map("id_permissao")
+  descricao       String             @db.VarChar(255)
+  usuarios        UsuarioPermissao[]
+  cargoPermissoes CargoPermissao[]
 
   @@map("permissoes")
 }
@@ -53,6 +56,17 @@ model UsuarioPermissao {
   @@index([usuarioId])
   @@index([permissaoId])
   @@map("usuario_permissoes")
+}
+
+model CargoPermissao {
+  cargoId     Int       @map("id_cargo")
+  permissaoId Int       @map("id_permissao")
+  cargo       Cargo     @relation(fields: [cargoId], references: [id])
+  permissao   Permissao @relation(fields: [permissaoId], references: [id])
+
+  @@id([cargoId, permissaoId])
+  @@index([permissaoId])
+  @@map("cargo_permissoes")
 }
 
 model Empresa {
@@ -221,4 +235,24 @@ model Tarefa {
 
   @@index([usuarioId])
   @@map("tarefas")
+}
+
+model Auditoria {
+  id          Int      @id @default(autoincrement()) @map("id_auditoria")
+  usuarioId   Int?     @map("usuario_id")
+  acao        String   @db.VarChar(255)
+  entidade    String   @db.VarChar(100)
+  entidadeId  Int?     @map("entidade_id")
+  descricao   String?  @db.Text
+  ip          String?  @db.VarChar(45)
+  userAgent   String?  @map("user_agent") @db.VarChar(255)
+  dadosAntes  String?  @map("dados_antes") @db.Text
+  dadosDepois String?  @map("dados_depois") @db.Text
+  dataCriacao DateTime @default(now()) @map("data_criacao")
+  usuario     Usuario? @relation(fields: [usuarioId], references: [id])
+
+  @@index([usuarioId])
+  @@index([entidade])
+  @@index([dataCriacao])
+  @@map("auditorias")
 }

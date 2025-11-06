@@ -2,6 +2,7 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue';
+import { initAuth } from '../services/auth';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -22,6 +23,8 @@ onMounted(async () => {
     localStorage.setItem('user', user);
     if (google_access_token) localStorage.setItem('google_access_token', google_access_token);
 
+    // refresh currentUser and permissions, then redirect
+    try { await initAuth(); } catch (e) { /* ignore */ }
     router.push('/Home');
   } catch (err) {
     console.error('Erro ao autenticar:', err);

@@ -1,10 +1,12 @@
 <script>
 import Card from '../components/cardUsers.vue';
+import ModalCadastroUsuario from '../components/modals/ModalCadastroUsuario.vue';
 import { http } from '../lib/http';
+import { hasPermission as hasPerm, currentUser } from '../services/auth';
 
 export default {
   name: 'GestaoUsuario',
-  components: { Card },
+  components: { Card, ModalCadastroUsuario },
 
   data() {
     return {
@@ -21,6 +23,7 @@ export default {
 
       page: 1,
       pageSize: 5,
+      showCreateModal: false,
 
       statusLoading: {}, // { [userId]: boolean }
     };
@@ -91,7 +94,7 @@ export default {
       const s = (situacao || '').toString().toLowerCase();
       if (s === 'aprovado' || s === 'ativo') return 'ativo';
       if (s === 'pendente') return 'pendente';
-      return 'inativo';
+      return 'desativado';
     },
 
     cargoName(u) {
@@ -101,6 +104,8 @@ export default {
     },
 
     getPermissao(_user) { return '—'; },
+    hasPermission(desc) { try { return hasPerm(desc); } catch (e) { return false; } },
+    isAdmin() { try { return currentUser && (currentUser.value?.cargoNome === 'Admin' || currentUser.value?.cargoNome === 'ADMIN'); } catch (e) { return false; } },
 
     toggleFilters() { this.showFilters = !this.showFilters; },
     applyFilters() { this.page = 1; this.showFilters = false; },
@@ -110,7 +115,7 @@ export default {
     prevPage() { if (this.page > 1) this.page -= 1; },
     nextPage() { if (this.page < this.totalPages) this.page += 1; },
 
-    openCadastro() { this.$router.push('/CadastroUsuario'); },
+    openCadastro() { this.showCreateModal = true; },
 
     handleClickOutside(e) {
       const dropdown = this.$refs.filtersDropdown;
@@ -156,6 +161,14 @@ export default {
         delete this.statusLoading[userId];
       }
     },
+      // Handler quando um Card emite que o usuário foi removido
+      onUserRemoved({ userId }) {
+        const idx = this.users.findIndex(u => Number(u.id) === Number(userId));
+        if (idx === -1) return;
+        this.users.splice(idx, 1);
+        this.$notify?.success('Usuário removido com sucesso.');
+        if (this.page > this.totalPages) this.page = this.totalPages;
+      },
   },
 
   mounted() {
@@ -180,8 +193,11 @@ export default {
       <input ref="filtersBtn" type="button" value="Filtros" @click="toggleFilters"
         class="filtro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-brand-e1e5e5 text-brand-5f6060 rounded-lg px-4 py-2 hover cursor-pointer" />
 
-      <input type="button" value="Cadastrar usuário" @click="openCadastro"
+      <input v-if="hasPermission('Usuários — Criar') || isAdmin() || hasPermission('Usuários — Aceitar/Aprovar')"
+        type="button" value="Cadastrar usuário" @click="openCadastro"
         class="cadastro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-brand-cad8fd border border-brand-3b67d0 text-white rounded-lg px-4 py-2 hover cursor-pointer ml-16" />
+      <input v-else disabled type="button" value="Cadastrar usuário"
+        class="cadastro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-slate-300 text-white rounded-lg px-4 py-2 ml-16 opacity-60" />
     </div>
 
     <div v-if="showFilters" ref="filtersDropdown"
@@ -195,7 +211,7 @@ export default {
         <option value="">Todos</option>
         <option value="ativo">Ativo</option>
         <option value="pendente">Pendente</option>
-        <option value="inativo">Inativo</option>
+  <option value="desativado">Desativado</option>
       </select>
 
       <label class="block text-sm text-brand-5f6060 mb-1">Cargo</label>
@@ -244,7 +260,8 @@ export default {
             <Card v-for="u in paginatedUsers" :key="u.id" :userId="u.id" :name="u.nomeCompleto || '—'"
               :email="u.email || '—'" :cargo="cargoName(u)" :permisao="getPermissao(u)"
               :status="mapSituacao(u.situacao)" :updating="Boolean(statusLoading[u.id])" :cargos="cargos"
-              @change-status="onChangeStatus" />
+              :canApprove="hasPermission('Usuários — Aceitar/Aprovar')" :canRemove="hasPermission('Usuários — Remover') || isAdmin()"
+              @change-status="onChangeStatus" @removed="onUserRemoved" />
           </tbody>
         </table>
 
@@ -261,6 +278,7 @@ export default {
         </div>
       </div>
     </div>
+    <ModalCadastroUsuario v-if="showCreateModal" @close="showCreateModal = false" />
   </div>
 </template>
 

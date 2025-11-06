@@ -1,12 +1,13 @@
 import { Request, Response } from 'express';
 import { empresaService } from '../services/empresa.service';
+import { enviarResposta } from '../middlewares/auditoria';
 
 // Funções que lidam diretamente com as requisições e respostas HTTP.
 export const empresaController = {
   async create(req: Request, res: Response) {
     try {
       const empresa = await empresaService.create(req.body);
-      res.status(201).json(empresa);
+      return enviarResposta(res, 201, empresa);
     } catch (error: any) {
       res.status(400).json({ error: error.message || 'Erro ao criar empresa' });
     }
@@ -20,7 +21,7 @@ export const empresaController = {
   async findById(req: Request, res: Response) {
     const id = Number(req.params.id);
     if (isNaN(id)) {
-        return res.status(400).json({ error: 'ID inválido' });
+      return res.status(400).json({ error: 'ID inválido' });
     }
     const empresa = await empresaService.findById(id);
     if (!empresa) {
@@ -31,8 +32,8 @@ export const empresaController = {
 
   async update(req: Request, res: Response) {
     const id = Number(req.params.id);
-     if (isNaN(id)) {
-        return res.status(400).json({ error: 'ID inválido' });
+    if (isNaN(id)) {
+      return res.status(400).json({ error: 'ID inválido' });
     }
     try {
       const exists = await empresaService.findById(id);
@@ -40,7 +41,7 @@ export const empresaController = {
         return res.status(404).json({ error: 'Empresa não encontrada para atualizar' });
       }
       const empresa = await empresaService.update(id, req.body);
-      res.status(200).json(empresa);
+      return enviarResposta(res, 200, empresa);
     } catch (error: any) {
       res.status(400).json({ error: error.message || 'Erro ao atualizar empresa' });
     }
@@ -48,8 +49,8 @@ export const empresaController = {
 
   async remove(req: Request, res: Response) {
     const id = Number(req.params.id);
-     if (isNaN(id)) {
-        return res.status(400).json({ error: 'ID inválido' });
+    if (isNaN(id)) {
+      return res.status(400).json({ error: 'ID inválido' });
     }
     try {
       const exists = await empresaService.findById(id);
@@ -57,6 +58,7 @@ export const empresaController = {
         return res.status(404).json({ error: 'Empresa não encontrada para remover' });
       }
       await empresaService.remove(id);
+      res.locals.entidadeId = id;
       res.status(204).send(); // Sucesso sem conteúdo
     } catch (error: any) {
       // Captura erros de restrição de chave estrangeira, por exemplo
