@@ -45,14 +45,48 @@
           <p class="mt-1 text-xs text-slate-500">Você será incluído automaticamente.</p>
         </div>
 
+        <div>
+          <label class="block">
+            <span class="mb-1 block text-xs font-medium text-slate-600">Título da reunião</span>
+            <input type="text" v-model="form.tituloReuniao" placeholder="Ex: Reunião inicial - Empresa XYZ"
+              class="w-full rounded-lg border border-slate-300 p-2 text-sm focus:border-sidebar focus:outline-none" />
+          </label>
+        </div>
+
         <div class="grid grid-cols-2 gap-2">
           <label class="block">
             <span class="mb-1 block text-xs font-medium text-slate-600">Data da reunião inicial</span>
-            <input type="date" v-model="form.date" class="w-full rounded-lg border border-slate-300 p-2 text-sm" />
+            <input type="date" v-model="form.date" required
+              class="w-full rounded-lg border border-slate-300 p-2 text-sm focus:border-sidebar focus:outline-none" />
           </label>
           <label class="block">
             <span class="mb-1 block text-xs font-medium text-slate-600">Hora</span>
-            <input type="time" v-model="form.time" class="w-full rounded-lg border border-slate-300 p-2 text-sm" />
+            <input type="time" v-model="form.time" required
+              class="w-full rounded-lg border border-slate-300 p-2 text-sm focus:border-sidebar focus:outline-none" />
+          </label>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <label class="block">
+            <span class="mb-1 block text-xs font-medium text-slate-600">Reunião presencial?</span>
+            <select v-model="form.presencial"
+              class="w-full rounded-lg border border-slate-300 p-2 text-sm focus:border-sidebar focus:outline-none">
+              <option :value="true">Sim</option>
+              <option :value="false">Não (Online)</option>
+            </select>
+          </label>
+          <label class="block">
+            <span class="mb-1 block text-xs font-medium text-slate-600">Local/Link</span>
+            <input type="text" v-model="form.local" placeholder="Endereço ou link da reunião"
+              class="w-full rounded-lg border border-slate-300 p-2 text-sm focus:border-sidebar focus:outline-none" />
+          </label>
+        </div>
+
+        <div>
+          <label class="block">
+            <span class="mb-1 block text-xs font-medium text-slate-600">Pauta da reunião</span>
+            <textarea v-model="form.pauta" rows="3" placeholder="Digite a pauta da reunião..."
+              class="w-full rounded-lg border border-slate-300 p-2 text-sm focus:border-sidebar focus:outline-none resize-none"></textarea>
           </label>
         </div>
 
@@ -87,7 +121,16 @@ const submitting = ref(false)
 const searchQuery = ref('')
 const showDropdown = ref(false)
 const selectedUsuarios = ref<Usuario[]>([])
-const form = reactive({ nome: '', participantIds: [] as number[], date: '', time: '' })
+const form = reactive({
+  nome: '',
+  participantIds: [] as number[],
+  date: '',
+  time: '',
+  tituloReuniao: '',
+  presencial: true,
+  local: '',
+  pauta: ''
+})
 
 const filteredUsuarios = computed(() => {
   if (!searchQuery.value.trim()) return usuarios.value;
@@ -136,15 +179,25 @@ function isoFromDateTime(date: string, time: string) {
 
 async function onSubmit() {
   try {
+    if (!form.date || !form.time) {
+      notify?.error?.('Data e hora da reunião são obrigatórios')
+      return
+    }
     submitting.value = true
     const scheduledAt = isoFromDateTime(form.date, form.time)
     const payload: any = {
       nome: form.nome || undefined,
       participantIds: form.participantIds,
-      scheduledAt
+      scheduledAt,
+      reuniao: {
+        titulo: form.tituloReuniao || form.nome || 'Reunião inicial',
+        presencial: form.presencial,
+        local: form.local || undefined,
+        pauta: form.pauta || undefined
+      }
     }
     const flow = await startFlow(payload)
-    notify?.success?.('Fluxo iniciado e participantes notificados')
+    notify?.success?.('Fluxo iniciado, reunião criada e participantes notificados')
     emit('started', flow)
     emit('close')
   } catch (e: any) {

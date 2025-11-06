@@ -1,21 +1,77 @@
 import { prisma } from '../utils/prisma';
 
 export const flowRepo = {
-  async createFlow(empresaId: number | null | undefined, iniciadorId: number, nome?: string, scheduledAt?: Date, participants?: number[]) {
-    return prisma.contractFlow.create({
-      data: {
-        nome: nome ?? null,
-        empresaId: empresaId ?? null,
-        iniciadorId,
-        status: 'ATIVO',
-        steps: {
-          create: [{ type: 'REUNIAO', status: 'PENDENTE', scheduledAt: scheduledAt ?? null } as any],
+  async createFlow(
+    empresaId: number | null | undefined,
+    iniciadorId: number,
+    nome?: string,
+    scheduledAt?: Date,
+    participants?: number[],
+    reuniaoData?: { titulo?: string; presencial?: boolean; local?: string; pauta?: string }
+  ) {
+    return prisma.$transaction(async (tx: any) => {
+      // 1. Criar ou obter empresa temporária se não existir
+      let finalEmpresaId = empresaId;
+      if (!finalEmpresaId && reuniaoData) {
+        // Se não tiver empresa, criar uma temporária para a reunião
+        const tempEmpresa = await tx.empresa.create({
+          data: {
+            razaoSocial: 'Empresa Temporária - ' + (nome || 'Fluxo'),
+            cnpj: '00000000000000', // CNPJ temporário
+            nomeFantasia: nome || 'Empresa em Cadastro',
+          },
+        });
+        finalEmpresaId = tempEmpresa.id;
+      }
+
+      // 2. Criar o fluxo
+      const flow = await tx.contractFlow.create({
+        data: {
+          nome: nome ?? null,
+          empresaId: finalEmpresaId ?? null,
+          iniciadorId,
+          status: 'ATIVO',
+          steps: {
+            create: [{ type: 'REUNIAO', status: 'PENDENTE', scheduledAt: scheduledAt ?? null } as any],
+          },
+          participantes: participants?.length
+            ? { createMany: { data: participants.map((usuarioId) => ({ usuarioId })) } }
+            : undefined,
         },
-        participantes: participants?.length
-          ? { createMany: { data: participants.map((usuarioId) => ({ usuarioId })) } }
-          : undefined,
-      },
-      include: { steps: true, participantes: true, empresa: true },
+        include: { steps: true, participantes: true, empresa: true },
+      });
+
+      // 3. Criar a reunião se houver dados e empresaId
+      if (finalEmpresaId && scheduledAt && reuniaoData) {
+        const dataReuniao = new Date(scheduledAt);
+        const horaReuniao = new Date(scheduledAt);
+
+        const reuniao = await tx.reuniao.create({
+          data: {
+            titulo: reuniaoData.titulo || nome || 'Reunião inicial',
+            empresaId: finalEmpresaId,
+            data: dataReuniao,
+            hora: horaReuniao,
+            presencial: reuniaoData.presencial ?? true,
+            local: reuniaoData.local ?? null,
+            pauta: reuniaoData.pauta ?? null,
+            status: 'AGENDADA',
+          },
+        });
+
+        // 4. Adicionar participantes à reunião
+        if (participants?.length) {
+          await tx.participanteReuniao.createMany({
+            data: participants.map((usuarioId) => ({
+              reuniaoId: reuniao.id,
+              usuarioId,
+              status: 'CONFIRMADO',
+            })),
+          });
+        }
+      }
+
+      return flow;
     });
   },
 

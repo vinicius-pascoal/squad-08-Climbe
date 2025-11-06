@@ -8,14 +8,15 @@ export const flowController = {
     const userId = (req as any).userId as number | undefined;
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
-    const { nome, empresaId, participantIds, scheduledAt } = req.body || {};
+    const { nome, empresaId, participantIds, scheduledAt, reuniao } = req.body || {};
     const when = scheduledAt ? new Date(scheduledAt) : undefined;
     const created = await flowService.start(
       typeof empresaId === 'number' ? empresaId : null,
       userId,
       nome,
       when,
-      participantIds
+      participantIds,
+      reuniao
     );
     return enviarResposta(res, 201, created);
   },

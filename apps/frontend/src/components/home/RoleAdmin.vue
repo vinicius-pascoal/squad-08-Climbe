@@ -17,8 +17,8 @@
     <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">Atalhos de Admin</h3>
     <div class="grid grid-cols-2 gap-4">
       <button @click="props.openIniciarFluxo?.()"
-        class="flex flex-col items-center justify-center p-4 bg-gradient-to-br from-sidebar to-indigo-600 shadow-lg rounded-lg text-white hover:shadow-xl transition-all w-full text-center">
-        <span class="mb-2 text-2xl">🔄</span>
+        class="flex flex-col items-center justify-center p-4 bg-white dark:bg-gray-700 shadow-sm dark:shadow-transparent rounded-lg text-indigo-700 dark:text-indigo-200 transition-colors w-full text-center">
+        <span class="mb-2">🔄</span>
         <span class="text-sm font-semibold">Iniciar Fluxo</span>
       </button>
       <button @click="props.openCadastroUsuario?.()"

@@ -10,8 +10,22 @@ const STEP_LABEL: Record<string, string> = {
 };
 
 export const flowService = {
-  async start(empresaId: number | null | undefined, iniciadorId: number, nome?: string, scheduledAt?: Date, participantIds?: number[]) {
-    const created = await flowRepo.createFlow(empresaId, iniciadorId, nome, scheduledAt, Array.from(new Set([iniciadorId, ...(participantIds || [])])));
+  async start(
+    empresaId: number | null | undefined,
+    iniciadorId: number,
+    nome?: string,
+    scheduledAt?: Date,
+    participantIds?: number[],
+    reuniaoData?: { titulo?: string; presencial?: boolean; local?: string; pauta?: string }
+  ) {
+    const created = await flowRepo.createFlow(
+      empresaId,
+      iniciadorId,
+      nome,
+      scheduledAt,
+      Array.from(new Set([iniciadorId, ...(participantIds || [])])),
+      reuniaoData
+    );
 
     // Notificar participantes da reunião inicial
     try {

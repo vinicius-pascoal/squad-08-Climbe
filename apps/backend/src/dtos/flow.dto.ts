@@ -5,6 +5,12 @@ export const startFlowBodySchema = z.object({
   empresaId: z.number().int().positive().optional(),
   participantIds: z.array(z.number().int().positive()).optional(),
   scheduledAt: z.string().datetime().optional(), // ISO para reunião inicial
+  reuniao: z.object({
+    titulo: z.string().min(1).max(255).optional(),
+    presencial: z.boolean().optional(),
+    local: z.string().max(255).optional(),
+    pauta: z.string().optional()
+  }).optional()
 });
 
 export const advanceFlowParamsSchema = z.object({ id: z.string().regex(/^\d+$/) });

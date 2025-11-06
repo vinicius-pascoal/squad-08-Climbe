@@ -67,9 +67,9 @@
     <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">Ações Rápidas</h3>
     <div class="space-y-3">
       <button @click="props.openIniciarFluxo?.()"
-        class="w-full flex items-center gap-3 p-3 bg-gradient-to-r from-sidebar to-indigo-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all">
-        <span class="text-xl">🔄</span>
-        <span class="font-semibold">Iniciar Fluxo de Contrato</span>
+        class="w-full flex items-center gap-2 text-blue-700 dark:text-blue-300 hover:underline text-left">
+        <span>🔄</span>
+        <span>Iniciar Fluxo de Contrato</span>
       </button>
       <a href="#" class="flex items-center gap-2 text-blue-700 dark:text-blue-300 hover:underline"><i
           data-lucide="pie-chart"></i>
