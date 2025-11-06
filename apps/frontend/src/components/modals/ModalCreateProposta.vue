@@ -79,7 +79,10 @@ import { hasPermission } from '../../services/auth';
 
 type Empresa = { id: number; razaoSocial?: string; nomeFantasia?: string };
 
-const emit = defineEmits(['close']);
+const emit = defineEmits<{
+  (e: 'close'): void;
+  (e: 'saved', proposta: any): void;
+}>();
 const _ins = getCurrentInstance();
 const notify = _ins?.appContext.config.globalProperties.$notify as any;
 
@@ -135,9 +138,10 @@ async function onSubmit() {
       notify?.info('Upload de documentos será implementado em breve');
     }
 
-    await http('/api/propostas', { method: 'POST', body: JSON.stringify(payload) });
+    const proposta = await http('/api/propostas', { method: 'POST', body: JSON.stringify(payload) });
 
     notify?.success('Proposta criada com sucesso!');
+    emit('saved', proposta);
     emit('close');
   } catch (e: any) {
     const message = e?.message || 'Erro ao criar a proposta.';

@@ -176,7 +176,45 @@ eventRouter.get('/user', async (req, res) => {
       });
     }
 
-    // 2) google events (optional)
+    // 2) fluxo de contrato: etapas agendadas
+    if (userId) {
+      const steps = await prisma.contractFlowStep.findMany({
+        where: {
+          scheduledAt: { not: null },
+          flow: { participantes: { some: { usuarioId: userId } } },
+        },
+        include: { flow: { include: { empresa: true } } },
+        orderBy: { scheduledAt: 'asc' },
+      });
+
+      for (const s of steps) {
+        const empresaNome = s.flow.empresa?.nomeFantasia || s.flow.empresa?.razaoSocial || '';
+        const labelMap: Record<string, string> = {
+          REUNIAO: 'Reunião',
+          PROPOSTA: 'Proposta',
+          CONTRATO: 'Contrato',
+          CRIACAO_EMPRESA: 'Criação da Empresa',
+        };
+        const base = `[Fluxo] ${labelMap[(s as any).type] || s.type}`;
+        const titulo = empresaNome ? `${base} — ${empresaNome}` : base;
+        const start = s.scheduledAt ? new Date(s.scheduledAt) : null;
+        results.push({
+          id: `flow-step-${s.id}`,
+          source: 'flow',
+          flowId: s.flow.id,
+          stepId: s.id,
+          stepType: s.type,
+          summary: titulo,
+          description: `Etapa do fluxo de contrato (${s.type})${empresaNome ? ` para ${empresaNome}` : ''}`,
+          start: start ? start.toISOString() : null,
+          end: start ? new Date(start.getTime() + 60 * 60 * 1000).toISOString() : null,
+          location: '',
+          attendees: [],
+        });
+      }
+    }
+
+    // 3) google events (optional)
     const googleToken = extractGoogleAccessToken(req);
     if (googleToken) {
       const items = await getGoogleEvents(googleToken);

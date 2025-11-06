@@ -108,6 +108,7 @@
                 <th class="px-3 py-2 font-semibold">CNPJ</th>
                 <th class="px-3 py-2 font-semibold">E-mail do Representante</th>
                 <th class="px-3 py-2 font-semibold">Status</th>
+                <th class="px-3 py-2 font-semibold text-center">Ações</th>
               </tr>
             </thead>
 
@@ -143,6 +144,14 @@
                 </td>
                 <td class="px-3 py-3">
                   <span :class="statusClasses(c.status)">{{ c.status }}</span>
+                </td>
+                <td class="px-3 py-3 text-center space-x-2">
+                  <button @click="openFluxo(c.id)"
+                    class="rounded-lg border border-slate-300 px-3 py-1.5 text-xs hover:bg-slate-50">Iniciar
+                    fluxo</button>
+                  <button v-if="activeFlowFor(c.id)" @click="openAdvance(activeFlowFor(c.id)!.id, c.id)"
+                    class="rounded-lg border border-emerald-300 px-3 py-1.5 text-xs text-emerald-700 hover:bg-emerald-50">Avançar
+                    etapa</button>
                 </td>
               </tr>
             </tbody>
@@ -185,13 +194,43 @@
   </div>
 
   <CompanyWizard v-model:open="wizardOpen" api-url="/api/empresas" @saved="handleSaved" />
+  <ModalIniciarFluxo v-if="fluxoOpen" :empresa-id="fluxoEmpresaId" @close="fluxoOpen = false" @started="onFlowStarted" />
+
+  <!-- Modal avançar etapa -->
+  <div v-if="advanceOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+    <div class="w-full max-w-md rounded-xl bg-white p-5 shadow-xl">
+      <header class="mb-4 flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-slate-800">Agendar próxima etapa</h3>
+        <button class="text-slate-500 hover:text-slate-700" @click="advanceOpen = false">✕</button>
+      </header>
+      <div class="grid grid-cols-2 gap-2">
+        <label class="block">
+          <span class="mb-1 block text-xs font-medium text-slate-600">Data</span>
+          <input type="date" v-model="advanceDate" class="w-full rounded-lg border border-slate-300 p-2 text-sm" />
+        </label>
+        <label class="block">
+          <span class="mb-1 block text-xs font-medium text-slate-600">Hora</span>
+          <input type="time" v-model="advanceTime" class="w-full rounded-lg border border-slate-300 p-2 text-sm" />
+        </label>
+      </div>
+      <footer class="mt-4 flex justify-end gap-2">
+        <button type="button" class="rounded-lg border border-slate-300 px-4 py-2 text-sm"
+          @click="advanceOpen = false">Cancelar</button>
+        <button type="button" :disabled="advancing"
+          class="rounded-lg bg-sidebar px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+          @click="confirmAdvance">{{ advancing ? 'Avançando...' : 'Confirmar' }}</button>
+      </footer>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref, computed, watch, getCurrentInstance } from 'vue'
 import CompanyWizard from '../components/modals/company-wizard/CompanyWizard.vue'
+import ModalIniciarFluxo from '../components/modals/ModalIniciarFluxo.vue'
 import { http } from '../lib/http'
 import { currentUser } from '../services/auth'
+import { listMyFlows, advanceFlow } from '../services/flow'
 
 type Status = 'Ativa' | 'Pendente' | 'Inativa'
 type Company = {
@@ -218,6 +257,15 @@ const companies = ref<Company[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
 const wizardOpen = ref(false)
+const fluxoOpen = ref(false)
+const fluxoEmpresaId = ref<number | undefined>(undefined)
+const myFlows = ref<any[]>([])
+const advanceOpen = ref(false)
+const advanceFlowId = ref<number | null>(null)
+const advanceEmpresaId = ref<number | null>(null)
+const advancing = ref(false)
+const advanceDate = ref('')
+const advanceTime = ref('')
 const pageCount = computed(() => Math.max(1, Math.ceil(total.value / pageSize.value)))
 const pageStart = computed(() => (total.value === 0 ? 0 : (page.value - 1) * pageSize.value + 1))
 const pageEnd = computed(() => Math.min(total.value, page.value * pageSize.value))
@@ -303,8 +351,63 @@ function onCreate() {
   wizardOpen.value = true
 }
 
+function openFluxo(empresaId: number) {
+  fluxoEmpresaId.value = empresaId
+  fluxoOpen.value = true
+}
+
+function onFlowStarted(_flow: any) {
+  // opcional: feedback extra
+}
+
+function activeFlowFor(empresaId: number) {
+  return myFlows.value.find((f: any) => f.empresaId === empresaId && f.status !== 'CONCLUIDO' && f.status !== 'CANCELADO')
+}
+
+function openAdvance(flowId: number, empresaId: number) {
+  advanceFlowId.value = flowId
+  advanceEmpresaId.value = empresaId
+  advanceDate.value = ''
+  advanceTime.value = ''
+  advanceOpen.value = true
+}
+
+function toIso(date: string, time: string) {
+  if (!date) return undefined
+  const [y, m, d] = date.split('-').map(Number)
+  const dt = new Date(y, (m || 1) - 1, d || 1)
+  if (time) {
+    const [hh, mm] = time.split(':').map(Number)
+    dt.setHours(hh || 9, mm || 0, 0, 0)
+  }
+  return dt.toISOString()
+}
+
+async function confirmAdvance() {
+  try {
+    if (!advanceFlowId.value) return
+    advancing.value = true
+    const iso = toIso(advanceDate.value, advanceTime.value)
+    await advanceFlow(advanceFlowId.value, iso)
+    notify?.success?.('Próxima etapa criada e notificada')
+    advanceOpen.value = false
+    await fetchMyFlows()
+  } catch (e: any) {
+    notify?.error?.(e?.message || 'Falha ao avançar etapa')
+  } finally {
+    advancing.value = false
+  }
+}
+
+async function fetchMyFlows() {
+  try {
+    const data = await listMyFlows()
+    myFlows.value = Array.isArray(data) ? data : []
+  } catch (e) { /* ignore */ }
+}
+
 watch([page, pageSize], fetchCompanies)
-onMounted(fetchCompanies)
+onMounted(() => { fetchCompanies(); fetchMyFlows(); })
 </script>
 
 <style scoped></style>

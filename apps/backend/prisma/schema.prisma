@@ -7,6 +7,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Fluxo de contrato: enum para etapas
+enum FlowStepType {
+  REUNIAO
+  PROPOSTA
+  CONTRATO
+  CRIACAO_EMPRESA
+}
+
 model Usuario {
   id                 Int                   @id @default(autoincrement()) @map("id_usuario")
   nomeCompleto       String                @map("nome_completo") @db.VarChar(255)
@@ -23,6 +31,10 @@ model Usuario {
   usuarioPermissoes  UsuarioPermissao[]
   tarefas            Tarefa[]
   auditorias         Auditoria[]
+  // Fluxos de contrato onde o usuário é iniciador
+  flowsIniciados     ContractFlow[]        @relation("ContractFlowIniciador")
+  // Participações em fluxos de contrato
+  flowParticipacoes  FlowParticipant[]
 
   @@index([cargoId])
   @@map("usuarios")
@@ -88,6 +100,8 @@ model Empresa {
   reunioes             Reuniao[]
   documentos           Documento[]
   servicos             EmpresaServico[]
+  // Fluxos de contrato associados à empresa
+  flows                ContractFlow[]
 
   @@map("empresas")
 }
@@ -112,14 +126,16 @@ model EmpresaServico {
 }
 
 model Proposta {
-  id          Int        @id @default(autoincrement()) @map("id_proposta")
-  empresaId   Int        @map("empresa_id")
-  usuarioId   Int        @map("usuario_id")
-  status      String?    @db.VarChar(255)
-  dataCriacao DateTime   @map("data_criacao")
-  empresa     Empresa    @relation(fields: [empresaId], references: [id])
-  usuario     Usuario    @relation(fields: [usuarioId], references: [id])
+  id          Int            @id @default(autoincrement()) @map("id_proposta")
+  empresaId   Int            @map("empresa_id")
+  usuarioId   Int            @map("usuario_id")
+  status      String?        @db.VarChar(255)
+  dataCriacao DateTime       @map("data_criacao")
+  empresa     Empresa        @relation(fields: [empresaId], references: [id])
+  usuario     Usuario        @relation(fields: [usuarioId], references: [id])
   contratos   Contrato[]
+  // Fluxo de contrato associado (rel. nomeada)
+  flows       ContractFlow[] @relation("FlowProposta")
 
   @@index([empresaId])
   @@index([usuarioId])
@@ -127,9 +143,9 @@ model Proposta {
 }
 
 model Contrato {
-  id         String      @id @default(uuid()) @map("id_contrato")
+  id         String         @id @default(uuid()) @map("id_contrato")
   nome       String
-  propostaId Int?        @map("id_proposta")
+  propostaId Int?           @map("id_proposta")
   status     String?
   descricao  String?
   valor      Float
@@ -138,9 +154,11 @@ model Contrato {
   envolvidos String?
   acoes      String?
   permissoes String?
-  Proposta   Proposta?   @relation(fields: [propostaId], references: [id])
+  Proposta   Proposta?      @relation(fields: [propostaId], references: [id])
   Planilha   Planilha[]
   Relatorio  Relatorio[]
+  // Fluxo de contrato associado (rel. nomeada)
+  flows      ContractFlow[] @relation("FlowContrato")
 
   @@index([propostaId])
   @@map("contratos")
@@ -255,4 +273,61 @@ model Auditoria {
   @@index([entidade])
   @@index([dataCriacao])
   @@map("auditorias")
+}
+
+// Fluxo de contrato: entidade principal
+model ContractFlow {
+  id          Int      @id @default(autoincrement()) @map("id_fluxo")
+  nome        String?  @db.VarChar(255)
+  empresaId   Int?     @map("empresa_id")
+  iniciadorId Int      @map("iniciador_id")
+  status      String?  @db.VarChar(50)
+  createdAt   DateTime @default(now()) @map("criado_em")
+  updatedAt   DateTime @updatedAt @map("atualizado_em")
+  propostaId  Int?     @map("proposta_id")
+  contratoId  String?  @map("contrato_id")
+
+  empresa       Empresa?           @relation(fields: [empresaId], references: [id])
+  iniciador     Usuario            @relation("ContractFlowIniciador", fields: [iniciadorId], references: [id])
+  Proposta      Proposta?          @relation("FlowProposta", fields: [propostaId], references: [id])
+  Contrato      Contrato?          @relation("FlowContrato", fields: [contratoId], references: [id])
+  steps         ContractFlowStep[]
+  participantes FlowParticipant[]
+
+  @@index([empresaId])
+  @@index([iniciadorId])
+  @@index([propostaId])
+  @@index([contratoId])
+  @@map("fluxos_contrato")
+}
+
+// Fluxo de contrato: etapas
+model ContractFlowStep {
+  id          Int          @id @default(autoincrement()) @map("id_fluxo_step")
+  flowId      Int          @map("id_fluxo")
+  type        FlowStepType @map("tipo")
+  status      String?      @db.VarChar(50)
+  scheduledAt DateTime?    @map("agendado_em")
+  completedAt DateTime?    @map("concluido_em")
+  createdAt   DateTime     @default(now()) @map("criado_em")
+
+  flow ContractFlow @relation(fields: [flowId], references: [id])
+
+  @@index([flowId])
+  @@index([type])
+  @@map("fluxo_etapas")
+}
+
+// Fluxo de contrato: participantes
+model FlowParticipant {
+  flowId    Int     @map("id_fluxo")
+  usuarioId Int     @map("id_usuario")
+  role      String? @db.VarChar(50)
+
+  flow    ContractFlow @relation(fields: [flowId], references: [id])
+  usuario Usuario      @relation(fields: [usuarioId], references: [id])
+
+  @@id([flowId, usuarioId])
+  @@index([usuarioId])
+  @@map("fluxo_participantes")
 }

@@ -20,16 +20,32 @@
     </div>
 
     <!--Widget da Agenda-->
-    <AgendaWidget class="main-agenda-widget" />
+    <AgendaWidget ref="agendaRef" class="main-agenda-widget" @event-click="onAgendaEventClick" />
+
+    <!-- Ações rápidas -->
+    <div class="widget-card actions-widget">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-semibold text-slate-800">Ações</h3>
+        <button v-if="canStartFlow" @click="showStartFlow = true"
+          class="rounded-lg bg-sidebar px-3 py-1.5 text-sm font-semibold text-white">
+          Iniciar Fluxo
+        </button>
+      </div>
+    </div>
 
     <div class="role-row">
       <component :is="roleComponent" v-bind="roleModalHandlers" />
     </div>
 
     <!-- Modals for quick creation (opened by role buttons) -->
-    <ModalCreateProposta v-if="showPropostaModal" @close="showPropostaModal = false" />
-    <ModalNovoContrato v-if="showContratoModal" @close="showContratoModal = false" />
+    <ModalCreateProposta v-if="showPropostaModal" @close="handleClosePropostaModal" @saved="onPropostaSaved" />
+    <ModalNovoContrato v-if="showContratoModal" @close="handleCloseContratoModal" @saved="onContratoSaved" />
     <ModalCadastroUsuario v-if="showCadastroModal" @close="showCadastroModal = false" />
+
+    <!-- Fluxo -->
+    <ModalIniciarFluxo v-if="showStartFlow" @close="showStartFlow = false" @started="onFlowStarted" />
+    <CompanyWizard v-if="showEmpresaModal" v-model:open="showEmpresaModal" api-url="/api/empresas"
+      @saved="onEmpresaSaved" />
 
     <AddEventModal v-if="isAddEventModalOpen" @close="closeAddEventModal" @add="addActivity"
       :selectedDate="selectedDate" />
@@ -59,9 +75,13 @@ import { currentUser } from '../services/auth';
 import ModalCreateProposta from '../components/modals/ModalCreateProposta.vue';
 import ModalNovoContrato from '../components/modals/ModalNovoContrato.vue';
 import ModalCadastroUsuario from '../components/modals/ModalCadastroUsuario.vue';
+import ModalIniciarFluxo from '../components/modals/ModalIniciarFluxo.vue';
+import CompanyWizard from '../components/modals/company-wizard/CompanyWizard.vue';
 
 // Serviços
 import calendarApi, { listCalendarEvents, listUserEvents, addCalendarEvent } from '../services/calendar';
+import { advanceFlow, linkProposta, linkContrato } from '../services/flow';
+import { http } from '../lib/http';
 
 // --- ESTADO DO WIDGET DE CALENDÁRIO ---
 const selectedDate = ref<Date>(new Date());
@@ -69,6 +89,10 @@ const viewDate = ref<Date>(new Date());
 const activitiesAll = ref<any[]>([]);
 const activities = activitiesAll; // compat shorthand for older code using 'activities'
 const isAddEventModalOpen = ref(false);
+const showStartFlow = ref(false);
+const showEmpresaModal = ref(false);
+const agendaRef = ref<any>(null);
+const currentFlowContext = ref<{ flowId: number; stepType: string } | null>(null);
 
 const monthYearDisplay = computed(() => {
   return viewDate.value.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
@@ -107,6 +131,120 @@ const activitiesForSelectedDate = computed(() =>
 
 const openAddEventModal = () => { isAddEventModalOpen.value = true; };
 const closeAddEventModal = () => { isAddEventModalOpen.value = false; };
+
+const canStartFlow = computed(() => {
+  const cargo = String(currentUser?.value?.cargoNome || currentUser?.value?.cargo || '').toLowerCase();
+  return cargo.includes('admin') || cargo.includes('ceo');
+});
+
+function onFlowStarted() {
+  // re-carregar eventos do usuário para refletir nova reunião
+  loadAllUserEvents();
+  agendaRef.value?.loadEvents();
+}
+
+async function onAgendaEventClick(ev: any) {
+  // Se for evento de fluxo, abrir o modal da etapa atual
+  if (ev.source === 'flow' && ev.flowId && ev.stepType) {
+    currentFlowContext.value = { flowId: ev.flowId, stepType: ev.stepType };
+
+    const instance = getCurrentInstance();
+    const $notify = instance?.appContext.config.globalProperties.$notify;
+
+    // Mapa de etapas para modais
+    const stepMap: Record<string, () => void> = {
+      REUNIAO: () => {
+        // Para reunião, podemos abrir o modal de criar evento ou um aviso
+        $notify?.info?.('Reunião agendada. Use o calendário para adicionar mais detalhes.');
+      },
+      PROPOSTA: () => {
+        showPropostaModal.value = true;
+      },
+      CONTRATO: () => {
+        showContratoModal.value = true;
+      },
+      CRIACAO_EMPRESA: () => {
+        showEmpresaModal.value = true;
+      },
+    };
+
+    const action = stepMap[ev.stepType];
+    if (action) {
+      action();
+    } else {
+      $notify?.warning?.(`Etapa ${ev.stepType} não reconhecida`);
+    }
+  }
+}
+
+function handleClosePropostaModal() {
+  showPropostaModal.value = false;
+  currentFlowContext.value = null;
+}
+
+function handleCloseContratoModal() {
+  showContratoModal.value = false;
+  currentFlowContext.value = null;
+}
+
+async function onPropostaSaved(proposta: any) {
+  const instance = getCurrentInstance();
+  const $notify = instance?.appContext.config.globalProperties.$notify;
+
+  if (currentFlowContext.value?.flowId) {
+    try {
+      await linkProposta(currentFlowContext.value.flowId, proposta.id);
+      await advanceFlow(currentFlowContext.value.flowId);
+      $notify?.success?.('Proposta vinculada e fluxo avançado!');
+      loadAllUserEvents();
+      agendaRef.value?.loadEvents();
+    } catch (e: any) {
+      $notify?.error?.(e?.message || 'Erro ao vincular proposta');
+    }
+  }
+  handleClosePropostaModal();
+}
+
+async function onContratoSaved(contrato: any) {
+  const instance = getCurrentInstance();
+  const $notify = instance?.appContext.config.globalProperties.$notify;
+
+  if (currentFlowContext.value?.flowId) {
+    try {
+      await linkContrato(currentFlowContext.value.flowId, contrato.id);
+      await advanceFlow(currentFlowContext.value.flowId);
+      $notify?.success?.('Contrato vinculado e fluxo avançado!');
+      loadAllUserEvents();
+      agendaRef.value?.loadEvents();
+    } catch (e: any) {
+      $notify?.error?.(e?.message || 'Erro ao vincular contrato');
+    }
+  }
+  handleCloseContratoModal();
+}
+
+async function onEmpresaSaved(empresa: any) {
+  const instance = getCurrentInstance();
+  const $notify = instance?.appContext.config.globalProperties.$notify;
+
+  if (currentFlowContext.value?.flowId) {
+    try {
+      // Vincular empresa ao fluxo (atualizar empresaId)
+      await http(`/api/flows/${currentFlowContext.value.flowId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ empresaId: empresa.id }),
+      });
+      await advanceFlow(currentFlowContext.value.flowId);
+      $notify?.success?.('Empresa criada, fluxo concluído!');
+      loadAllUserEvents();
+      agendaRef.value?.loadEvents();
+    } catch (e: any) {
+      $notify?.error?.(e?.message || 'Erro ao vincular empresa');
+    }
+  }
+  showEmpresaModal.value = false;
+  currentFlowContext.value = null;
+}
 
 // --- Integração com backend de eventos/Google Calendar ---
 async function loadEventsForSelectedDate() {

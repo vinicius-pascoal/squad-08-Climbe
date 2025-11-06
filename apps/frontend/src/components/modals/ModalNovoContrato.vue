@@ -117,7 +117,10 @@
 import { ref, getCurrentInstance } from 'vue';
 import { createcontrato } from '../../services/contract';
 import Swal from 'sweetalert2';
-const emit = defineEmits(['close']);
+const emit = defineEmits<{
+  (e: 'close'): void;
+  (e: 'saved', contrato: any): void;
+}>();
 
 const formData = ref({
   id: '',
@@ -173,10 +176,11 @@ const handleSubmit = async () => {
     if (formData.value.envolvidos && formData.value.envolvidos.trim()) payload.envolvidos = formData.value.envolvidos.trim();
     if (formData.value.descricao && formData.value.descricao.trim()) payload.descricao = formData.value.descricao.trim();
 
-    await createcontrato(payload);
+    const contrato = await createcontrato(payload);
 
     await Swal.fire({ icon: 'success', title: 'Sucesso!', text: 'Contrato criado com sucesso!', confirmButtonText: 'OK' });
 
+    emit('saved', contrato);
     emit('close');
   } catch (error: any) {
     console.error('Erro ao criar contrato:', error);

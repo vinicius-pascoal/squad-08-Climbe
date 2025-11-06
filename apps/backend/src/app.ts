@@ -15,6 +15,7 @@ import { driveRouter } from './routes/drive.routes';
 import propostaRouter from './routes/proposta.routes';
 import auditoriaRouter from './routes/auditoria.routes';
 import meRouter from './routes/me.routes';
+import flowRouter from './routes/flow.routes';
 
 export const app = express();
 app.use(cors());
@@ -38,6 +39,7 @@ app.use('/api/empresas', empresaRouter);
 app.use('/api/propostas', propostaRouter);
 app.use('/api/auditorias', auditoriaRouter);
 app.use('/api/me', meRouter);
+app.use('/api/flows', flowRouter);
 
 // Servir frontend estático (vite build)
 const distDir = path.resolve(__dirname, '../../frontend');
