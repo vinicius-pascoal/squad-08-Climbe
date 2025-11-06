@@ -306,6 +306,46 @@ npm run typecheck # Executar verificação de tipos TypeScript
 - Endpoints de eventos requerem token do Google no header: `x-google-access-token: <token>`
 - Endpoint `/api/events` aceita query opcional: `?date=YYYY-MM-DD`
 
+### 🗂️ Drive (`/api/drive`)
+
+| Método | Endpoint | Descrição | Autenticação |
+|--------|----------|-----------|--------------|
+| `POST` | `/api/drive/create` | Criar/registrar recurso no Drive | ✅ Requerida |
+| `PUT` | `/api/drive/:id` | Atualizar recurso no Drive | ✅ Requerida |
+| `GET` | `/api/drive/:id` | Buscar recurso do Drive por ID | ✅ Requerida |
+
+### 📑 Propostas (`/api/propostas`)
+
+| Método | Endpoint | Descrição | Autenticação |
+|--------|----------|-----------|--------------|
+| `POST` | `/api/propostas` | Criar nova proposta | ✅ Requerida |
+| `GET` | `/api/propostas` | Listar todas as propostas | ✅ Requerida |
+| `GET` | `/api/propostas/empresa/:empresaId` | Listar propostas por empresa | ✅ Requerida |
+| `GET` | `/api/propostas/usuario/:usuarioId` | Listar propostas por usuário | ✅ Requerida |
+| `GET` | `/api/propostas/:id/historico` | Histórico de alterações da proposta | ✅ Requerida |
+| `GET` | `/api/propostas/:id` | Buscar proposta por ID | ✅ Requerida |
+| `PUT` | `/api/propostas/:id` | Atualizar proposta | ✅ Requerida |
+| `DELETE` | `/api/propostas/:id` | Deletar proposta | ✅ Requerida |
+
+> Permissões: Criar — "Propostas Comerciais — Criar"; Atualizar/Deletar — "Propostas Comerciais — Validar".
+
+### 🧭 Auditorias (`/api/auditorias`)
+
+| Método | Endpoint | Descrição | Autenticação |
+|--------|----------|-----------|--------------|
+| `GET` | `/api/auditorias/export/excel` | Exportar auditorias em Excel | ✅ Requerida |
+| `GET` | `/api/auditorias/export/csv` | Exportar auditorias em CSV | ✅ Requerida |
+| `GET` | `/api/auditorias/entidade/:entidade` | Listar por entidade | ✅ Requerida |
+| `GET` | `/api/auditorias` | Listar auditorias (com filtros) | ✅ Requerida |
+| `GET` | `/api/auditorias/:id` | Buscar auditoria por ID | ✅ Requerida |
+| `POST` | `/api/auditorias` | Criar registro de auditoria | ✅ Requerida |
+
+### 🙋 Me (Usuário atual) (`/api/me`)
+
+| Método | Endpoint | Descrição | Autenticação |
+|--------|----------|-----------|--------------|
+| `GET` | `/api/me` | Dados do usuário logado e permissões | ✅ Requerida |
+
 ### 🏥 Health Check
 
 | Método | Endpoint | Descrição | Autenticação |
