@@ -204,8 +204,8 @@ async function onPropostaSaved(proposta: any) {
   if (currentFlowContext.value?.flowId) {
     try {
       await linkProposta(currentFlowContext.value.flowId, proposta.id);
-        // NÃO avançar automaticamente - aguardar aprovação da proposta
-        $notify?.success?.('Proposta vinculada! Aguardando aprovação para avançar...');
+      // NÃO avançar automaticamente - aguardar aprovação da proposta
+      $notify?.success?.('Proposta vinculada! Aguardando aprovação para avançar...');
 
       // Aguardar um pouco para garantir que o backend processou
       setTimeout(() => {
