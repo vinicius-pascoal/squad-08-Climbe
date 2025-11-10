@@ -17,10 +17,12 @@
         </div>
         <div class="flex items-center w-full">
           <div class="sm:w-1/2 flex flex-col items-center">
-            <input type="email" placeholder="Digite seu email" v-model="email"
+            <input ref="emailInput" type="email" placeholder="Digite seu email" v-model="email"
+              @keydown.enter="focusPassword"
               class="w-full h-15 px-4 py-3 mb-4 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary" />
 
-            <input type="password" placeholder="Digite sua senha" v-model="password"
+            <input ref="passwordInput" type="password" placeholder="Digite sua senha" v-model="password"
+              @keydown.enter="login"
               class="w-full h-15 px-4 py-3 mb-6 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary" />
 
             <p v-if="error" class=" text-red-500 mb-2 text-xl font-bold ">{{ error }}</p>
@@ -72,6 +74,13 @@ const _ins = getCurrentInstance();
 const notify = _ins?.appContext.config.globalProperties.$notify as any;
 const email = ref("");
 const password = ref("");
+// template refs for inputs to control focus via keyboard
+const emailInput = ref<HTMLInputElement | null>(null);
+const passwordInput = ref<HTMLInputElement | null>(null);
+
+function focusPassword() {
+  passwordInput.value?.focus();
+}
 const error = ref<string | null>(null);
 const loading = ref(false);
 const googleHref = (import.meta.env.VITE_API_BASE || '') + '/login';
