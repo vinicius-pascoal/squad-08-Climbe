@@ -2,63 +2,81 @@ import { google, drive_v3 } from "googleapis";
 import { OAuth2Client } from "google-auth-library";
 import { Readable } from "stream";
 
-export async function uploadCsv(auth:OAuth2Client, content:string, fileName:string): Promise<string | null> {
-	const drive = google.drive({ version: "v3", auth });
-	const stream = Readable.from([content]);
+export async function uploadCsv(
+	auth: OAuth2Client,
+	content: string,
+	fileName: string,
+	mimeType = 'text/csv',
+	isBase64 = false
+): Promise<string | null> {
+	const drive = google.drive({ version: 'v3', auth });
+	const body = isBase64 ? Buffer.from(content, 'base64') : content;
+	const stream = Readable.from([body]);
 
 	try {
 		const res = await drive.files.create({
 			requestBody: {
-				name: `${fileName}.csv`,
-				mimeType: "text/csv",
-				parents: [process.env.DRIVE_FOLDERID!]
+				name: fileName,
+				mimeType,
+				parents: process.env.DRIVE_FOLDERID ? [process.env.DRIVE_FOLDERID] : undefined,
 			},
 			media: {
-				mimeType: "text/csv",
-				body: stream
+				mimeType,
+				body: stream,
 			},
-			fields: "id",
+			fields: 'id,webViewLink',
 		});
-		console.log("Arquivo criado com ID:", res.data.id);
-		return new Promise<string>(() => res.data.id);
-	}
-	catch(e) {
-		console.log("Erro criando arquivo no Drive:", e)
+		const id = res.data.id as string | undefined;
+		const webViewLink = res.data.webViewLink as string | undefined;
+		console.log('Arquivo criado com ID:', id, 'link:', webViewLink);
+		if (!id) return null;
+		return webViewLink ?? `https://drive.google.com/file/d/${id}/view`;
+	} catch (e) {
+		console.log('Erro criando arquivo no Drive:', e);
 	}
 	return null;
 }
 
-export async function updateCsv(auth:OAuth2Client, fileId:string, content:string): Promise<string | null> {
-	const drive = google.drive({ version: "v3", auth });
-	const stream = Readable.from([content]);
+export async function updateCsv(
+	auth: OAuth2Client,
+	fileId: string,
+	content: string,
+	mimeType = 'text/csv',
+	isBase64 = false
+): Promise<string | null> {
+	const drive = google.drive({ version: 'v3', auth });
+	const body = isBase64 ? Buffer.from(content, 'base64') : content;
+	const stream = Readable.from([body]);
 
 	try {
 		const res = await drive.files.update({
 			fileId,
 			media: {
-				mimeType: "text/csv",
+				mimeType,
 				body: stream,
 			},
-			fields: "id",
-			supportsAllDrives: true
+			fields: 'id,webViewLink',
+			supportsAllDrives: true,
 		});
 
-		if(res.status == 403) {
-			throw new Error("Permissões insuficientes ao Drive da Climbe, contate o administrador.");
+		if (res.status === 403) {
+			throw new Error('Permissões insuficientes ao Drive da Climbe, contate o administrador.');
 		}
-		return new Promise<string>(() => res.data.id);
-	}
-	catch(e) {
-		console.log("Erro atualizando arquivo no Drive:", e);
+
+		const id = res.data.id as string | undefined;
+		const webViewLink = res.data.webViewLink as string | undefined;
+		return webViewLink ?? (id ? `https://drive.google.com/file/d/${id}/view` : null);
+	} catch (e) {
+		console.log('Erro atualizando arquivo no Drive:', e);
 	}
 	return null;
 }
 
-export async function findById(auth:OAuth2Client, fileId:string):Promise<boolean> {
+export async function findById(auth: OAuth2Client, fileId: string): Promise<boolean> {
 	const drive = google.drive({ version: "v3", auth });
 
 	try {
-		await drive.files.get({fileId, fields: "id", supportsAllDrives: true});
+		await drive.files.get({ fileId, fields: "id", supportsAllDrives: true });
 		return true;
 	} catch (err: any) {
 		if (err.code === 404) return false;

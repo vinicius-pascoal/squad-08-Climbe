@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { flowService } from '../services/flow.service';
+import { extractGoogleAccessToken } from './../routes/event.router';
 import { flowRepo } from '../repositories/flow.repo';
 import { enviarResposta } from '../middlewares/auditoria';
 
@@ -10,13 +11,15 @@ export const flowController = {
 
     const { nome, empresaId, participantIds, scheduledAt, reuniao } = req.body || {};
     const when = scheduledAt ? new Date(scheduledAt) : undefined;
+    const googleToken = extractGoogleAccessToken(req);
     const created = await flowService.start(
       typeof empresaId === 'number' ? empresaId : null,
       userId,
       nome,
       when,
       participantIds,
-      reuniao
+      reuniao,
+      googleToken
     );
     return enviarResposta(res, 201, created);
   },

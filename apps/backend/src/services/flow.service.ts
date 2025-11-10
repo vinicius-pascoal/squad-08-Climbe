@@ -1,6 +1,7 @@
 import { flowRepo } from '../repositories/flow.repo';
 import { usuarioRepo } from '../repositories/usuario.repo';
 import { sendTemplate } from './email.service';
+import { createGoogleEvent } from './google.service';
 
 const STEP_LABEL: Record<string, string> = {
   REUNIAO: 'Reunião',
@@ -17,6 +18,8 @@ export const flowService = {
     scheduledAt?: Date,
     participantIds?: number[],
     reuniaoData?: { titulo?: string; presencial?: boolean; local?: string; pauta?: string }
+    ,
+    googleAccessToken?: string | null
   ) {
     const created = await flowRepo.createFlow(
       empresaId,
@@ -27,11 +30,12 @@ export const flowService = {
       reuniaoData
     );
 
-    // Notificar participantes da reunião inicial
+    // Notificar participantes da reunião inicial (e criar evento no Google Calendar se houver token)
     try {
-      const emails: string[] = (created.participantes || [])
-        .map((p: any) => p.usuario?.email)
-        .filter(Boolean);
+      // coletar emails dos participantes (busca por id)
+      const participantUserIds: number[] = (created.participantes || []).map((p: any) => p.usuarioId).filter(Boolean);
+      const users = await Promise.all(participantUserIds.map((id) => usuarioRepo.findById(id)));
+      const emails: string[] = users.map((u: any) => u?.email).filter(Boolean as any) as string[];
       if (emails.length) {
         await sendTemplate(emails, 'fluxo-contrato-step', {
           etapa: STEP_LABEL['REUNIAO'],
@@ -42,6 +46,34 @@ export const flowService = {
     } catch (e) {
       // log silencioso
       console.warn('[flowService.start] Falha ao enviar e-mail', e);
+    }
+
+    // Se o request forneceu um token Google e há uma reunião agendada, criar evento no Google Calendar
+    try {
+      if (googleAccessToken && created.steps && created.steps[0] && created.steps[0].scheduledAt) {
+        // attendees: participant emails
+        const participantUserIds: number[] = (created.participantes || []).map((p: any) => p.usuarioId).filter(Boolean);
+        const users = await Promise.all(participantUserIds.map((id) => usuarioRepo.findById(id)));
+        const emails: string[] = users.map((u: any) => u?.email).filter(Boolean as any) as string[];
+        if (emails.length) {
+          const startIso = new Date(created.steps[0].scheduledAt).toISOString();
+          const endIso = new Date(new Date(startIso).getTime() + 60 * 60 * 1000).toISOString();
+          const event = await createGoogleEvent(googleAccessToken, {
+            summary: reuniaoData?.titulo || nome || 'Reunião - Fluxo',
+            description: reuniaoData?.pauta || '',
+            location: reuniaoData?.local || undefined,
+            start: { dateTime: startIso },
+            end: { dateTime: endIso },
+            attendees: emails.map((e) => ({ email: e })),
+            isRemote: !(reuniaoData?.presencial ?? true),
+            sendUpdates: 'all',
+          });
+          // não armazenamos o id do evento por enquanto, apenas logamos
+          console.log('[flowService.start] Google event created:', event?.id);
+        }
+      }
+    } catch (err) {
+      console.warn('[flowService.start] Falha ao criar evento no Google Calendar', err);
     }
 
     return created;

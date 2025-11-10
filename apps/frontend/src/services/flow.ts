@@ -7,7 +7,10 @@ export type StartFlowInput = {
 };
 
 export async function startFlow(body: StartFlowInput) {
-  return http('/api/flows', { method: 'POST', body: JSON.stringify(body) });
+  const headers: Record<string, string> = {};
+  const gtoken = localStorage.getItem('google_access_token');
+  if (gtoken) headers['x-google-access-token'] = gtoken;
+  return http('/api/flows', { method: 'POST', headers, body: JSON.stringify(body) });
 }
 
 export async function advanceFlow(id: number, scheduledAt?: string) {

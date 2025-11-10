@@ -11,17 +11,19 @@ export const driveController = {
 			const token = extractGoogleAccessToken(req)!;
 			if (!token) {
 				return res.status(400).json({
-				error: 'Google access token ausente. Envie no header x-google-access-token, query googleAccessToken ou body.googleAccessToken.',
+					error: 'Google access token ausente. Envie no header x-google-access-token, query googleAccessToken ou body.googleAccessToken.',
 				});
-  			}
+			}
 
 			const auth = new OAuth2Client();
 			auth.setCredentials({ access_token: token });
-			const id = await uploadCsv(auth, req.body.content, req.body.fileName);
-			console.log(id);
-			return res.status(201).json({ id: id });
+			const mimeType = req.body.mimeType || 'application/octet-stream';
+			const isBase64 = !!req.body.base64;
+			const url = await uploadCsv(auth, req.body.content, req.body.fileName, mimeType, isBase64);
+			console.log('drive.create ->', url);
+			return res.status(201).json({ url });
 		}
-		catch(error: any) {
+		catch (error: any) {
 			console.error(error);
 			return res.status(500).json({ message: "Erro ao enviar dados ao drive" });
 		}
@@ -35,23 +37,25 @@ export const driveController = {
 			const token = extractGoogleAccessToken(req)!;
 			if (!token) {
 				return res.status(400).json({
-				error: 'Google access token ausente. Envie no header x-google-access-token, query googleAccessToken ou body.googleAccessToken.',
+					error: 'Google access token ausente. Envie no header x-google-access-token, query googleAccessToken ou body.googleAccessToken.',
 				});
-  			}
+			}
 
 			const auth = new OAuth2Client();
 			auth.setCredentials({ access_token: token });
 			const fileExists = await findById(auth, id);
-			if(fileExists) {
-				const r = await updateCsv(auth, id, req.body.content);
-				return res.status(200).json({ id: r });
+			if (fileExists) {
+				const mimeType = req.body.mimeType || 'application/octet-stream';
+				const isBase64 = !!req.body.base64;
+				const url = await updateCsv(auth, id, req.body.content, mimeType, isBase64);
+				return res.status(200).json({ url });
 			} else {
-				return res.status(404).json({ message: "Arquivo não encontrado, ID:", id });
+				return res.status(404).json({ message: 'Arquivo não encontrado, ID:', id });
 			}
 		}
-		catch(error: any) {
+		catch (error: any) {
 			console.error(error);
-			if(error.status == "404") {
+			if (error.status == "404") {
 				return res.status(404).json({ message: "Arquivo não encontrado no drive" });
 			}
 			return res.status(500).json({ message: "Erro ao atualizar dados do drive" });
@@ -65,18 +69,18 @@ export const driveController = {
 			const token = extractGoogleAccessToken(req)!;
 			if (!token) {
 				return res.status(400).json({
-				error: 'Google access token ausente. Envie no header x-google-access-token, query googleAccessToken ou body.googleAccessToken.',
+					error: 'Google access token ausente. Envie no header x-google-access-token, query googleAccessToken ou body.googleAccessToken.',
 				});
-  			}
+			}
 
 			const auth = new OAuth2Client();
 			auth.setCredentials({ access_token: token });
 			const csv = await getFileTextById(auth, id);
 			return res.status(200).json({ data: csv });
 		}
-		catch(error: any) {
+		catch (error: any) {
 			console.error(error);
-			if(error.status == "404") {
+			if (error.status == "404") {
 				return res.status(404).json({ message: "Arquivo não encontrado no drive" });
 			}
 			return res.status(500).json({ message: "Erro ao adquirir dados do drive" });
