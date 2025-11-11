@@ -20,6 +20,8 @@
   inset: 0;
   background: rgba(6, 8, 10, 0.64);
   backdrop-filter: blur(6px) saturate(120%);
+  /* capture pointer events so underlying app is not clickable during loading */
+  pointer-events: auto;
 }
 
 .climb-loader {
@@ -62,6 +64,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  /* don't allow interactions on the loader card itself to fall through to the app */
+  pointer-events: none;
 }
 
 .logo-wrap {
