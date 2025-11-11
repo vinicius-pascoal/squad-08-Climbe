@@ -64,14 +64,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, getCurrentInstance } from "vue";
+import { ref, onMounted } from "vue";
 import { initAuth } from "../services/auth";
 import { useRouter } from "vue-router";
 import { loginApi, loginGoogle } from "../services/auth";
 
 const router = useRouter();
-const _ins = getCurrentInstance();
-const notify = _ins?.appContext.config.globalProperties.$notify as any;
+// notificações removidas do login (sweetalert)
 const email = ref("");
 const password = ref("");
 // template refs for inputs to control focus via keyboard
@@ -94,13 +93,12 @@ async function login() {
     localStorage.setItem('user', JSON.stringify(res.user));
     // refresh currentUser and permissions immediately so UI reflects the logged-in user
     try { await initAuth(); } catch (e) { /* ignore init errors, we'll still redirect */ }
-    await notify?.success(`Bem-vindo!`);
     router.push("/Home");
   } catch (e: any) {
     if (e?.status === 403) error.value = "Seu cadastro está pendente de aprovação.";
     else if (e?.status === 400) error.value = "Credenciais inválidas.";
     else error.value = e?.message || "Falha ao autenticar.";
-    await notify?.error(error.value as string);
+    // mensagens de erro agora exibidas inline via `error.value`
   } finally {
     loading.value = false;
   }

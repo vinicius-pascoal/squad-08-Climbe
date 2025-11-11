@@ -4,6 +4,8 @@ import { useRoute } from 'vue-router'
 import Sidebar from './components/Sidebar.vue'
 import ThemeSwitch from './components/ThemeSwitch.vue'
 import { hasPermission, currentUser } from './services/auth'
+import ClimbLoader from './components/ClimbLoader.vue'
+import { isLoading } from './lib/loading'
 
 // Caminhos dos ícones
 const home = '/icones/home.svg'
@@ -75,6 +77,8 @@ watchEffect(() => {
       </div>
       <RouterView />
     </main>
+    <!-- Loader global -->
+    <ClimbLoader v-if="isLoading" />
   </div>
 
 </template>

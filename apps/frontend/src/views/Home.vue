@@ -43,6 +43,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch, getCurrentInstance } from 'vue';
+import { showLoading, hideLoading } from '../lib/loading';
 
 // Componentes do Widget de Calendário
 import Calendar from '../components/Calendar.vue';
@@ -398,6 +399,16 @@ onMounted(() => {
   loadEventsForSelectedDate();
 });
 watch(selectedDate, () => loadEventsForSelectedDate());
+
+// botão de teste: mostra o loader por 6 segundos
+async function testLoader() {
+  try {
+    showLoading();
+    await new Promise((r) => setTimeout(r, 6000));
+  } finally {
+    hideLoading();
+  }
+}
 
 // Computed que retorna o componente de acordo com o cargo do usuário
 const roleComponent = computed(() => {
