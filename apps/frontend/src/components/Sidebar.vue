@@ -1,71 +1,37 @@
 <template>
-  <aside class="relative min-h-screen flex sombraTexto fundosidebar" :class="{ collapsed }" role="navigation">
-    <!-- COLUNA ESQUERDA (ÍCONES) -->
-    <div class="h-full bg-secondary flex flex-col justify-between w-14 shadow-lg">
-      <button v-if="collapsed" @click="toggleSidebar" class="relative">
-        <img src="/img/logoCircular.svg" class="w-14 h-14 absolute left-20 top-3" alt="climbe" />
-      </button>
+  <!-- Copiado do index.html e adaptado para Vue + funcionalidades existentes -->
+  <aside :class="['sidebar flex-shrink-0 flex flex-col justify-between p-4 text-white', collapsed ? 'w-14' : 'w-64']"
+    role="navigation">
+    <div>
+      <div class="mb-10 text-center cursor-pointer" @click="toggleSidebar">
+        <!-- usar a logo branca do projeto -->
+        <img src="/img/logoBranca.png" alt="climbe" class="mx-auto w-48 h-auto" />
+        <p class="text-xs text-gray-200 mt-2">Investimentos Independentes</p>
+      </div>
 
-      <nav class="relative flex-1" :style="{ paddingTop: leftPad + 'px' }">
-        <!-- espaçamento e altura padronizados -->
-        <ul class="menu px-2 flex flex-col gap-2">
-          <li v-for="item in items" :key="item.to" class="relative">
+      <nav id="sidebar-nav" class="space-y-3">
+        <ul class="flex flex-col gap-3">
+          <li v-for="item in items" :key="item.to">
             <RouterLink :to="item.to"
-              class="flex items-center justify-center overflow-hidden text-center h-12 relative -left-2 rounded-md"
-              :class="{ 'border-l-4 border-white': isActive(item) }"
+              :class="['flex items-center px-4 py-3 rounded-lg font-semibold hover:bg-white/10 transition-colors', isActive(item) ? 'active' : '']"
               :aria-current="isActive(item) ? 'page' : undefined">
-              <div class="relative grid place-items-center w-8 h-8">
-                <img :src="item.icon" alt="Ícone" class="min-w-6 h-6" />
-              </div>
+              <!-- label maior e com mais espaçamento vertical -->
+              <span class="text-lg truncate">{{ item.label }}</span>
             </RouterLink>
           </li>
         </ul>
       </nav>
-
-      <div class="hover:bg-white/10 flex justify-center mb-5">
-        <button>
-          <img src="/icones/config.svg" alt="configurações">
-        </button>
-      </div>
     </div>
 
-    <!-- COLUNA DIREITA (LABELS) -->
-    <div v-if="!collapsed" class="bg-sidebar text-white duration-300 rounded-e-xl w-60 shadow-xl overflow-visible">
-      <div ref="headerEl" class="px-7 py-5 overflow-hidden cursor-pointer" @click="toggleSidebar">
-        <slot name="logo">
-          <!-- Light mode -->
-          <img src="/img/logoPreta.png" alt="climbe" class="block dark:hidden" />
-          <!-- Dark mode -->
-          <img src="/img/climbe-logo.png" alt="climbe" class="hidden dark:block" />
-        </slot>
-      </div>
-
-      <div class="icon-bar px-2 mt-2">
-        <nav class="relative flex-1">
-          <!-- mesmo espaçamento da coluna esquerda -->
-          <ul class="menu px-1 flex flex-col gap-2">
-            <li v-for="item in items" :key="item.to" class="menu-item group relative overflow-visible">
-              <RouterLink :to="item.to"
-                class="menu-link flex items-center gap-3 rounded-full px-3 h-12 overflow-hidden text-center w-full"
-                :class="{ 'ativo': isActive(item) }" :aria-current="isActive(item) ? 'page' : undefined">
-                <span class="nav-label font-bold text-xl whitespace-nowrap">
-                  {{ item.label }}
-                </span>
-              </RouterLink>
-            </li>
-          </ul>
-        </nav>
-      </div>
-
-      <div class="mb-4 flex items-center gap-3 px-3 footer">
-        <button @click="logout" class="flex items-center gap-3 w-full py-2 px-3 hover:bg-white/20 rounded-xl">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1"></path>
-          </svg>
-          <span class="font-bold text-lg">Logout</span>
-        </button>
-      </div>
+    <div class="space-y-2">
+      <button @click="logout" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 w-full">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1"></path>
+        </svg>
+        <span>Log Out</span>
+      </button>
     </div>
   </aside>
 </template>
@@ -151,6 +117,16 @@ watch(() => route.path, () => nextTick().then(measureHeader))
 </script>
 
 <style scoped>
+/* estilos copiados/compatíveis com index.html */
+.sidebar {
+  background: linear-gradient(180deg, #0b9a6f 0%, rgb(24, 176, 155) 100%);
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
 @keyframes largura {
   from {
     width: 0;
