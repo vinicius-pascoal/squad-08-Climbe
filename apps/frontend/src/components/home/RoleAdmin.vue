@@ -11,7 +11,7 @@
           <span class="text-blue-300">[{{ formatDate(log.dataCriacao) }}]</span>
           <span class="ml-2 text-green-300">{{ log.acao }}:</span>
           <span class="ml-1">{{ log.descricao || (log.entidade + (log.entidadeId ? (' #' + log.entidadeId) : ''))
-            }}</span>
+          }}</span>
         </p>
         <p v-if="!logs.length" class="text-slate-300">Nenhum log recente encontrado.</p>
       </template>
@@ -90,7 +90,8 @@ async function fetchRecentLogs() {
 
 function openManageProfiles() {
   // navegar para a página de perfil/gestão de perfis
-  router.push('/Perfilusuario').catch(() => { })
+  // Alterado: redirecionar para a gestão de usuários em vez da página de perfil
+  router.push('/usuarios').catch(() => { })
 }
 
 function openAuditoria() {
