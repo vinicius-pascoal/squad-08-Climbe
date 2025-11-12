@@ -89,7 +89,7 @@ import WeeklyView from '../components/WeeklyView.vue'
 import type { CalendarEvent } from '../components/calendar-types'
 import { listUserEvents } from '../services/calendar'
 import MonthlyView from '../components/MonthlyView.vue'
-import TaskBoard from '../components/TaskBoard.vue'
+// TaskBoard removed from Agenda; tasks are now per-proposta view
 import EventDetailsModal from '../components/modals/EventDetailsModal.vue'
 import router from '../router'
 

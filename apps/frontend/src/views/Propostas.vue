@@ -118,10 +118,16 @@
               </td>
               <td class="px-4 py-3">{{ p.responsavel }}</td>
               <td class="px-4 py-3">
-                <button class="rounded-lg border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100"
-                  @click="abrirProposta(p)">
-                  Abrir
-                </button>
+                <div class="flex items-center gap-2">
+                  <button class="rounded-lg border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100"
+                    @click="abrirProposta(p)">
+                    Abrir
+                  </button>
+                  <button class="rounded-lg border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100"
+                    @click="irParaTarefas(p.id)">
+                    Tarefas
+                  </button>
+                </div>
               </td>
             </tr>
             <tr v-if="!pageItems.length">
@@ -397,6 +403,10 @@ function onCriarProposta() { propostaModalOpen.value = true }
 function abrirProposta(p: Proposta) {
   selectedPropostaId.value = p.id
   modalOpen.value = true
+}
+
+function irParaTarefas(id: number) {
+  router.push({ name: 'PropostaTarefas', params: { id } })
 }
 
 function onPropostaUpdated() {

@@ -7,6 +7,7 @@ type TarefaCreateData = {
   status?: string;
   usuarioId?: number;
   propostaId?: number;
+  categoria?: string;
 };
 
 // Define o formato para atualizar uma tarefa (todos os campos são opcionais).
