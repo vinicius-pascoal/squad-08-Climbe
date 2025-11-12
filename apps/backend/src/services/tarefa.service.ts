@@ -6,6 +6,7 @@ type TarefaCreateData = {
   descricao?: string;
   status?: string;
   usuarioId?: number;
+  propostaId?: number;
 };
 
 // Define o formato para atualizar uma tarefa (todos os campos são opcionais).
@@ -18,12 +19,18 @@ export const tarefaService = {
     });
   },
 
-  async findAll() {
+  async findAll(propostaId?: number) {
+    const where: any = {}
+    if (typeof propostaId === 'number' && !isNaN(propostaId)) where.propostaId = propostaId
     return prisma.tarefa.findMany({
+      where,
       orderBy: { dataCriacao: 'desc' },
       include: {
         usuario: {
           select: { id: true, nomeCompleto: true }
+        },
+        proposta: {
+          select: { id: true, empresaId: true, status: true }
         }
       }
     });
@@ -35,6 +42,10 @@ export const tarefaService = {
       include: {
         usuario: {
           select: { id: true, nomeCompleto: true }
+        }
+        ,
+        proposta: {
+          select: { id: true, empresaId: true, status: true }
         }
       }
     });
@@ -53,4 +64,3 @@ export const tarefaService = {
     });
   },
 };
-

@@ -71,7 +71,7 @@
       <div v-if="activeTab === 'agenda'" class="overflow-y-auto p-4">
         <WeeklyView v-if="view === 'week'" :start-hour="startHour" :end-hour="endHour" :week-start="weekStart"
           :events="events" @event-click="onEventClick" />
-        <MonthlyPlaceholder v-else />
+        <MonthlyView v-else :month-start="monthStart" :events-raw="userEventsRaw" @event-click="onEventClick" />
       </div>
       <div v-else class="p-4">
         <TaskBoard />
@@ -88,7 +88,7 @@ import { hasPermission as hasPerm, currentUser } from '../services/auth'
 import WeeklyView from '../components/WeeklyView.vue'
 import type { CalendarEvent } from '../components/calendar-types'
 import { listUserEvents } from '../services/calendar'
-import MonthlyPlaceholder from '../components/MonthlyPlaceholder.vue'
+import MonthlyView from '../components/MonthlyView.vue'
 import TaskBoard from '../components/TaskBoard.vue'
 import EventDetailsModal from '../components/modals/EventDetailsModal.vue'
 import router from '../router'
@@ -118,6 +118,7 @@ const monthTitle = computed(() =>
 const events = ref<CalendarEvent[]>([])
 const googleWarningShown = ref(false)
 const userEventsRaw = ref<any[]>([])
+const monthStart = computed(() => new Date(weekStart.value.getFullYear(), weekStart.value.getMonth(), 1))
 
 /** Carrega eventos do backend (local + google) e mapeia para o formato esperado pelo WeeklyView */
 async function loadWeeklyEvents() {
