@@ -1,12 +1,11 @@
 <template>
   <!-- Copiado do index.html e adaptado para Vue + funcionalidades existentes -->
-  <aside :class="['sidebar flex-shrink-0 flex flex-col justify-between p-4 text-white', collapsed ? 'w-14' : 'w-64']"
+  <aside class="sidebar flex-shrink-0 flex flex-col justify-between p-4 text-white h-screen overflow-hidden w-64"
     role="navigation">
-    <div>
-      <div class="mb-10 text-center cursor-pointer" @click="toggleSidebar">
+    <div class="flex-1 overflow-y-auto">
+      <div class="mb-10 text-center">
         <!-- usar a logo branca do projeto -->
         <img src="/img/logoBranca.png" alt="climbe" class="mx-auto w-48 h-auto" />
-        <p class="text-xs text-gray-200 mt-2">Investimentos Independentes</p>
       </div>
 
       <nav id="sidebar-nav" class="space-y-3">
@@ -49,16 +48,13 @@ type NavItem = {
 
 const props = withDefaults(defineProps<{
   items: NavItem[]
-  storageKey?: string
   homeAliases?: string[]
 }>(), {
-  storageKey: 'sidebar:collapsed',
   homeAliases: ['/', '/home']
 })
 
 const route = useRoute()
 const router = useRouter()
-const collapsed = ref(false)
 
 const headerEl = ref<HTMLElement | null>(null)
 const leftPad = ref(0)
@@ -70,9 +66,6 @@ function measureHeader() {
 }
 
 onMounted(async () => {
-  const saved = localStorage.getItem(props.storageKey!)
-  if (saved === '1') collapsed.value = true
-
   await nextTick()
   measureHeader()
   window.addEventListener('resize', measureHeader)
@@ -101,11 +94,7 @@ function isActive(item: NavItem) {
   return current === target
 }
 
-function toggleSidebar() {
-  collapsed.value = !collapsed.value
-  localStorage.setItem(props.storageKey!, collapsed.value ? '1' : '0')
-  nextTick().then(measureHeader)
-}
+// removed collapse/toggle behavior per design: sidebar is always fixed width
 
 function logout() {
   localStorage.removeItem('access_token')

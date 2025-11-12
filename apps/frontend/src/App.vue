@@ -65,7 +65,7 @@ watchEffect(() => {
   <div class="flex">
     <Sidebar v-if="showSidebar" :items="visibleItems" />
 
-    <main class="flex-1 bg-gray-100 min-h-screen p-6">
+    <main class="flex-1 bg-gray-100 h-screen p-6 overflow-y-auto">
       <div v-if="showSidebar" class="flex justify-end mb-4">
         <!--switch tema-->
         <div>
