@@ -43,13 +43,6 @@
           Agenda
         </span>
       </button>
-      <button class="pb-3 text-base font-semibold  rounded-t-xl px-6 py-1"
-        :class="activeTab === 'board' ? 'text-brand-10b981 bg-white' : 'text-slate-400 bg-gray-300'"
-        @click="activeTab = 'board'">
-        <span class=" text-shadow-lg">
-          Task Board
-        </span>
-      </button>
 
     </div>
     <div class=" bg-white rounded-xl mx-auto w-full max-w-7xl p-4 shadow-lg">
