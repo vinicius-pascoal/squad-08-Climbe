@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "turbo run dev --parallel",
     "build": "turbo run build",
+    "start": "node dist/server.js",
     "lint": "turbo run lint",
     "format": "turbo run format",
     "prisma:generate": "turbo run prisma:generate",
