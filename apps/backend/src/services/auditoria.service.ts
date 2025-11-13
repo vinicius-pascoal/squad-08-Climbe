@@ -54,7 +54,7 @@ export const auditoriaService = {
     worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
 
     // Adicionar dados
-    registros.forEach((registro) => {
+    registros.forEach((registro: any) => {
       worksheet.addRow({
         id: registro.id,
         dataCriacao: new Date(registro.dataCriacao).toLocaleString('pt-BR'),
@@ -99,7 +99,7 @@ export const auditoriaService = {
       'User Agent',
     ];
 
-    const rows = registros.map((registro) => [
+    const rows = registros.map((registro: any) => [
       registro.id,
       new Date(registro.dataCriacao).toLocaleString('pt-BR'),
       registro.usuario?.nome || 'Sistema',

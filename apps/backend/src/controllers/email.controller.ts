@@ -8,8 +8,8 @@ export const emailController = {
     const { usuarios, tipo, data } = req.body as EmailSendDTO;
 
     // Resolve recipients: user IDs (number) -> fetch emails; strings already emails
-    const ids = usuarios.filter((u) => typeof u === 'number') as number[];
-    const emailsDirect = usuarios.filter((u) => typeof u === 'string') as string[];
+    const ids = usuarios.filter((u): u is number => typeof u === 'number') as number[];
+    const emailsDirect = usuarios.filter((u): u is string => typeof u === 'string') as string[];
 
     let emails: string[] = [...emailsDirect];
     if (ids.length) {

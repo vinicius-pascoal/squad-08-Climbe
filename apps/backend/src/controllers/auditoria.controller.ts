@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { auditoriaService } from '../services/auditoria.service';
+import { auditoriaQuerySchema } from '../dtos/auditoria.dto';
 
 export const auditoriaController = {
   async criar(req: Request, res: Response, next: NextFunction) {
@@ -21,7 +22,8 @@ export const auditoriaController = {
 
   async listar(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await auditoriaService.listar(req.query);
+      const parsed = auditoriaQuerySchema.parse(req.query);
+      const result = await auditoriaService.listar(parsed);
       res.json(result);
     } catch (error) {
       next(error);
@@ -52,7 +54,8 @@ export const auditoriaController = {
 
   async exportarExcel(req: Request, res: Response, next: NextFunction) {
     try {
-      const workbook = await auditoriaService.exportarExcel(req.query);
+      const parsed = auditoriaQuerySchema.parse(req.query);
+      const workbook = await auditoriaService.exportarExcel(parsed);
 
       res.setHeader(
         'Content-Type',
@@ -72,7 +75,8 @@ export const auditoriaController = {
 
   async exportarCSV(req: Request, res: Response, next: NextFunction) {
     try {
-      const csvContent = await auditoriaService.exportarCSV(req.query);
+      const parsed = auditoriaQuerySchema.parse(req.query);
+      const csvContent = await auditoriaService.exportarCSV(parsed);
 
       res.setHeader('Content-Type', 'text/csv; charset=utf-8');
       res.setHeader(

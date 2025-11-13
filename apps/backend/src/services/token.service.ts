@@ -23,6 +23,6 @@ export async function signAccessToken(userId: number) {
     permissoes,
   };
 
-  // Cast secret to jwt.Secret to satisfy TypeScript overloads
-  return jwt.sign(payload, env.jwtSecret as jwt.Secret, { subject: String(userId), expiresIn: env.jwtExpiresIn });
+  // Cast secret to jwt.Secret via unknown to satisfy TypeScript overload resolution
+  return jwt.sign(payload, env.jwtSecret as unknown as jwt.Secret, { subject: String(userId), expiresIn: env.jwtExpiresIn });
 }
