@@ -367,6 +367,29 @@ body,
   background-color: var(--card) !important;
 }
 
+/* Home - Botões de navegação do calendário */
+.dark .calendar-navigation button {
+  color: var(--text) !important;
+}
+
+/* Calendar - Dias da semana no modo escuro */
+.dark .calendar .weekdays {
+  color: var(--text) !important;
+  border-bottom-color: var(--border) !important;
+}
+
+.dark .calendar .day:not(.selected):hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark .calendar .day-number {
+  color: var(--text) !important;
+}
+
+.dark .calendar .day.other-month .day-number {
+  color: var(--muted) !important;
+}
+
 /* CadastroUsuario - Modo escuro */
 .dark .bg-brand-ffffff {
   background-color: var(--panel) !important;
