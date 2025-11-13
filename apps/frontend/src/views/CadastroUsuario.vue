@@ -190,7 +190,7 @@ export default {
 
             <div class="flex flex-col gap-10">
                 <div class="flex h-fit w-full items-center justify-start">
-                    <img src="../icones/usuario.svg"
+                    <img src="/icones/usuario.svg"
                         class="w-[15vh] h-[15vh] fotoperfil rounded-full border border-gray-300" />
                     <h1 class="w-700 text-bold text-brand-5f6060 text-[24px] ml-3">John Lenon</h1>
                 </div>
@@ -242,8 +242,8 @@ export default {
     padding-left: 45px;
 }
 
-.fotoperfil {
-    background-image: url('../icones/usuario.svg');
+    .fotoperfil {
+    background-image: url('/icones/usuario.svg');
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
