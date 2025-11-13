@@ -1,13 +1,16 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "ES2021",
-    "module": "CommonJS",
     "outDir": "dist",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true
+    "rootDir": "src"
   },
   "include": [
-    "src"
+    "src/**/*.ts",
+    "prisma/**/*.ts"
+  ],
+  "exclude": [
+    "../frontend",
+    "**/*.test.ts",
+    "**/*.spec.ts"
   ]
 }
