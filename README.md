@@ -69,7 +69,6 @@ Antes de executar este projeto, certifique-se de ter instalado:
    ```bash
    docker compose --profile dev up -d
    ```
-
 4. **Acesse a aplicação:**
    - Frontend: http://localhost:5173
    - API Backend: http://localhost:3000/api/health

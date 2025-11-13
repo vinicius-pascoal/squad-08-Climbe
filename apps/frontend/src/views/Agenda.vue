@@ -71,7 +71,7 @@
       <div v-if="activeTab === 'agenda'" class="overflow-y-auto p-4">
         <WeeklyView v-if="view === 'week'" :start-hour="startHour" :end-hour="endHour" :week-start="weekStart"
           :events="events" @event-click="onEventClick" />
-        <MonthlyPlaceholder v-else />
+        <MonthlyView v-else :month-start="monthStart" :events-raw="userEventsRaw" @event-click="onEventClick" />
       </div>
       <div v-else class="p-4">
         <TaskBoard />
@@ -83,12 +83,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted, watch, getCurrentInstance } from 'vue'
 import { hasPermission as hasPerm, currentUser } from '../services/auth'
 import WeeklyView from '../components/WeeklyView.vue'
 import type { CalendarEvent } from '../components/calendar-types'
-import MonthlyPlaceholder from '../components/MonthlyPlaceholder.vue'
-import TaskBoard from '../components/TaskBoard.vue'
+import { listUserEvents } from '../services/calendar'
+import MonthlyView from '../components/MonthlyView.vue'
+// TaskBoard removed from Agenda; tasks are now per-proposta view
 import EventDetailsModal from '../components/modals/EventDetailsModal.vue'
 import router from '../router'
 
@@ -98,23 +99,92 @@ const completedPct = 79
 
 const startHour = 8
 const endHour = 20
-const weekStart = new Date(2025, 7, 24)
+
+function startOfWeek(d: Date) {
+  const copy = new Date(d)
+  const day = copy.getDay() // 0 = Sunday
+  copy.setDate(copy.getDate() - day)
+  copy.setHours(0, 0, 0, 0)
+  return copy
+}
+
+const weekStart = ref<Date>(startOfWeek(new Date()))
 
 const monthTitle = computed(() =>
-  weekStart.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
-    .replace(/^\w/, c => c.toUpperCase())
+  weekStart.value.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+    .replace(/^\w/, (c: string) => c.toUpperCase())
 )
 
-const events = ref<CalendarEvent[]>([
-  { id: 'e1', dayIndex: 0, start: '09:00', end: '11:30', title: 'reuniao com cliente', color: 'blue', resume: 'Reunião com o cliente para discutir os requisitos do projeto.' },
-  { id: 'e2', dayIndex: 0, start: '14:00', end: '18:30', title: 'Almoço com a equipe', color: 'green', resume: 'Almoço com a equipe para fortalecer o relacionamento e discutir ideias.' },
-  { id: 'e3', dayIndex: 2, start: '10:30', end: '15:30', title: 'brainstorming', color: 'blue', resume: 'Sessão de brainstorming para gerar novas ideias e soluções criativas.' },
-  { id: 'e4', dayIndex: 5, start: '11:30', end: '13:00', title: 'Revisão do código', color: 'mint', resume: 'Revisão do código para garantir a qualidade e aderência aos padrões estabelecidos.' },
-  { id: 'e5', dayIndex: 1, start: '11:00', end: '13:00', title: 'Revisão do código', color: 'mint', resume: 'Revisão do código para garantir a qualidade e aderência aos padrões estabelecidos.' },
-  { id: 'e6', dayIndex: 1, start: '13:30', end: '15:00', title: 'Revisão do código', color: 'mint', resume: 'Revisão do código para garantir a qualidade e aderência aos padrões estabelecidos.' },
-  { id: 'e7', dayIndex: 3, start: '15:00', end: '17:00', title: 'Almoço com a equipe', color: 'green', resume: 'Almoço com a equipe para fortalecer o relacionamento e discutir ideias.' },
-  //{ id: 'e4', dayIndex: 4, start: '6:00', end: '20:00', title: 'demonstracao', color: 'green' },
-])
+const events = ref<CalendarEvent[]>([])
+const googleWarningShown = ref(false)
+const userEventsRaw = ref<any[]>([])
+const monthStart = computed(() => new Date(weekStart.value.getFullYear(), weekStart.value.getMonth(), 1))
+
+/** Carrega eventos do backend (local + google) e mapeia para o formato esperado pelo WeeklyView */
+async function loadWeeklyEvents() {
+  try {
+    const items = await listUserEvents()
+    // if there's no google token, recommend the user to connect Google to see personal calendar events
+    const gtoken = localStorage.getItem('google_access_token')
+    const inst = getCurrentInstance()
+    const $notify = inst?.appContext.config.globalProperties.$notify
+    if (!gtoken && !googleWarningShown.value) {
+      googleWarningShown.value = true
+      $notify?.info?.('Conecte sua conta Google (Login -> Google) para exibir eventos do seu Google Calendar');
+    }
+    userEventsRaw.value = items || [];
+    const base = new Date(weekStart.value);
+    const baseMidnight = new Date(base.getFullYear(), base.getMonth(), base.getDate())
+
+    const mapped: CalendarEvent[] = (items || [])
+      .map((ev: any) => {
+        if (!ev.start) return null
+        // ev.start can be ISO datetime or date-only 'YYYY-MM-DD'
+        let startDate: Date
+        if (typeof ev.start === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(ev.start)) {
+          const parts = ev.start.split('-').map((s: string) => Number(s))
+          startDate = new Date(parts[0], (parts[1] || 1) - 1, parts[2] || 1, 9, 0, 0)
+        } else {
+          startDate = new Date(ev.start)
+        }
+        let endDate: Date
+        if (ev.end && typeof ev.end === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(ev.end)) {
+          const endParts = ev.end.split('-').map((s: string) => Number(s));
+          endDate = new Date(endParts[0], (endParts[1] || 1) - 1, endParts[2] || 1, 10, 0, 0);
+        } else if (ev.end) {
+          endDate = new Date(ev.end)
+        } else {
+          endDate = new Date(startDate.getTime() + 60 * 60 * 1000)
+        }
+
+        // calcular dayIndex relativo ao weekStart (0..6)
+        const startDay = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate())
+        const diffDays = Math.round((startDay.getTime() - baseMidnight.getTime()) / (24 * 60 * 60 * 1000))
+        const dayIndex = diffDays
+
+        const pad = (n: number) => String(n).padStart(2, '0')
+        const toHM = (d: Date) => `${pad(d.getHours())}:${pad(d.getMinutes())}`
+
+        return {
+          id: ev.id || `evt-${Math.random().toString(36).slice(2, 9)}`,
+          dayIndex,
+          start: toHM(startDate),
+          end: toHM(endDate),
+          title: ev.summary || ev.title || 'Evento',
+          resume: ev.description || '',
+          color: ev.color || (ev.source === 'flow' ? 'mint' : 'blue'),
+        }
+      })
+      .filter((x: any) => x && typeof x.dayIndex === 'number' && x.dayIndex >= 0 && x.dayIndex < 7)
+
+    events.value = mapped
+  } catch (e) {
+    console.error('Erro ao carregar eventos semanais:', e)
+  }
+}
+
+onMounted(() => loadWeeklyEvents())
+watch(weekStart, () => loadWeeklyEvents())
 
 /** Modal de detalhes */
 const showDetails = ref(false)

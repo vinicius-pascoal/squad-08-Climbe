@@ -19,11 +19,21 @@
             <label class="block text-sm font-semibold text-slate-800 mb-2">
               Empresa <span class="text-red-500">*</span>
             </label>
-            <select v-model="form.empresaId" required
-              class="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500">
-              <option value="" disabled>Selecione uma empresa</option>
-              <option v-for="e in empresas" :key="e.id" :value="e.id">{{ e.nomeFantasia || e.razaoSocial }}</option>
-            </select>
+            <div class="relative">
+              <input type="text" v-model="companySearch" @input="onCompanySearch"
+                placeholder="Digite para buscar empresa"
+                class="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500" />
+
+              <ul v-if="showSuggestions"
+                class="absolute z-50 left-0 right-0 bg-white border border-slate-200 rounded-md mt-1 max-h-48 overflow-auto">
+                <li v-for="c in filteredCompanies" :key="c.id" @click="selectCompany(c)"
+                  class="px-3 py-2 hover:bg-slate-100 cursor-pointer truncate">
+                  {{ c.nomeFantasia || c.razaoSocial }}
+                </li>
+                <li v-if="filteredCompanies.length === 0" class="px-3 py-2 text-slate-500">Nenhuma empresa encontrada
+                </li>
+              </ul>
+            </div>
             <p class="text-xs text-slate-500 mt-1">Selecione a empresa para a qual a proposta será criada</p>
           </section>
 
@@ -73,13 +83,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, getCurrentInstance } from 'vue';
+import { ref, reactive, onMounted, computed, getCurrentInstance } from 'vue';
 import { http } from '../../lib/http';
 import { hasPermission } from '../../services/auth';
+import { drivePost } from '../../services/drive';
 
 type Empresa = { id: number; razaoSocial?: string; nomeFantasia?: string };
 
-const emit = defineEmits(['close']);
+const emit = defineEmits<{
+  (e: 'close'): void;
+  (e: 'saved', proposta: any): void;
+}>();
 const _ins = getCurrentInstance();
 const notify = _ins?.appContext.config.globalProperties.$notify as any;
 
@@ -89,8 +103,17 @@ const fileInput = ref<HTMLInputElement | null>(null);
 const file = ref<File | null>(null);
 const fileName = ref<string>('');
 
+const companySearch = ref('');
+const showSuggestions = ref(false);
+
 const form = reactive({ empresaId: '' as unknown as number | '' });
 const submitting = ref(false);
+
+const filteredCompanies = computed(() => {
+  const term = companySearch.value.trim().toLowerCase();
+  if (!term) return empresas.value.slice(0, 10);
+  return empresas.value.filter((e) => ((e.nomeFantasia || e.razaoSocial) || '').toLowerCase().includes(term));
+});
 
 async function loadEmpresas() {
   try {
@@ -120,6 +143,31 @@ function onCancel() {
   emit('close');
 }
 
+function onCompanySearch() {
+  showSuggestions.value = true;
+}
+
+function selectCompany(c: Empresa) {
+  form.empresaId = c.id as any;
+  companySearch.value = c.nomeFantasia || c.razaoSocial || '';
+  showSuggestions.value = false;
+}
+
+function readFileAsBase64(f: File) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      // result is data:[mime];base64,AAAA
+      const idx = result.indexOf(',');
+      const b64 = idx >= 0 ? result.slice(idx + 1) : result;
+      resolve(b64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(f);
+  });
+}
+
 async function onSubmit() {
   try {
     if (!form.empresaId) {
@@ -132,12 +180,23 @@ async function onSubmit() {
     const payload: any = { empresaId: Number(form.empresaId) };
 
     if (file.value) {
-      notify?.info('Upload de documentos será implementado em breve');
+      // upload to backend drive endpoint
+      try {
+        const base64 = await readFileAsBase64(file.value);
+        const url = await drivePost(fileName.value || file.value.name, base64, file.value.type || 'application/octet-stream', true);
+        if (url) {
+          payload.documentoUrl = url;
+        }
+      } catch (err: any) {
+        console.error('Erro ao enviar documento:', err);
+        notify?.warning('Não foi possível enviar o documento. A proposta será criada sem anexo.');
+      }
     }
 
-    await http('/api/propostas', { method: 'POST', body: JSON.stringify(payload) });
+    const proposta = await http('/api/propostas', { method: 'POST', body: JSON.stringify(payload) });
 
     notify?.success('Proposta criada com sucesso!');
+    emit('saved', proposta);
     emit('close');
   } catch (e: any) {
     const message = e?.message || 'Erro ao criar a proposta.';
@@ -158,7 +217,7 @@ onMounted(loadEmpresas);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 60
+  z-index: 9999
 }
 
 .modal-content {

@@ -28,9 +28,7 @@ export const contratoService = {
 	},
 
 	async findAll() {
-		const list = await contratoRepo.findAll();
-		console.log('🧾 Service.findAll -> total:', Array.isArray(list) ? list.length : 'n/a');
-		return list;
+		return await contratoRepo.findAll();
 	},
 
 	async findById(id: string) {

@@ -11,7 +11,7 @@ export const auditoriaRepository = {
         usuario: {
           select: {
             id: true,
-            nome: true,
+            nomeCompleto: true,
             email: true,
           },
         },
@@ -61,7 +61,7 @@ export const auditoriaRepository = {
           usuario: {
             select: {
               id: true,
-              nome: true,
+              nomeCompleto: true,
               email: true,
             },
           },
@@ -91,7 +91,7 @@ export const auditoriaRepository = {
         usuario: {
           select: {
             id: true,
-            nome: true,
+            nomeCompleto: true,
             email: true,
           },
         },
@@ -112,7 +112,7 @@ export const auditoriaRepository = {
         usuario: {
           select: {
             id: true,
-            nome: true,
+            nomeCompleto: true,
             email: true,
           },
         },

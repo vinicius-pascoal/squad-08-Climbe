@@ -1,5 +1,7 @@
 import { propostaRepo } from '../repositories/proposta.repo';
 import { empresaService } from './empresa.service';
+import { flowRepo } from '../repositories/flow.repo';
+import { prisma } from '../utils/prisma';
 import type { CreatePropostaDto, UpdatePropostaDto } from '../dtos/proposta.dto';
 
 export const propostaService = {
@@ -32,7 +34,32 @@ export const propostaService = {
       throw new Error('Proposta não encontrada');
     }
 
-    return await propostaRepo.update(id, data);
+    // Atualizar a proposta
+    const updated = await propostaRepo.update(id, data);
+
+    // Se o status mudou para APROVADA, verificar se existe fluxo vinculado e avançar
+    if (data.status === 'APROVADA' && proposta.status !== 'APROVADA') {
+      // Buscar fluxo vinculado a esta proposta
+      const flow = await prisma.contractFlow.findFirst({
+        where: { propostaId: id },
+        include: { steps: true },
+      });
+
+      if (flow) {
+        // Verificar se a etapa atual é PROPOSTA e está PENDENTE
+        const propostaStep = flow.steps.find(
+          (s: any) => s.type === 'PROPOSTA' && s.status === 'PENDENTE'
+        );
+
+        if (propostaStep) {
+          // Avançar o fluxo para a próxima etapa (CONTRATO)
+          await flowRepo.advance(flow.id);
+          console.log(`[Fluxo ${flow.id}] Proposta aprovada - avançando para etapa CONTRATO`);
+        }
+      }
+    }
+
+    return updated;
   },
 
   async deleteProposta(id: number) {

@@ -136,6 +136,7 @@
 import { ref, computed, watch, onMounted, getCurrentInstance } from 'vue';
 import { useRouter } from 'vue-router';
 import Calendar from '../components/Calendar.vue';
+import { addCalendarEvent } from '../services/calendar'
 
 const router = useRouter();
 const instance = getCurrentInstance();
@@ -234,11 +235,34 @@ async function agendarReuniao() {
         participantes: reuniao.value.participantes.map(p => p.id)
     };
 
-    // BACKEND: Substituir o console.log por uma chamada de API
-    console.log('Payload da Reunião (simulando envio):', payload);
+    // Tenta criar evento via backend (/api/events/create -> Google Calendar)
+    try {
+        const inicio = new Date(dataHoraInicio)
+        const fim = new Date(inicio.getTime() + 60 * 60 * 1000)
 
-    notify?.success('Reunião agendada com sucesso!');
-    router.push('/agenda'); // Redireciona para a página da agenda
+        await addCalendarEvent({
+            titulo: reuniao.value.titulo,
+            descricao: reuniao.value.pauta,
+            local: reuniao.value.local,
+            inicio,
+            fim,
+            emails: undefined, // participantes não possuem emails no mock atual
+            remoto: reuniao.value.tipo !== 'Presencial',
+            notificar: true,
+        })
+
+        notify?.success('Reunião agendada com sucesso!')
+        // redirecionar para a tela da agenda
+        router.push('/Agenda')
+    } catch (err) {
+        console.error('Erro ao agendar reunião:', err)
+        const message = err && err.message ? err.message : (err && err.error ? err.error : '')
+        if (String(message).toLowerCase().includes('google access token') || String(message).toLowerCase().includes('ausente')) {
+            notify?.warning('É necessário conectar sua conta Google para criar eventos no calendário. (Cabeçalho x-google-access-token)')
+        } else {
+            notify?.error?.('Falha ao criar reunião: ' + (message || 'Erro desconhecido'))
+        }
+    }
 }
 
 function cancelar() {

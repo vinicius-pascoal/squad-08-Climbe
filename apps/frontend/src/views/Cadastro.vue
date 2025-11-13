@@ -77,27 +77,34 @@ const form = ref({
 });
 
 async function googleAccessToken() {
-  const params = new URLSearchParams(window.location.search)
-  if (!params) return;
+  try {
+    const params = new URLSearchParams(window.location.search)
+    if (!params) return;
 
-  const access_token = params.get('access_token');
-  if (!access_token || access_token.length < 1) return; //Access Token nulo ou invalido
+    const access_token = params.get('access_token');
+    if (!access_token || access_token.length < 1) return; //Access Token nulo ou invalido
 
-  const response = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
-    headers: {
-      Authorization: `Bearer ${access_token}`
+    const response = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
+      headers: {
+        Authorization: `Bearer ${access_token}`
+      }
+    });
+
+    if (!response.ok) {
+      console.warn('Falha ao carregar dados de usuário do Google:', response.status);
+      // Limpar o access_token inválido da URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+      return;
     }
-  });
 
-  if (!response.ok) {
-    console.log('Falha ao carregar dados de usuário');
-    return;
+    const data = await response.json()
+    form.value.nomeCompleto = data.name
+    form.value.email = data.email
+  } catch (e) {
+    console.warn('Erro ao processar token do Google:', e);
+    // Limpar o access_token inválido da URL
+    window.history.replaceState({}, document.title, window.location.pathname);
   }
-
-  const data = await response.json()
-  form.value.nomeCompleto = data.name
-  form.value.email = data.email
-  //console.log(data)
 }
 
 async function register() {

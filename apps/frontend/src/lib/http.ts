@@ -16,33 +16,51 @@ function logoutAndRedirect() {
   }
 }
 
-export async function http<T = any>(path: string, init?: RequestInit): Promise<T> {
+import { showLoading, hideLoading } from './loading'
+
+export async function http<T = any>(path: string, init?: RequestInit & { showLoading?: boolean, responseType?: 'json' | 'blob' }): Promise<T> {
   const token = localStorage.getItem('access_token');
+  // clone headers and ensure Content-Type JSON by default
   const headers = new Headers(init?.headers || {});
-  headers.set('Content-Type', 'application/json');
+  if (!headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
   if (token) headers.set('Authorization', `Bearer ${token}`);
 
-  const res = await fetch(buildUrl(path), { ...init, headers });
+  // determine whether to show loading: explicit opt-in via init.showLoading, otherwise true for POST requests
+  const method = (init?.method || 'GET').toString().toUpperCase();
+  const shouldShow = (init as any)?.showLoading !== undefined ? !!(init as any).showLoading : (method === 'POST');
 
-  let data: any = null;
+  if (shouldShow) showLoading()
   try {
-    data = await res.json();
-  } catch {}
+    // remove custom props before passing to fetch
+    const { showLoading: _sl, responseType, ...fetchInit } = (init as any) || {};
+    const res = await fetch(buildUrl(path), { ...fetchInit, headers });
 
-  if (res.status === 401) {
-    logoutAndRedirect();
-    const err: any = new Error((data && (data.error || data.message)) || 'Unauthorized');
-    err.status = 401;
-    err.data = data;
-    throw err;
+    let data: any = null;
+    try {
+      if (responseType === 'blob') {
+        data = await res.blob();
+      } else {
+        data = await res.json();
+      }
+    } catch { }
+
+    if (res.status === 401) {
+      logoutAndRedirect();
+      const err: any = new Error((data && (data.error || data.message)) || 'Unauthorized');
+      err.status = 401;
+      err.data = data;
+      throw err;
+    }
+
+    if (!res.ok) {
+      const err: any = new Error((data && (data.error || data.message)) || res.statusText || 'Erro na requisição');
+      err.status = res.status;
+      err.data = data;
+      throw err;
+    }
+
+    return data as T;
+  } finally {
+    if (shouldShow) hideLoading()
   }
-
-  if (!res.ok) {
-    const err: any = new Error((data && (data.error || data.message)) || res.statusText || 'Erro na requisição');
-    err.status = res.status;
-    err.data = data;
-    throw err;
-  }
-
-  return data as T;
 }

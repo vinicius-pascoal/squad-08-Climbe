@@ -28,12 +28,10 @@ export type contratoInput = {
 	permissoes: string;
 };
 
-export async function listContratos() {
-	const res = await http<any>('/api/contratos', {
+export function listContratos() {
+	return http<ContratoResponse[]>('/api/contratos', {
 		method: 'GET',
 	});
-	// Normaliza para sempre retornar um array
-	return Array.isArray(res) ? (res as ContratoResponse[]) : (res?.data ?? []);
 }
 
 export function getContratoById(id: string) {

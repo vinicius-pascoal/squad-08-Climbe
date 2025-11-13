@@ -86,8 +86,10 @@ const columns: { key: StatusKey; title: string }[] = [
   { key: 'done', title: 'Concluído' },
 ]
 
+const props = defineProps<{ tasksData?: Task[] }>()
+
 const state = reactive<{ tasks: Task[] }>({
-  tasks: [
+  tasks: (props.tasksData && props.tasksData.length) ? props.tasksData.slice() : [
     { id: 't1', title: 'Revisar e aprovar briefing de e-mail marketing', tag: 'Marketing', status: 'todo', points: 2, date: '23 nov' },
     { id: 't2', title: 'Publicar vídeo institucional', tag: 'Marketing', status: 'todo', points: 1, date: '23 nov' },
     { id: 't3', title: 'Prototipação do projeto com o auxílio do protótipo base', tag: 'UI Design', status: 'doing', points: 3, date: '24 nov' },
@@ -105,7 +107,7 @@ const dropping = ref<StatusKey | null>(null)
 
 function filteredBy(status: StatusKey) {
   const q = query.value.trim().toLowerCase()
-  return state.tasks.filter(t => t.status === status && (!q || t.title.toLowerCase().includes(q)))
+  return state.tasks.filter((t: Task) => t.status === status && (!q || t.title.toLowerCase().includes(q)))
 }
 
 function onDragStart(id: string) {
@@ -122,7 +124,7 @@ function onDragLeave() {
 
 function onDrop(target: StatusKey) {
   if (!draggingId.value) return
-  const task = state.tasks.find(t => t.id === draggingId.value)
+  const task = state.tasks.find((t: Task) => t.id === draggingId.value)
   if (task) task.status = target
   draggingId.value = null
   dropping.value = null
@@ -134,8 +136,8 @@ function addCard(status: StatusKey) {
 }
 
 const groups = computed(() => {
-  const total = (tag: Task['tag']) => state.tasks.filter(t => t.tag === tag).length
-  const done = (tag: Task['tag']) => state.tasks.filter(t => t.tag === tag && t.status === 'done').length
+  const total = (tag: Task['tag']) => state.tasks.filter((t: Task) => t.tag === tag).length
+  const done = (tag: Task['tag']) => state.tasks.filter((t: Task) => t.tag === tag && t.status === 'done').length
   const tags: Task['tag'][] = ['Desenvolvimento', 'Vendas', 'UI Design', 'Documentação', 'Marketing']
   return tags.map(label => ({ label, total: total(label), done: done(label) }))
 })
