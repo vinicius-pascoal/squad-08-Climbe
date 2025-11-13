@@ -69,8 +69,8 @@ export const auditoriaService = {
     });
 
     // Aplicar bordas
-    worksheet.eachRow((row) => {
-      row.eachCell((cell) => {
+    worksheet.eachRow((row: ExcelJS.Row) => {
+      row.eachCell((cell: ExcelJS.Cell) => {
         cell.border = {
           top: { style: 'thin' },
           left: { style: 'thin' },

@@ -40,7 +40,11 @@ export const contratoService = {
 	},
 
 	async update(id: string, input: Partial<ContratoDTO>) {
-		return await contratoRepo.update(id, { ...input });
+		// Normalize date fields before passing to the repository (Prisma expects Date objects)
+		const payload: any = { ...input };
+		if (input.dataInicio) payload.dataInicio = new Date(input.dataInicio as any);
+		if (input.dataFim) payload.dataFim = new Date(input.dataFim as any);
+		return await contratoRepo.update(id, payload);
 	},
 
 	async remove(id: string) {

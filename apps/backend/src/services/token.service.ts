@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import * as jwt from 'jsonwebtoken';
 import { env } from '../config/env';
 import { prisma } from '../utils/prisma';
 
@@ -23,5 +23,6 @@ export async function signAccessToken(userId: number) {
     permissoes,
   };
 
-  return jwt.sign(payload, env.jwtSecret, { subject: String(userId), expiresIn: env.jwtExpiresIn });
+  // Cast secret to jwt.Secret to satisfy TypeScript overloads
+  return jwt.sign(payload, env.jwtSecret as jwt.Secret, { subject: String(userId), expiresIn: env.jwtExpiresIn });
 }
