@@ -16,6 +16,9 @@
   "exclude": [
     "node_modules",
     "../frontend",
-    "prisma"
+    "../frontend/**/*",
+    "prisma",
+    "**/*.test.ts",
+    "**/*.spec.ts"
   ]
 }
