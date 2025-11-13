@@ -9,5 +9,10 @@ until node -e "const s=require('net').Socket();s.connect(3306,'db',()=>{s.end();
 done
 echo "Aplicando migrações (ou sincronizando schema)"
 npx prisma migrate deploy --schema apps/backend/prisma/schema.prisma || npx prisma db push --schema apps/backend/prisma/schema.prisma
+# Opcional: rodar seed apenas se a variável RUN_SEED estiver verdadeira
+if [ "${RUN_SEED:-false}" = "true" ]; then
+  echo "Executando seed do banco de dados (RUN_SEED=true)"
+  npx prisma db seed --schema apps/backend/prisma/schema.prisma || true
+fi
 echo "Iniciando backend (Express) em :3000"
 node apps/backend/dist/index.js

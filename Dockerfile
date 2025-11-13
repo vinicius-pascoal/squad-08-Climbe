@@ -8,7 +8,6 @@ COPY apps/frontend/package.json apps/frontend/package.json
 RUN npm install
 COPY . .
 RUN npx prisma generate --schema apps/backend/prisma/schema.prisma
-RUN npx prisma db seed --schema apps/backend/prisma/schema.prisma
 RUN npm run build
 
 FROM base AS runtime
