@@ -8,9 +8,7 @@
       Nenhum contrato pendente de revisão
     </div>
     <div v-else class="space-y-4">
-      <div
-        v-for="contrato in contratosPendentes.slice(0, 5)"
-        :key="contrato.id"
+      <div v-for="contrato in contratosPendentes.slice(0, 5)" :key="contrato.id"
         class="flex items-center justify-between p-3 bg-white dark:bg-gray-700 shadow-sm dark:shadow-transparent rounded-lg w-full">
         <div class="flex-1">
           <p class="font-medium">{{ contrato.nome_cliente || `Contrato #${contrato.id}` }}</p>
@@ -18,8 +16,7 @@
           <p class="text-sm text-gray-500 dark:text-gray-400">Data: {{ formatarData(contrato.data_inicio) }}</p>
         </div>
         <div class="flex gap-2">
-          <router-link
-            :to="`/contratos?id=${contrato.id}`"
+          <router-link :to="`/contratos?id=${contrato.id}`"
             class="px-3 py-1 text-sm font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700">
             Abrir
           </router-link>
@@ -79,7 +76,7 @@ const carregarContratos = async () => {
     loadingContratos.value = true
     const response = await http('/api/contratos')
     // Filtrar contratos pendentes de revisão (em análise ou aguardando assinatura)
-    contratosPendentes.value = response.data.filter((contrato: any) => 
+    contratosPendentes.value = response.data.filter((contrato: any) =>
       contrato.status === 'em_analise' || contrato.status === 'aguardando_assinatura'
     )
   } catch (error) {
