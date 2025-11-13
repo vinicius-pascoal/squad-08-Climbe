@@ -16,9 +16,9 @@ type TarefaUpdateData = Partial<TarefaCreateData>;
 
 export const tarefaService = {
   async create(data: TarefaCreateData) {
-    // Use unchecked create when passing foreign keys directly (usuarioId, propostaId)
+    // Cast to any to avoid depending on generated Prisma unchecked types during CI builds
     return prisma.tarefa.create({
-      data: data as unknown as Prisma.TarefaUncheckedCreateInput,
+      data: data as any,
     });
   },
 
@@ -55,10 +55,10 @@ export const tarefaService = {
   },
 
   async update(id: number, data: TarefaUpdateData) {
-    // Use unchecked update when updating scalar FK fields like usuarioId/propostaId
+    // Cast to any to avoid depending on generated Prisma unchecked types during CI builds
     return prisma.tarefa.update({
       where: { id },
-      data: data as unknown as Prisma.TarefaUncheckedUpdateInput,
+      data: data as any,
     });
   },
 

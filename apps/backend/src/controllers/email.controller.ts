@@ -18,7 +18,7 @@ export const emailController = {
         where: { id: { in: ids } },
         select: { email: true },
       });
-      emails.push(...found.map((u) => u.email));
+      emails.push(...found.map((u: any) => u.email));
     }
     // Deduplicate
     emails = Array.from(new Set(emails.map((e) => e.toLowerCase())));
