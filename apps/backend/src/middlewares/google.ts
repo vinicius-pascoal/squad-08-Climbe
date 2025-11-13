@@ -13,6 +13,22 @@ function buildRedirectUri() {
   return `${BACKEND_ORIGIN.replace(/\/$/, '')}/oauth2callback`;
 }
 
+// Debug endpoint to check environment variables
+app.get('/oauth-config', (_req: Request, res: Response) => {
+  return res.json({
+    backend_origin: BACKEND_ORIGIN,
+    frontend_origin: FRONTEND_ORIGIN,
+    redirect_uri: buildRedirectUri(),
+    has_client_id: !!GOOGLE_CLIENT_ID,
+    has_client_secret: !!GOOGLE_CLIENT_SECRET,
+    env_vars: {
+      BACKEND_ORIGIN: process.env.BACKEND_ORIGIN,
+      FRONTEND_ORIGIN: process.env.FRONTEND_ORIGIN,
+      NODE_ENV: process.env.NODE_ENV,
+    }
+  });
+});
+
 // Step 1: redirect to Google OAuth consent
 app.get('/login', (_req: Request, res: Response) => {
   const params = new URLSearchParams({
@@ -30,6 +46,10 @@ app.get('/login', (_req: Request, res: Response) => {
     prompt: 'consent', // to get refresh_token each time in dev
   });
   const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+  console.log('[OAuth] Redirecting to Google with:', {
+    redirect_uri: buildRedirectUri(),
+    backend_origin: BACKEND_ORIGIN,
+  });
   return res.redirect(authUrl);
 });
 
