@@ -161,14 +161,14 @@ export default {
         delete this.statusLoading[userId];
       }
     },
-      // Handler quando um Card emite que o usuário foi removido
-      onUserRemoved({ userId }) {
-        const idx = this.users.findIndex(u => Number(u.id) === Number(userId));
-        if (idx === -1) return;
-        this.users.splice(idx, 1);
-        this.$notify?.success('Usuário removido com sucesso.');
-        if (this.page > this.totalPages) this.page = this.totalPages;
-      },
+    // Handler quando um Card emite que o usuário foi removido
+    onUserRemoved({ userId }) {
+      const idx = this.users.findIndex(u => Number(u.id) === Number(userId));
+      if (idx === -1) return;
+      this.users.splice(idx, 1);
+      this.$notify?.success('Usuário removido com sucesso.');
+      if (this.page > this.totalPages) this.page = this.totalPages;
+    },
   },
 
   mounted() {
@@ -184,97 +184,118 @@ export default {
 
 <template>
   <div class="gestaousuario ml-16 relative usuarios ">
-    <h1 class="font-bold text-[40px] titulo">Gestão de Usuário</h1>
+    <h1 class="font-bold text-[40px] titulo text-brand-000 dark:text-white">Gestão de Usuário</h1>
 
     <div class="flex items-center gap-4 mt-4 mb-6">
       <input v-model="searchTerm" type="search" placeholder="pesquisar por nome/email"
-        class="email shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] border bg-brand-e1e5e5 rounded-lg px-4 py-2 w-[80vh] text-brand-5f6060" />
+        class="email shadow-md border bg-brand-e1e5e5 dark:bg-brand-0e9a97 dark:border-brand-0e9989 rounded-lg px-4 py-2 w-[80vh] text-brand-5f6060 dark:text-white placeholder-brand-5f6060 dark:placeholder-brand-e5e7eb focus:ring-2 focus:ring-primary dark:focus:ring-primary outline-none" />
 
       <input ref="filtersBtn" type="button" value="Filtros" @click="toggleFilters"
-        class="filtro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-brand-e1e5e5 text-brand-5f6060 rounded-lg px-4 py-2 hover cursor-pointer" />
+        class="filtro shadow-md bg-brand-e1e5e5 dark:bg-brand-0e9a97 text-brand-5f6060 dark:text-white border border-brand-e5e7eb dark:border-brand-0e9989 rounded-lg px-4 py-2 hover:bg-brand-f6f7f8 dark:hover:bg-brand-0e9989 cursor-pointer transition" />
 
       <input v-if="hasPermission('Usuários — Criar') || isAdmin() || hasPermission('Usuários — Aceitar/Aprovar')"
         type="button" value="Cadastrar usuário" @click="openCadastro"
-        class="cadastro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-brand-cad8fd border border-brand-3b67d0 text-white rounded-lg px-4 py-2 hover cursor-pointer ml-16" />
+        class="cadastro shadow-md bg-brand-cad8fd dark:bg-brand-0e9a97 border border-brand-3b67d0 dark:border-brand-0e9989 text-white rounded-lg px-4 py-2 hover:bg-brand-93c5fd dark:hover:bg-brand-0e9989 cursor-pointer ml-16 transition" />
       <input v-else disabled type="button" value="Cadastrar usuário"
-        class="cadastro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-slate-300 text-white rounded-lg px-4 py-2 ml-16 opacity-60" />
+        class="cadastro shadow-md bg-brand-e0e0e0 dark:bg-brand-3e4343 text-white rounded-lg px-4 py-2 ml-16 opacity-60 cursor-not-allowed" />
     </div>
 
     <div v-if="showFilters" ref="filtersDropdown"
-      class="absolute z-50 mt-2 bg-white rounded-lg shadow-[0_8px_24px_rgba(0,0,0,0.12)] border border-gray-200 w-[320px] p-4"
+      class="absolute z-50 mt-2 bg-white dark:bg-brand-0e9a97 rounded-lg shadow-xl border border-brand-e5e7eb dark:border-brand-0e9989 w-[320px] p-4"
       style="top: 90px;">
-      <h3 class="text-brand-5f6060 font-semibold mb-3">Filtrar por</h3>
+      <h3 class="text-brand-5f6060 dark:text-white font-semibold mb-3">Filtrar por</h3>
 
-      <label class="block text-sm text-brand-5f6060 mb-1">Status</label>
+      <label class="block text-sm text-brand-5f6060 dark:text-brand-e5e7eb mb-1">Status</label>
       <select v-model="filters.status"
-        class="w-full mb-3 rounded-lg border bg-brand-f6f7f8 px-3 py-2 text-brand-5f6060 focus:outline-none focus:ring-2 focus:ring-primary">
+        class="w-full mb-3 rounded-lg border border-brand-e5e7eb dark:border-brand-0e9989 bg-brand-f6f7f8 dark:bg-brand-0e9989 px-3 py-2 text-brand-5f6060 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary">
         <option value="">Todos</option>
         <option value="ativo">Ativo</option>
         <option value="pendente">Pendente</option>
-  <option value="desativado">Desativado</option>
+        <option value="desativado">Desativado</option>
       </select>
 
-      <label class="block text-sm text-brand-5f6060 mb-1">Cargo</label>
+      <label class="block text-sm text-brand-5f6060 dark:text-brand-e5e7eb mb-1">Cargo</label>
       <select v-model="filters.cargoId"
-        class="w-full mb-4 rounded-lg border bg-brand-f6f7f8 px-3 py-2 text-brand-5f6060 focus:outline-none focus:ring-2 focus:ring-primary">
+        class="w-full mb-4 rounded-lg border border-brand-e5e7eb dark:border-brand-0e9989 bg-brand-f6f7f8 dark:bg-brand-0e9989 px-3 py-2 text-brand-5f6060 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary">
         <option value="">Todos</option>
         <option v-for="c in cargos" :key="c.id" :value="c.id">{{ c.nomeCargo }}</option>
       </select>
 
       <div class="flex items-center justify-end gap-2">
-        <button @click="clearFilters" class="px-3 py-2 rounded-lg border text-brand-5f6060">Limpar</button>
+        <button @click="clearFilters"
+          class="px-4 py-2 rounded-lg border border-brand-e5e7eb dark:border-brand-0e9989 text-brand-5f6060 dark:text-white hover:bg-brand-f6f7f8 dark:hover:bg-brand-0e9989 transition">Limpar</button>
         <button @click="applyFilters"
-          class="px-3 py-2 rounded-lg bg-brand-cad8fd text-brand-3b67d0 border border-brand-3b67d0">
+          class="px-4 py-2 rounded-lg bg-brand-cad8fd dark:bg-brand-14b8a6 text-white hover:bg-brand-93c5fd dark:hover:bg-brand-16c3af transition">
           Aplicar
         </button>
       </div>
     </div>
 
-    <div class="p-4 bg-white rounded-lg shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]">
-      <div v-if="loading" class="py-8 text-center text-brand-5f6060">Carregando usuários...</div>
-      <div v-else-if="error" class="py-8 text-center text-red-500">{{ error }}</div>
+    <div class="p-6 bg-white dark:bg-brand-0a0a0a rounded-lg shadow-lg">
+      <div v-if="loading" class="py-8 text-center text-brand-5f6060 dark:text-brand-e5e7eb">Carregando usuários...</div>
+      <div v-else-if="error" class="py-8 text-center text-brand-d32f2f dark:text-brand-ef4444">{{ error }}</div>
 
       <div v-else>
-        <table class=" bg-white shadow-md rounded-lg overflow-hidden w-full">
-          <thead class="bg-white">
-            <tr class="grid grid-cols-6 h-[50px] items-center">
-              <th
-                class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] py-3 px-6 text-center text-black font-bold border-brand-5f6060 border-r-2 h-[40px]">
-                Nome </th>
-              <th
-                class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] py-3 px-6 text-center text-black font-bold border-brand-5f6060 border-r-2 h-[40px]">
-                Cargo</th>
-              <th
-                class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] py-3 px-6 text-center text-black font-bold col-span-2 border-brand-5f6060 border-r-2 h-[40px]">
-                Email</th>
-              <th
-                class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] py-3 px-6 text-center text-black font-bold border-brand-5f6060 border-r-2 h-[40px]">
-                Permissões</th>
-              <th
-                class="shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] py-3 px-6 text-center text-black font-bold border-r-2 h-[40px]">
-                Status</th>
-            </tr>
-          </thead>
+        <div class="overflow-x-auto">
+          <table class="w-full bg-white dark:bg-brand-0a0a0a rounded-lg overflow-hidden">
+            <thead class="bg-brand-f0f4ff dark:bg-brand-0e9a97">
+              <tr>
+                <th
+                  class="py-4 px-6 text-left text-sm font-semibold text-brand-5f6060 dark:text-white border-r border-brand-e5e7eb dark:border-brand-0e9989">
+                  Nome
+                </th>
+                <th
+                  class="py-4 px-6 text-left text-sm font-semibold text-brand-5f6060 dark:text-white border-r border-brand-e5e7eb dark:border-brand-0e9989">
+                  Cargo
+                </th>
+                <th
+                  class="py-4 px-6 text-left text-sm font-semibold text-brand-5f6060 dark:text-white border-r border-brand-e5e7eb dark:border-brand-0e9989">
+                  Email
+                </th>
+                <th
+                  class="py-4 px-6 text-center text-sm font-semibold text-brand-5f6060 dark:text-white border-r border-brand-e5e7eb dark:border-brand-0e9989">
+                  Permissões
+                </th>
+                <th class="py-4 px-6 text-center text-sm font-semibold text-brand-5f6060 dark:text-white">
+                  Status
+                </th>
+              </tr>
+            </thead>
 
-          <tbody class="max-h-[60vh] overflow-y-auto h-[50vh] flex flex-col gap-4 my-4">
-            <Card v-for="u in paginatedUsers" :key="u.id" :userId="u.id" :name="u.nomeCompleto || '—'"
-              :email="u.email || '—'" :cargo="cargoName(u)" :permisao="getPermissao(u)"
-              :status="mapSituacao(u.situacao)" :updating="Boolean(statusLoading[u.id])" :cargos="cargos"
-              :canApprove="hasPermission('Usuários — Aceitar/Aprovar')" :canRemove="hasPermission('Usuários — Remover') || isAdmin()"
-              @change-status="onChangeStatus" @removed="onUserRemoved" />
-          </tbody>
-        </table>
+            <tbody class="divide-y divide-brand-e5e7eb dark:divide-brand-3e4343">
+              <Card v-for="u in paginatedUsers" :key="u.id" :userId="u.id" :name="u.nomeCompleto || '—'"
+                :email="u.email || '—'" :cargo="cargoName(u)" :permisao="getPermissao(u)"
+                :status="mapSituacao(u.situacao)" :updating="Boolean(statusLoading[u.id])" :cargos="cargos"
+                :canApprove="hasPermission('Usuários — Aceitar/Aprovar')"
+                :canRemove="hasPermission('Usuários — Remover') || isAdmin()" @change-status="onChangeStatus"
+                @removed="onUserRemoved" />
+            </tbody>
+          </table>
+        </div>
 
-        <div v-if="!paginatedUsers.length && !loading" class="py-6 text-center text-brand-5f6060">
+        <div v-if="!paginatedUsers.length && !loading"
+          class="py-8 text-center text-brand-5f6060 dark:text-brand-e5e7eb">
           Nenhum usuário encontrado.
         </div>
 
-        <div class="flex items-center justify-end mt-4 gap-2">
-          <button @click="prevPage" :disabled="page === 1"
-            class="px-3 py-1 rounded border disabled:opacity-50">Anterior</button>
-          <span class="px-2">Página {{ page }} de {{ totalPages }}</span>
-          <button @click="nextPage" :disabled="page === totalPages"
-            class="px-3 py-1 rounded border disabled:opacity-50">Próxima</button>
+        <div class="flex items-center justify-between mt-6 pt-4 border-t border-brand-e5e7eb dark:border-brand-3e4343">
+          <span class="text-sm text-brand-5f6060 dark:text-brand-e5e7eb">
+            Mostrando {{ (page - 1) * pageSize + 1 }} a {{ Math.min(page * pageSize, filteredUsers.length) }} de {{
+              filteredUsers.length }} usuário(s)
+          </span>
+          <div class="flex items-center gap-2">
+            <button @click="prevPage" :disabled="page === 1"
+              class="px-4 py-2 rounded-lg border border-brand-e5e7eb dark:border-brand-3e4343 bg-white dark:bg-brand-0e9a97 text-brand-5f6060 dark:text-white hover:bg-brand-f6f7f8 dark:hover:bg-brand-0e9989 disabled:opacity-50 disabled:cursor-not-allowed transition">
+              Anterior
+            </button>
+            <span class="px-4 py-2 text-sm font-medium text-brand-5f6060 dark:text-brand-e5e7eb">
+              Página {{ page }} de {{ totalPages }}
+            </span>
+            <button @click="nextPage" :disabled="page === totalPages"
+              class="px-4 py-2 rounded-lg border border-brand-e5e7eb dark:border-brand-3e4343 bg-white dark:bg-brand-0e9a97 text-brand-5f6060 dark:text-white hover:bg-brand-f6f7f8 dark:hover:bg-brand-0e9989 disabled:opacity-50 disabled:cursor-not-allowed transition">
+              Próxima
+            </button>
+          </div>
         </div>
       </div>
     </div>

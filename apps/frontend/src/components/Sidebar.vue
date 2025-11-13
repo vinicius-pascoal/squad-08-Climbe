@@ -1,6 +1,6 @@
 <template>
   <!-- Copiado do index.html e adaptado para Vue + funcionalidades existentes -->
-  <aside class="sidebar flex-shrink-0 flex flex-col justify-between p-4 text-white h-screen overflow-hidden w-64"
+  <aside class="sidebar flex-shrink-0 flex flex-col justify-between p-4 h-screen overflow-hidden w-64"
     role="navigation">
     <div class="flex-1 overflow-y-auto">
       <div class="mb-10 text-center">
@@ -108,12 +108,18 @@ watch(() => route.path, () => nextTick().then(measureHeader))
 <style scoped>
 /* estilos copiados/compatíveis com index.html */
 .sidebar {
-  background: linear-gradient(180deg, #0b9a6f 0%, rgb(24, 176, 155) 100%);
+  /* Use CSS variables so the sidebar follows theme variables (with sensible fallbacks)
+     but keep text white by default so sidebar text remains white in light mode.
+     Dark mode rules (with !important) will override this when `.dark` is set. */
+  background: linear-gradient(180deg, var(--sidebar, #0b9a6f) 0%, var(--sidebarSecondary, rgb(24, 176, 155)) 100%);
+  color: #ffffff;
+  transition: background-color .2s ease, color .2s ease;
 }
 
 .sidebar a:hover,
 .sidebar a.active {
-  background-color: rgba(255, 255, 255, 0.15);
+  background-color: rgba(255, 255, 255, 0.12);
+  transition: background-color .15s ease;
 }
 
 @keyframes largura {
@@ -129,8 +135,9 @@ watch(() => route.path, () => nextTick().then(measureHeader))
 }
 
 .menu-link.ativo {
-  background-color: rgb(255, 255, 255);
-  color: #000;
+  background-color: var(--panel, #ffffff);
+  /* keep active label readable in light mode too */
+  color: #ffffff;
   box-shadow: 3px 5px 10px -2px rgba(0, 0, 0, 0.75) inset;
   animation: largura 0.5s ease-in-out;
 }
@@ -150,30 +157,29 @@ watch(() => route.path, () => nextTick().then(measureHeader))
 }
 
 /* dark mode */
-:deep(.dark) .menu-link.ativo {
-  background-color: var(--panel) !important;
+:deep(.dark) .sidebar {
+  /* Dark sidebar gradient using theme variables */
+  background: linear-gradient(180deg, var(--sidebar, #1E2436) 0%, var(--sidebarSecondary, #485780) 100%) !important;
   color: var(--text) !important;
+}
+
+:deep(.dark) .sidebar a:hover,
+:deep(.dark) .sidebar a.active {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+:deep(.dark) .sidebar a.active {
+  color: var(--text) !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
   box-shadow: none !important;
   border-left: 4px solid var(--accent) !important;
 }
 
-:deep(.dark) .menu-link:hover {
-  background-color: rgba(255, 255, 255, 0.03) !important;
+:deep(.dark) .sidebar button {
+  color: var(--text) !important;
 }
 
-:deep(.dark) .bg-sidebar {
-  background-color: var(--sidebar) !important;
-}
-
-:deep(.dark) .bg-secondary {
-  background-color: var(--secondary) !important;
-}
-
-:deep(.dark) .hover\:bg-white\/20:hover {
-  background-color: rgba(255, 255, 255, 0.03) !important;
-}
-
-.dark .fundosidebar {
-  background-color: var(--sidebar) !important;
+:deep(.dark) .sidebar img {
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.6));
 }
 </style>
