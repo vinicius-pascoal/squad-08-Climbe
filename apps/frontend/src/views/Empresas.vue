@@ -194,7 +194,8 @@
   </div>
 
   <CompanyWizard v-model:open="wizardOpen" api-url="/api/empresas" @saved="handleSaved" />
-  <ModalIniciarFluxo v-if="fluxoOpen" :empresa-id="fluxoEmpresaId" @close="fluxoOpen = false" @started="onFlowStarted" />
+  <ModalIniciarFluxo v-if="fluxoOpen" :empresa-id="fluxoEmpresaId" @close="fluxoOpen = false"
+    @started="onFlowStarted" />
 
   <!-- Modal avançar etapa -->
   <div v-if="advanceOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
