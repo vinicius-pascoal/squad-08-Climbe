@@ -8,18 +8,18 @@
 
       <div class="bg-white rounded-2xl  p-4 md:px-6 md:py-4 flex items-center gap-4 shadow-lg">
         <div class="size-20 rounded-full grid place-items-center"
-          :style="{ background: `conic-gradient(var(--color-94a3b8) 0 ${completedPct}%, var(--color-e2e8f0) ${completedPct}% 100%)` }">
+          :style="{ background: `conic-gradient(#B8DFD8 0 ${completedPct}%, #E1C9BF ${completedPct}% 100%)` }">
           <div class="size-12 bg-white rounded-full"></div>
         </div>
         <div class="flex-1 ">
           <p class="text-sm font-semibold">Tarefas Concluídas</p>
           <div class="mt-2 flex items-center gap-4 text-xs">
             <div class="flex items-center gap-1">
-              <span class="inline-block size-3 rounded-sm bg-slate-400"></span>
+              <span class="inline-block size-3 rounded-sm bg-[#B8DFD8]"></span>
               <span>{{ completedPct }}% Concluídas</span>
             </div>
             <div class="flex items-center gap-1">
-              <span class="inline-block size-3 rounded-sm bg-slate-200 outline outline-1 outline-slate-300"></span>
+              <span class="inline-block size-3 rounded-sm bg-[#E1C9BF] outline outline-1 outline-slate-300"></span>
               <span>{{ 100 - completedPct }}% Pendentes</span>
             </div>
           </div>
@@ -29,7 +29,7 @@
       <div class="flex items-center justify-end">
         <input v-if="hasPerm('Reuniões — Agendar') || (currentUser && currentUser.value?.cargoNome === 'Admin')"
           type="button" value="Cadastrar reunião" @click="goToAgendarReuniao"
-          class="cadastro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-[#CAD8FD] border border-[#3B67D0] text-white rounded-lg px-4 py-2 hover cursor-pointer ml-16" />
+          class="cadastro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-[#CAD8FD] border border-[#3B67D0] text-[#3B67D0] font-bold rounded-lg px-4 py-2 hover cursor-pointer ml-16" />
         <input v-else disabled type="button" value="Cadastrar reunião"
           class="cadastro rounded-lg bg-slate-300 text-white px-4 py-2 ml-16 opacity-60" />
       </div>

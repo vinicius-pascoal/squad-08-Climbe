@@ -195,7 +195,7 @@ export default {
 
       <input v-if="hasPermission('Usuários — Criar') || isAdmin() || hasPermission('Usuários — Aceitar/Aprovar')"
         type="button" value="Cadastrar usuário" @click="openCadastro"
-        class="cadastro shadow-md bg-brand-cad8fd dark:bg-brand-0e9a97 border border-brand-3b67d0 dark:border-brand-0e9989 text-white rounded-lg px-4 py-2 hover:bg-brand-93c5fd dark:hover:bg-brand-0e9989 cursor-pointer ml-16 transition" />
+        class="cadastro shadow-md bg-brand-cad8fd dark:bg-brand-0e9a97 border border-brand-3b67d0 dark:border-brand-0e9989 text-brand-3b67d0 font-bold rounded-lg px-4 py-2 hover:bg-brand-93c5fd dark:hover:bg-brand-0e9989 cursor-pointer ml-16 transition" />
       <input v-else disabled type="button" value="Cadastrar usuário"
         class="cadastro shadow-md bg-brand-e0e0e0 dark:bg-brand-3e4343 text-white rounded-lg px-4 py-2 ml-16 opacity-60 cursor-not-allowed" />
     </div>

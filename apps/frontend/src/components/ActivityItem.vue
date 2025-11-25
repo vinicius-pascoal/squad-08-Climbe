@@ -1,11 +1,7 @@
 <template>
   <li>
-    <input
-      type="checkbox"
-      :checked="activity.completed"
-      @change="toggleCompleted"
-      :class="activity.completed ? 'checkbox-completed' : 'checkbox-pending'"
-    />
+    <input type="checkbox" :checked="activity.completed" @change="toggleCompleted"
+      :class="activity.completed ? 'checkbox-completed' : 'checkbox-pending'" />
     <div class="activity-details">
       <span class="activity-title">{{ activity.title }}</span>
       <span v-if="activity.time" class="activity-time">{{ activity.time }}</span>
@@ -32,7 +28,7 @@ const toggleCompleted = () => {
 li {
   display: flex;
   align-items: center;
-  gap: 10px; 
+  gap: 10px;
   padding: 8px 0;
   border-bottom: 1px solid #eee;
 }
@@ -48,7 +44,7 @@ li {
 
 .activity-time {
   font-size: 0.85em;
-  color: #666; 
+  color: #666;
 }
 
 input[type="checkbox"] {
@@ -80,8 +76,8 @@ input[type="checkbox"]:checked::before {
 }
 
 .checkbox-pending {
-  background-color: #4CAF50;
-  border-color: #3e8e41;
+  background-color: #2FBBAA;
+  border-color: #258f82;
 }
 
 .checkbox-completed {
