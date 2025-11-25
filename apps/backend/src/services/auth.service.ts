@@ -1,11 +1,44 @@
 
 import { usuarioRepo } from '../repositories/usuario.repo';
-import { comparePassword } from '../utils/password';
+import { comparePassword, hashPassword } from '../utils/password';
 import { signAccessToken } from './token.service';
 
 const SITUACAO = { APROVADO: 'aprovado' } as const;
 
 export const authService = {
+  async changePassword(userId: number, currentPassword: string, newPassword: string) {
+    const user = await usuarioRepo.findById(userId);
+    if (!user || !user.senhaHash) {
+      const e: any = new Error('Usuário não encontrado');
+      e.statusCode = 404;
+      throw e;
+    }
+
+    // Verifica se a senha atual está correta
+    const isCurrentPasswordValid = await comparePassword(currentPassword, user.senhaHash);
+    if (!isCurrentPasswordValid) {
+      const e: any = new Error('Senha atual incorreta');
+      e.statusCode = 400;
+      throw e;
+    }
+
+    // Verifica se a nova senha é diferente da atual
+    const isSamePassword = await comparePassword(newPassword, user.senhaHash);
+    if (isSamePassword) {
+      const e: any = new Error('A nova senha deve ser diferente da senha atual');
+      e.statusCode = 400;
+      throw e;
+    }
+
+    // Hash da nova senha
+    const newPasswordHash = await hashPassword(newPassword);
+
+    // Atualiza a senha no banco
+    await usuarioRepo.updatePassword(userId, newPasswordHash);
+
+    return { message: 'Senha alterada com sucesso' };
+  },
+
   async passwordGrant(username: string, password: string) {
     const user = await usuarioRepo.findByEmail(username);
     if (!user || !user.senhaHash) {

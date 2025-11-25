@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { usuarioController } from '../controllers/usuario.controller';
 import { validate } from '../middlewares/validate';
-import { registerSchema, aprovarSchema, aprovarBodySchema, adminCreateSchema } from '../dtos/usuario.dto';
+import { registerSchema, aprovarSchema, aprovarBodySchema, adminCreateSchema, updateUsuarioParamsSchema, updateUsuarioBodySchema } from '../dtos/usuario.dto';
 import { requireAuth } from '../middlewares/auth';
 import { requirePermission } from '../middlewares/permission';
 import { registrarAuditoria, capturarDadosOriginais } from '../middlewares/auditoria';
@@ -40,6 +40,19 @@ usuarioRouter.patch(
 
 usuarioRouter.get('/', requireAuth, usuarioController.list);
 usuarioRouter.get('/:id', requireAuth, usuarioController.getById);
+
+usuarioRouter.patch(
+  '/:id',
+  requireAuth,
+  validate({ params: updateUsuarioParamsSchema, body: updateUsuarioBodySchema }),
+  requirePermission('Usuários — Editar'),
+  capturarDadosOriginais(async (req) => {
+    const id = parseInt(req.params.id);
+    return await usuarioRepo.findById(id);
+  }),
+  registrarAuditoria('Usuario', 'Editar'),
+  usuarioController.update
+);
 
 usuarioRouter.delete(
   '/:id',

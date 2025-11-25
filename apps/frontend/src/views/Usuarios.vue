@@ -1,12 +1,13 @@
 <script>
 import Card from '../components/cardUsers.vue';
 import ModalCadastroUsuario from '../components/modals/ModalCadastroUsuario.vue';
+import ModalEditarUsuario from '../components/modals/ModalEditarUsuario.vue';
 import { http } from '../lib/http';
 import { hasPermission as hasPerm, currentUser } from '../services/auth';
 
 export default {
   name: 'GestaoUsuario',
-  components: { Card, ModalCadastroUsuario },
+  components: { Card, ModalCadastroUsuario, ModalEditarUsuario },
 
   data() {
     return {
@@ -24,6 +25,8 @@ export default {
       page: 1,
       pageSize: 5,
       showCreateModal: false,
+      showEditModal: false,
+      selectedUser: null,
 
       statusLoading: {}, // { [userId]: boolean }
     };
@@ -116,6 +119,18 @@ export default {
     nextPage() { if (this.page < this.totalPages) this.page += 1; },
 
     openCadastro() { this.showCreateModal = true; },
+
+    openEdit(user) {
+      this.selectedUser = user;
+      this.showEditModal = true;
+    },
+
+    async handleUserUpdated() {
+      this.showEditModal = false;
+      this.selectedUser = null;
+      await this.fetchUsers();
+      this.$notify?.success('Usuário atualizado com sucesso!');
+    },
 
     handleClickOutside(e) {
       const dropdown = this.$refs.filtersDropdown;
@@ -267,8 +282,9 @@ export default {
                 :email="u.email || '—'" :cargo="cargoName(u)" :permisao="getPermissao(u)"
                 :status="mapSituacao(u.situacao)" :updating="Boolean(statusLoading[u.id])" :cargos="cargos"
                 :canApprove="hasPermission('Usuários — Aceitar/Aprovar')"
+                :canEdit="hasPermission('Usuários — Editar') || isAdmin()"
                 :canRemove="hasPermission('Usuários — Remover') || isAdmin()" @change-status="onChangeStatus"
-                @removed="onUserRemoved" />
+                @edit="openEdit(u)" @removed="onUserRemoved" />
             </tbody>
           </table>
         </div>
@@ -300,6 +316,8 @@ export default {
       </div>
     </div>
     <ModalCadastroUsuario v-if="showCreateModal" @close="showCreateModal = false" />
+    <ModalEditarUsuario v-if="showEditModal" :user="selectedUser" :cargos="cargos" @close="showEditModal = false"
+      @updated="handleUserUpdated" />
   </div>
 </template>
 

@@ -26,3 +26,17 @@ export const adminCreateSchema = z.object({
   situacao: z.enum(['aprovado', 'pendente', 'desativado']).default('pendente'),
 });
 export type AdminCreateDTO = z.infer<typeof adminCreateSchema>;
+
+export const updateUsuarioParamsSchema = z.object({
+  id: z.string().regex(/^\d+$/),
+}).strict();
+
+export const updateUsuarioBodySchema = z.object({
+  nomeCompleto: z.string().min(3).optional(),
+  email: z.string().email().optional(),
+  contato: z.string().optional().nullable(),
+  cargoId: z.number().int().optional().nullable(),
+  situacao: z.enum(['aprovado', 'pendente', 'desativado']).optional(),
+  senha: z.string().min(8).optional(),
+});
+export type UpdateUsuarioDTO = z.infer<typeof updateUsuarioBodySchema>;
