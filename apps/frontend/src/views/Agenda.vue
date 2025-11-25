@@ -1,25 +1,29 @@
 <template>
-  <section class="  text-slate-800 ">
-    <div class="mx-auto w-full max-w-7xl px-4 pt-6 pb-3 grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4 ">
-      <div class="bg-white rounded-2xl p-5 shadow-lg">
-        <p class="text-sm font-semibold tracking-wide">Contratos que&nbsp; vencem esse mês</p>
-        <div class="text-5xl font-bold mt-2 leading-none">4</div>
+  <section class="text-brand-000 dark:text-white">
+    <div class="mx-auto w-full max-w-7xl px-4 pt-6 pb-3 grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4">
+      <div
+        class="bg-white dark:bg-brand-0a0a0a rounded-2xl p-5 shadow-lg border border-transparent dark:border-brand-0e9989 transition-colors">
+        <p class="text-sm font-semibold tracking-wide text-brand-5f6060 dark:text-brand-e5e7eb">Contratos que&nbsp;
+          vencem esse mês</p>
+        <div class="text-5xl font-bold mt-2 leading-none text-brand-000 dark:text-white">4</div>
       </div>
 
-      <div class="bg-white rounded-2xl  p-4 md:px-6 md:py-4 flex items-center gap-4 shadow-lg">
+      <div
+        class="bg-white dark:bg-brand-0a0a0a rounded-2xl p-4 md:px-6 md:py-4 flex items-center gap-4 shadow-lg border border-transparent dark:border-brand-0e9989 transition-colors">
         <div class="size-20 rounded-full grid place-items-center"
           :style="{ background: `conic-gradient(#B8DFD8 0 ${completedPct}%, #E1C9BF ${completedPct}% 100%)` }">
-          <div class="size-12 bg-white rounded-full"></div>
+          <div class="size-12 bg-white dark:bg-brand-0a0a0a rounded-full transition-colors"></div>
         </div>
-        <div class="flex-1 ">
-          <p class="text-sm font-semibold">Tarefas Concluídas</p>
-          <div class="mt-2 flex items-center gap-4 text-xs">
+        <div class="flex-1">
+          <p class="text-sm font-semibold text-brand-000 dark:text-white">Tarefas Concluídas</p>
+          <div class="mt-2 flex items-center gap-4 text-xs text-brand-5f6060 dark:text-brand-e5e7eb">
             <div class="flex items-center gap-1">
               <span class="inline-block size-3 rounded-sm bg-[#B8DFD8]"></span>
               <span>{{ completedPct }}% Concluídas</span>
             </div>
             <div class="flex items-center gap-1">
-              <span class="inline-block size-3 rounded-sm bg-[#E1C9BF] outline outline-1 outline-slate-300"></span>
+              <span
+                class="inline-block size-3 rounded-sm bg-[#E1C9BF] outline outline-1 outline-slate-300 dark:outline-brand-0e9989"></span>
               <span>{{ 100 - completedPct }}% Pendentes</span>
             </div>
           </div>
@@ -29,33 +33,35 @@
       <div class="flex items-center justify-end">
         <input v-if="hasPerm('Reuniões — Agendar') || (currentUser && currentUser.value?.cargoNome === 'Admin')"
           type="button" value="Cadastrar reunião" @click="goToAgendarReuniao"
-          class="cadastro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-[#CAD8FD] border border-[#3B67D0] text-[#3B67D0] font-bold rounded-lg px-4 py-2 hover cursor-pointer ml-16" />
+          class="cadastro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-brand-cad8fd dark:bg-brand-14b8a6 border border-brand-3b67d0 dark:border-brand-0e9989 text-brand-3b67d0 dark:text-white font-bold rounded-lg px-4 py-2 hover:bg-brand-93c5fd dark:hover:bg-brand-16c3af cursor-pointer ml-16 transition" />
         <input v-else disabled type="button" value="Cadastrar reunião"
-          class="cadastro rounded-lg bg-slate-300 text-white px-4 py-2 ml-16 opacity-60" />
+          class="cadastro rounded-lg bg-brand-e0e0e0 dark:bg-brand-3e4343 text-white px-4 py-2 ml-16 opacity-60 cursor-not-allowed" />
       </div>
     </div>
 
     <div class="mx-auto w-full max-w-7xl px-4 pt-3 pb-0 flex items-center gap-4">
-      <button class="pb-3 text-base font-semibold  rounded-t-xl px-6 py-1 "
-        :class="activeTab === 'agenda' ? 'text-brand-10b981 bg-white' : 'text-slate-400 bg-gray-300'"
+      <button class="pb-3 text-base font-semibold rounded-t-xl px-6 py-1 transition-colors"
+        :class="activeTab === 'agenda' ? 'text-brand-10b981 dark:text-brand-14b8a6 bg-white dark:bg-brand-0a0a0a' : 'text-slate-400 dark:text-brand-e5e7eb bg-gray-300 dark:bg-brand-0e9989'"
         @click="activeTab = 'agenda'">
-        <span class=" text-shadow-lg">
+        <span class="text-shadow-lg">
           Agenda
         </span>
       </button>
 
     </div>
-    <div class=" bg-white rounded-xl mx-auto w-full max-w-7xl p-4 shadow-lg">
-      <div class="bg-white rounded-t-[22px] px-4 pt-4 pb-0 flex items-center gap-6">
+    <div
+      class="bg-white dark:bg-brand-0a0a0a rounded-xl mx-auto w-full max-w-7xl p-4 shadow-lg border border-transparent dark:border-brand-0e9989 transition-colors">
+      <div
+        class="bg-white dark:bg-brand-0a0a0a rounded-t-[22px] px-4 pt-4 pb-0 flex items-center gap-6 transition-colors">
 
-        <div class=" flex items-center gap-2 w-full">
-          <div class="text-[28px] font-extrabold mr-4">{{ monthTitle }}</div>
-          <div class=" ml-auto bg-slate-200/70 rounded-xl p-1 inline-flex">
+        <div class="flex items-center gap-2 w-full">
+          <div class="text-[28px] font-extrabold mr-4 text-brand-000 dark:text-white">{{ monthTitle }}</div>
+          <div class="ml-auto bg-brand-e5e7eb dark:bg-brand-0e9989 rounded-xl p-1 inline-flex transition-colors">
             <button class="px-3 py-1.5 text-sm rounded-lg transition"
-              :class="view === 'week' ? 'bg-white shadow text-slate-900' : 'text-slate-600'"
+              :class="view === 'week' ? 'bg-white dark:bg-brand-0e9a97 shadow text-brand-000 dark:text-white' : 'text-brand-5f6060 dark:text-brand-e5e7eb'"
               @click="view = 'week'">Semanal</button>
             <button class="px-3 py-1.5 text-sm rounded-lg transition"
-              :class="view === 'month' ? 'bg-white shadow text-slate-900' : 'text-slate-600'"
+              :class="view === 'month' ? 'bg-white dark:bg-brand-0e9a97 shadow text-brand-000 dark:text-white' : 'text-brand-5f6060 dark:text-brand-e5e7eb'"
               @click="view = 'month'">Mensal</button>
           </div>
         </div>
