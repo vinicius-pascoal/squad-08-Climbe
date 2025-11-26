@@ -28,3 +28,10 @@ authRouter.post(
   registrarAuditoria('Usuario', 'Alterar Senha'),
   authController.changePassword
 );
+
+authRouter.post(
+  '/refresh',
+  requireAuth,
+  registrarAuditoria('Usuario', 'Refresh Token'),
+  authController.refresh
+);
