@@ -86,16 +86,12 @@ function isPrazoUrgente(prazo: string | null) {
 async function carregarTarefas() {
   loadingTarefas.value = true;
   try {
-    const userId = currentUser.value?.id;
-    if (!userId) return;
-
     const response = await http('/api/tarefas');
-    // Filtrar tarefas do usuário atual
-    tarefas.value = response.filter((t: any) =>
-      t.usuarioId === userId || t.responsavelId === userId
-    );
+    // Exibir todas as tarefas, independente do usuário
+    tarefas.value = response || [];
   } catch (error) {
     console.error('Erro ao carregar tarefas:', error);
+    tarefas.value = [];
   } finally {
     loadingTarefas.value = false;
   }

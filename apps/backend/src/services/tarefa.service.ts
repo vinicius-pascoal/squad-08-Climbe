@@ -16,10 +16,21 @@ type TarefaUpdateData = Partial<TarefaCreateData>;
 
 export const tarefaService = {
   async create(data: TarefaCreateData) {
+    console.log('[TarefaService] Criando tarefa com data:', data)
     // Cast to any to avoid depending on generated Prisma unchecked types during CI builds
-    return prisma.tarefa.create({
+    const tarefa = await prisma.tarefa.create({
       data: data as any,
+      include: {
+        usuario: {
+          select: { id: true, nomeCompleto: true }
+        },
+        proposta: {
+          select: { id: true, empresaId: true, status: true }
+        }
+      }
     });
+    console.log('[TarefaService] Tarefa criada com propostaId:', tarefa.propostaId)
+    return tarefa;
   },
 
   async findAll(propostaId?: number) {
