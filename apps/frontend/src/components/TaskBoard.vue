@@ -41,23 +41,21 @@
               </span>
             </div>
           </div>
-
-          <button v-if="col.key !== 'done'" class="mt-2 text-xs text-slate-500 hover:text-emerald-600"
-            @click="addCard(col.key)">
-            + Adicionar Card
-          </button>
         </div>
       </div>
 
-      <div class="bg-white rounded-2xl shadow p-3">
-        <h3 class="font-semibold mb-2">Progresso</h3>
+      <div class="bg-white dark:bg-brand-0a0a0a rounded-2xl shadow p-3 border border-brand-e5e7eb dark:border-brand-0e9989">
+        <h3 class="font-semibold mb-2 text-brand-000 dark:text-white">Progresso</h3>
+        <div v-if="groups.length === 0" class="text-xs text-brand-5f6060 dark:text-brand-e5e7eb py-2">
+          Nenhuma tarefa vinculada
+        </div>
         <div v-for="g in groups" :key="g.label" class="mb-3">
-          <div class="flex justify-between text-xs mb-1">
+          <div class="flex justify-between text-xs mb-1 text-brand-000 dark:text-white">
             <span>{{ g.label }}</span>
             <span>{{ g.done }}/{{ g.total }}</span>
           </div>
-          <div class="h-1.5 bg-slate-200 rounded-full overflow-hidden">
-            <div class="h-full bg-emerald-500" :style="{ width: ((g.done / g.total) * 100) + '%' }"></div>
+          <div class="h-1.5 bg-slate-200 dark:bg-brand-5f6060 rounded-full overflow-hidden">
+            <div class="h-full transition-all" :style="{ width: `${(g.done / g.total) * 100}%`, 'background-color': g.color }"></div>
           </div>
         </div>
       </div>
@@ -66,7 +64,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive, ref, getCurrentInstance, watch } from 'vue'
+import { updateTarefa } from '../services/tarefa'
+
+const _ins = getCurrentInstance()
+const notify = _ins?.appContext.config.globalProperties.$notify as any
 
 type StatusKey = 'todo' | 'doing' | 'review' | 'done'
 
@@ -105,6 +107,14 @@ const query = ref('')
 const draggingId = ref<string | null>(null)
 const dropping = ref<StatusKey | null>(null)
 
+// Atualizar state quando props mudarem
+watch(() => props.tasksData, (newTasks) => {
+  if (newTasks && newTasks.length) {
+    state.tasks = newTasks.slice()
+    console.log('Tarefas atualizadas:', state.tasks)
+  }
+}, { immediate: true, deep: true })
+
 function filteredBy(status: StatusKey) {
   const q = query.value.trim().toLowerCase()
   return state.tasks.filter((t: Task) => t.status === status && (!q || t.title.toLowerCase().includes(q)))
@@ -122,24 +132,77 @@ function onDragLeave() {
   dropping.value = null
 }
 
-function onDrop(target: StatusKey) {
-  if (!draggingId.value) return
-  const task = state.tasks.find((t: Task) => t.id === draggingId.value)
-  if (task) task.status = target
-  draggingId.value = null
-  dropping.value = null
+// Mapeia StatusKey para valores que o backend aceita
+function mapStatusToBackend(status: StatusKey): string {
+  const statusMap: Record<StatusKey, string> = {
+    'todo': 'A_FAZER',
+    'doing': 'EM_ANDAMENTO',
+    'review': 'REVISAO',
+    'done': 'CONCLUIDA'
+  }
+  return statusMap[status]
 }
 
-function addCard(status: StatusKey) {
-  const id = 't' + Math.random().toString(36).slice(2, 8)
-  state.tasks.push({ id, title: 'Novo card', tag: 'Desenvolvimento', status, points: 1, date: '24 nov' })
+async function onDrop(target: StatusKey) {
+  if (!draggingId.value) return
+  const task = state.tasks.find((t: Task) => t.id === draggingId.value)
+  if (!task) {
+    draggingId.value = null
+    dropping.value = null
+    return
+  }
+
+  const oldStatus = task.status
+  task.status = target // Atualiza visualmente primeiro
+  draggingId.value = null
+  dropping.value = null
+
+  try {
+    // Salva no backend
+    const backendStatus = mapStatusToBackend(target)
+    await updateTarefa(Number(task.id), { status: backendStatus })
+    console.log(`Tarefa #${task.id} atualizada para status: ${backendStatus}`)
+    notify?.success('Status da tarefa atualizado')
+  } catch (error) {
+    console.error('Erro ao atualizar status da tarefa:', error)
+    // Reverte em caso de erro
+    task.status = oldStatus
+    notify?.error('Erro ao atualizar o status da tarefa')
+  }
+}
+
+const categoryColors: Record<string, string> = {
+  'Marketing': '#f43f5e',      // rose-500
+  'UI Design': '#10b981',      // emerald-500
+  'Vendas': '#16a34a',         // green-600
+  'Documentação': '#3b82f6',   // blue-500
+  'Desenvolvimento': '#ec4899', // pink-500
+  'Infraestrutura': '#a855f7',  // purple-500
+  'QA': '#eab308',             // yellow-500
+  'Design': '#14b8a6',         // teal-500
+  'Backend': '#6366f1',        // indigo-500
+  'Frontend': '#06b6d4'        // cyan-500
 }
 
 const groups = computed(() => {
-  const total = (tag: Task['tag']) => state.tasks.filter((t: Task) => t.tag === tag).length
-  const done = (tag: Task['tag']) => state.tasks.filter((t: Task) => t.tag === tag && t.status === 'done').length
-  const tags: Task['tag'][] = ['Desenvolvimento', 'Vendas', 'UI Design', 'Documentação', 'Marketing']
-  return tags.map(label => ({ label, total: total(label), done: done(label) }))
+  // Obter apenas as categorias que existem nas tarefas atuais
+  const existingTags = [...new Set(state.tasks.map((t: Task) => t.tag))]
+  
+  const total = (tag: string) => state.tasks.filter((t: Task) => t.tag === tag).length
+  const done = (tag: string) => state.tasks.filter((t: Task) => t.tag === tag && t.status === 'done').length
+  
+  const result = existingTags
+    .filter(tag => total(tag) > 0) // Apenas categorias com tarefas
+    .map(label => ({
+      label,
+      total: total(label),
+      done: done(label),
+      color: categoryColors[label] || '#6b7280' // gray-500
+    }))
+    .sort((a, b) => b.total - a.total) // Ordenar por total de tarefas (decrescente)
+  
+  console.log('Groups com cores:', result)
+  return result
 })
 
 function tagClass(tag: Task['tag']) {
