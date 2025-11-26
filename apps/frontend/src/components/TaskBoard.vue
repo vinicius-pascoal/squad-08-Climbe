@@ -63,7 +63,7 @@
           </div>
           <div class="h-1.5 bg-slate-200 dark:bg-brand-5f6060 rounded-full overflow-hidden">
             <div class="h-full transition-all"
-              :style="{ width: `${(g.done / g.total) * 100}%`, 'background-color': g.color }"></div>
+              :style="{ width: `${(g.done / g.total) * 100}%`, backgroundColor: g.color }"></div>
           </div>
         </div>
       </div>
@@ -181,16 +181,17 @@ async function onDrop(target: StatusKey) {
 }
 
 const categoryColors: Record<string, string> = {
-  'Marketing': '#f43f5e',      // rose-500
-  'UI Design': '#10b981',      // emerald-500
-  'Vendas': '#16a34a',         // green-600
-  'Documentação': '#3b82f6',   // blue-500
-  'Desenvolvimento': '#ec4899', // pink-500
+  'Marketing': '#f43f5e',       // rose-500
+  'UI Design': '#10b981',       // emerald-500
+  'Vendas': '#8b5cf6',          // violet-500
+  'Documentação': '#3b82f6',    // blue-500
+  'Desenvolvimento': '#f59e0b', // amber-500
   'Infraestrutura': '#a855f7',  // purple-500
-  'QA': '#eab308',             // yellow-500
-  'Design': '#14b8a6',         // teal-500
-  'Backend': '#6366f1',        // indigo-500
-  'Frontend': '#06b6d4'        // cyan-500
+  'QA': '#eab308',              // yellow-500
+  'Design': '#14b8a6',          // teal-500
+  'Backend': '#6366f1',         // indigo-500
+  'Frontend': '#06b6d4',        // cyan-500
+  'default': '#6b7280'          // gray-500 para categorias não mapeadas
 }
 
 const groups = computed(() => {
@@ -206,7 +207,7 @@ const groups = computed(() => {
       label,
       total: total(label),
       done: done(label),
-      color: categoryColors[label] || '#6b7280' // gray-500
+      color: categoryColors[label] || categoryColors['default']
     }))
     .sort((a, b) => b.total - a.total) // Ordenar por total de tarefas (decrescente)
 
