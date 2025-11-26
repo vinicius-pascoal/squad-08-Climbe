@@ -25,26 +25,33 @@
               <span :class="['px-3 py-0.5 rounded-full text-xs font-semibold', tagClass(t.tag)]">{{ t.tag }}</span>
               <span class="text-slate-400">⋮⋮</span>
             </div>
-            <div class="text-sm font-semibold leading-snug mb-2">{{ t.title }}</div>
-            <div class="flex items-center gap-3 text-xs text-slate-500">
-              <span class="inline-flex items-center gap-1">
-                <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M8 7h8M7 12h10M10 17h4" />
+            <div class="text-sm font-semibold leading-snug mb-3">{{ t.title }}</div>
+
+            <div v-if="t.responsavel"
+              class="flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 px-2 py-1 rounded-md w-fit"
+              :title="t.responsavel">
+              <div
+                class="w-5 h-5 rounded-full bg-emerald-200 dark:bg-emerald-700 flex items-center justify-center text-[10px] font-semibold text-emerald-800 dark:text-emerald-100">
+                {{ t.responsavel.charAt(0).toUpperCase() }}
+              </div>
+              <span class="text-[11px] font-medium truncate max-w-[120px]">{{ t.responsavel.split(' ')[0] }}</span>
+            </div>
+
+            <div class="space-y-2">
+              <div class="flex items-center gap-2 text-xs text-slate-500">
+                <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <path d="M16 2v4M8 2v4M3 10h18" />
                 </svg>
-                {{ t.date }}
-              </span>
-              <span class="inline-flex items-center gap-1">
-                <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M12 6v12m6-6H6" />
-                </svg>
-                {{ t.points }}
-              </span>
+                <span>{{ t.date }}</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="bg-white dark:bg-brand-0a0a0a rounded-2xl shadow p-3 border border-brand-e5e7eb dark:border-brand-0e9989">
+      <div
+        class="bg-white dark:bg-brand-0a0a0a rounded-2xl shadow p-3 border border-brand-e5e7eb dark:border-brand-0e9989">
         <h3 class="font-semibold mb-2 text-brand-000 dark:text-white">Progresso</h3>
         <div v-if="groups.length === 0" class="text-xs text-brand-5f6060 dark:text-brand-e5e7eb py-2">
           Nenhuma tarefa vinculada
@@ -55,7 +62,8 @@
             <span>{{ g.done }}/{{ g.total }}</span>
           </div>
           <div class="h-1.5 bg-slate-200 dark:bg-brand-5f6060 rounded-full overflow-hidden">
-            <div class="h-full transition-all" :style="{ width: `${(g.done / g.total) * 100}%`, 'background-color': g.color }"></div>
+            <div class="h-full transition-all"
+              :style="{ width: `${(g.done / g.total) * 100}%`, 'background-color': g.color }"></div>
           </div>
         </div>
       </div>
@@ -79,6 +87,7 @@ type Task = {
   status: StatusKey
   points: number
   date: string
+  responsavel?: string
 }
 
 const columns: { key: StatusKey; title: string }[] = [
@@ -187,10 +196,10 @@ const categoryColors: Record<string, string> = {
 const groups = computed(() => {
   // Obter apenas as categorias que existem nas tarefas atuais
   const existingTags = [...new Set(state.tasks.map((t: Task) => t.tag))]
-  
+
   const total = (tag: string) => state.tasks.filter((t: Task) => t.tag === tag).length
   const done = (tag: string) => state.tasks.filter((t: Task) => t.tag === tag && t.status === 'done').length
-  
+
   const result = existingTags
     .filter(tag => total(tag) > 0) // Apenas categorias com tarefas
     .map(label => ({
@@ -200,7 +209,7 @@ const groups = computed(() => {
       color: categoryColors[label] || '#6b7280' // gray-500
     }))
     .sort((a, b) => b.total - a.total) // Ordenar por total de tarefas (decrescente)
-  
+
   console.log('Groups com cores:', result)
   return result
 })

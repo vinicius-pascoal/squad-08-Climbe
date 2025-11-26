@@ -88,7 +88,8 @@ function toTask(t: any) {
     tag: (t.categoria as any) || (t.tag as any) || 'Desenvolvimento',
     status: mapStatus(t.status) as any,
     points: 1,
-    date: t.dataCriacao ? new Date(t.dataCriacao).toLocaleDateString('pt-BR') : ''
+    date: t.dataCriacao ? new Date(t.dataCriacao).toLocaleDateString('pt-BR') : '',
+    responsavel: t.usuario?.nomeCompleto || t.usuario?.email || (t.usuarioId ? 'Usuário ' + t.usuarioId : undefined)
   }
 }
 
