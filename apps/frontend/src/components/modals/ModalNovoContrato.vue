@@ -199,7 +199,7 @@ const handleSubmit = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 60
+  z-index: 1100
 }
 
 .modal-content {
