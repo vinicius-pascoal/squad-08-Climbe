@@ -35,7 +35,7 @@
     <!-- Fluxo -->
     <ModalIniciarFluxo v-if="showStartFlow" @close="showStartFlow = false" @started="onFlowStarted" />
     <CompanyWizard v-if="showEmpresaModal" v-model:open="showEmpresaModal" api-url="/api/empresas"
-      @saved="onEmpresaSaved" />
+      :initial-data="empresaTemporariaData" @saved="onEmpresaSaved" />
 
     <AddEventModal v-if="isAddEventModalOpen" @close="closeAddEventModal" @add="addActivity"
       :selectedDate="selectedDate" />
@@ -83,6 +83,7 @@ const activities = activitiesAll; // compat shorthand for older code using 'acti
 const isAddEventModalOpen = ref(false);
 const showStartFlow = ref(false);
 const showEmpresaModal = ref(false);
+const empresaTemporariaData = ref<any>(null);
 const agendaRef = ref<any>(null);
 const currentFlowContext = ref<{ flowId: number; stepType: string } | null>(null);
 
@@ -230,7 +231,17 @@ async function onAgendaEventClick(ev: any) {
       CONTRATO: () => {
         showContratoModal.value = true;
       },
-      CRIACAO_EMPRESA: () => {
+      CRIACAO_EMPRESA: async () => {
+        // Buscar dados da empresa temporária do fluxo
+        try {
+          const flowData = await http(`/api/flows/${ev.flowId}`);
+          if (flowData?.empresa) {
+            empresaTemporariaData.value = flowData.empresa;
+            console.log('📋 Empresa temporária carregada para edição:', flowData.empresa);
+          }
+        } catch (e: any) {
+          console.error('Erro ao buscar empresa temporária:', e);
+        }
         showEmpresaModal.value = true;
       },
     };
@@ -304,22 +315,16 @@ async function onEmpresaSaved(empresa?: any) {
 
   if (currentFlowContext.value?.flowId && empresa?.id) {
     try {
-      console.log('🏢 Empresa criada, atualizando fluxo...', {
+      console.log('🏢 Empresa atualizada, finalizando fluxo...', {
         flowId: currentFlowContext.value.flowId,
         empresaId: empresa.id
       });
 
-      // Vincular empresa ao fluxo (atualizar empresaId)
-      await http(`/api/flows/${currentFlowContext.value.flowId}`, {
-        method: 'PATCH',
-        body: JSON.stringify({ empresaId: empresa.id }),
-      });
-      console.log('✅ Empresa vinculada ao fluxo, avançando fluxo...');
-
+      // Avançar o fluxo (a empresa temporária já foi editada)
       const result = await advanceFlow(currentFlowContext.value.flowId);
       console.log('✅ Fluxo avançado:', result);
 
-      $notify?.success?.('Empresa criada! Fluxo concluído com sucesso! 🎉');
+      $notify?.success?.('Empresa atualizada! Fluxo concluído com sucesso! 🎉');
 
       // Aguardar um pouco para garantir que o backend processou
       setTimeout(() => {
@@ -328,10 +333,11 @@ async function onEmpresaSaved(empresa?: any) {
       }, 500);
     } catch (e: any) {
       console.error('❌ Erro ao finalizar fluxo:', e);
-      $notify?.error?.(e?.message || 'Erro ao vincular empresa');
+      $notify?.error?.(e?.message || 'Erro ao finalizar fluxo');
     }
   }
   showEmpresaModal.value = false;
+  empresaTemporariaData.value = null;
   currentFlowContext.value = null;
 }
 
