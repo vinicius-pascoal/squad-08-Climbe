@@ -56,8 +56,8 @@ export const usuarioService = {
 
   async adminCreate(input: any) {
     const { nomeCompleto, email, contato, senha, cargoId } = input;
-  let situacao = String(input.situacao || 'pendente').toLowerCase();
-  if (!['aprovado', 'pendente', 'desativado'].includes(situacao)) situacao = 'pendente';
+    let situacao = String(input.situacao || 'pendente').toLowerCase();
+    if (!['aprovado', 'pendente', 'desativado'].includes(situacao)) situacao = 'pendente';
 
     const exists = await usuarioRepo.findByEmail(email);
     if (exists) {
@@ -100,6 +100,57 @@ export const usuarioService = {
     const users = await usuarioRepo.list();
     // mantém quem não tem cargo (null) e quem tem cargo diferente do Admin
     return users.filter((u: any) => Number(u.cargoId) !== adminCargoId);
+  },
+
+  async update(id: number, input: any) {
+    const user = await usuarioRepo.findById(id);
+    if (!user) {
+      const e: any = new Error('Usuário não encontrado');
+      e.statusCode = 404;
+      throw e;
+    }
+
+    const updateData: any = {};
+
+    if (input.nomeCompleto) updateData.nomeCompleto = input.nomeCompleto;
+    if (input.email) {
+      const emailExists = await usuarioRepo.findByEmail(input.email);
+      if (emailExists && emailExists.id !== id) {
+        const e: any = new Error('E-mail já cadastrado');
+        e.statusCode = 409;
+        throw e;
+      }
+      updateData.email = input.email.toLowerCase();
+    }
+    if (input.contato !== undefined) updateData.contato = input.contato;
+    if (input.cargoId !== undefined) {
+      if (input.cargoId !== null) {
+        const cargo = await prisma.cargo.findUnique({ where: { id: input.cargoId } });
+        if (!cargo) {
+          const e: any = new Error('Cargo inválido');
+          e.statusCode = 400;
+          throw e;
+        }
+      }
+      updateData.cargoId = input.cargoId;
+    }
+    if (input.situacao) updateData.situacao = input.situacao;
+    if (input.senha) {
+      updateData.senhaHash = await hashPassword(input.senha);
+    }
+
+    const updated = await usuarioRepo.update(id, updateData);
+
+    // Se o cargo foi alterado, sincroniza permissões
+    if (input.cargoId !== undefined && input.cargoId !== null) {
+      try {
+        await permissionService.syncPermissionsForUserFromCargo(id, input.cargoId);
+      } catch (e) {
+        console.warn('Falha ao sincronizar permissões:', (e as Error).message);
+      }
+    }
+
+    return updated;
   },
 
   findById: (id: number) => usuarioRepo.findById(id),

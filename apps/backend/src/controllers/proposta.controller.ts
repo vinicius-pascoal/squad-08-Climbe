@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { propostaService } from '../services/proposta.service';
 import { enviarResposta } from '../middlewares/auditoria';
+import { flowService } from '../services/flow.service';
+import { prisma } from '../utils/prisma';
 
 export const propostaController = {
   async create(req: Request, res: Response) {
@@ -40,6 +42,48 @@ export const propostaController = {
     try {
       const id = parseInt(req.params.id);
       const proposta = await propostaService.updateProposta(id, req.body);
+
+      // Se a proposta foi aprovada, avançar o fluxo
+      if (req.body.status === 'APROVADA') {
+        try {
+          console.log(`🔍 Proposta ${id} aprovada, buscando flow associado...`);
+          const flow = await prisma.contractFlow.findFirst({
+            where: { propostaId: id },
+            include: { steps: { orderBy: { id: 'asc' } } }
+          });
+
+          if (flow) {
+            console.log(`📋 Flow encontrado para proposta ${id}:`, flow.id);
+            console.log(`📋 Status do flow:`, flow.status);
+            console.log(`📋 Steps do flow:`, JSON.stringify(flow.steps.map(s => ({ id: s.id, type: s.type, status: s.status })), null, 2));
+
+            // Verificar se há uma etapa PROPOSTA pendente
+            const propostaStep = flow.steps.find(s => s.type === 'PROPOSTA' && s.status === 'PENDENTE');
+
+            if (propostaStep) {
+              console.log(`📋 Etapa PROPOSTA PENDENTE encontrada, avançando flow ${flow.id}...`);
+              try {
+                const result = await flowService.advance(flow.id);
+                console.log(`✅ Etapa do flow ${flow.id} avançada com sucesso para CONTRATO:`, JSON.stringify(result, null, 2));
+              } catch (advanceError: any) {
+                console.error(`❌ Erro ao chamar flowService.advance:`, advanceError.message);
+                console.error('Stack:', advanceError.stack);
+              }
+            } else {
+              const allSteps = flow.steps.map(s => ({ type: s.type, status: s.status }));
+              console.log(`⚠️ Etapa PROPOSTA não está PENDENTE no flow ${flow.id}`);
+              console.log(`⚠️ Status de todas as etapas:`, JSON.stringify(allSteps, null, 2));
+            }
+          } else {
+            console.log(`⚠️ Nenhum flow encontrado para proposta ${id}`);
+          }
+        } catch (flowError: any) {
+          console.error('❌ Erro ao avançar flow após aprovação de proposta:', flowError.message);
+          console.error('Stack:', flowError.stack);
+          // Não falha a aprovação se houver erro no flow
+        }
+      }
+
       return enviarResposta(res, 200, proposta);
     } catch (error: any) {
       return res.status(400).json({ message: error.message });

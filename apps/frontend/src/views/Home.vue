@@ -28,13 +28,14 @@
 
     <!-- Modals for quick creation (opened by role buttons) -->
     <ModalCreateProposta v-if="showPropostaModal" @close="handleClosePropostaModal" @saved="onPropostaSaved" />
-    <ModalNovoContrato v-if="showContratoModal" @close="handleCloseContratoModal" @saved="onContratoSaved" />
+    <ModalNovoContrato v-if="showContratoModal" :flowId="currentFlowContext?.flowId" @close="handleCloseContratoModal"
+      @saved="onContratoSaved" />
     <ModalCadastroUsuario v-if="showCadastroModal" @close="showCadastroModal = false" />
 
     <!-- Fluxo -->
     <ModalIniciarFluxo v-if="showStartFlow" @close="showStartFlow = false" @started="onFlowStarted" />
     <CompanyWizard v-if="showEmpresaModal" v-model:open="showEmpresaModal" api-url="/api/empresas"
-      @saved="onEmpresaSaved" />
+      :initial-data="empresaTemporariaData" @saved="onEmpresaSaved" />
 
     <AddEventModal v-if="isAddEventModalOpen" @close="closeAddEventModal" @add="addActivity"
       :selectedDate="selectedDate" />
@@ -70,8 +71,9 @@ import CompanyWizard from '../components/modals/company-wizard/CompanyWizard.vue
 
 // Serviços
 import calendarApi, { listCalendarEvents, listUserEvents, addCalendarEvent } from '../services/calendar';
-import { advanceFlow, linkProposta, linkContrato } from '../services/flow';
+import { advanceFlow, linkProposta, linkContrato, cancelFlow } from '../services/flow';
 import { http } from '../lib/http';
+import Swal from 'sweetalert2';
 
 // --- ESTADO DO WIDGET DE CALENDÁRIO ---
 const selectedDate = ref<Date>(new Date());
@@ -81,6 +83,7 @@ const activities = activitiesAll; // compat shorthand for older code using 'acti
 const isAddEventModalOpen = ref(false);
 const showStartFlow = ref(false);
 const showEmpresaModal = ref(false);
+const empresaTemporariaData = ref<any>(null);
 const agendaRef = ref<any>(null);
 const currentFlowContext = ref<{ flowId: number; stepType: string } | null>(null);
 
@@ -150,6 +153,60 @@ async function onAgendaEventClick(ev: any) {
     const instance = getCurrentInstance();
     const $notify = instance?.appContext.config.globalProperties.$notify;
 
+    // Mostrar opções do fluxo
+    const result = await Swal.fire({
+      title: 'Fluxo de Contrato',
+      text: `Etapa atual: ${ev.stepType}`,
+      icon: 'info',
+      showCancelButton: true,
+      showDenyButton: true,
+      confirmButtonText: 'Continuar Etapa',
+      denyButtonText: 'Cancelar Fluxo',
+      cancelButtonText: 'Fechar',
+      customClass: {
+        container: 'swal-high-z'
+      }
+    });
+
+    if (result.isDenied) {
+      // Cancelar fluxo
+      const confirmCancel = await Swal.fire({
+        title: 'Cancelar Fluxo?',
+        text: 'Tem certeza que deseja cancelar este fluxo? Esta ação não pode ser desfeita.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sim, cancelar',
+        cancelButtonText: 'Não',
+        confirmButtonColor: '#d33',
+        customClass: {
+          container: 'swal-high-z'
+        }
+      });
+
+      if (confirmCancel.isConfirmed && currentFlowContext.value?.flowId) {
+        try {
+          showLoading();
+          await cancelFlow(currentFlowContext.value.flowId);
+          hideLoading();
+          $notify?.success?.('Fluxo cancelado com sucesso!');
+          setTimeout(() => {
+            loadAllUserEvents();
+            agendaRef.value?.loadEvents();
+            currentFlowContext.value = null;
+          }, 500);
+        } catch (e: any) {
+          hideLoading();
+          $notify?.error?.(e?.message || 'Erro ao cancelar fluxo');
+        }
+      }
+      return;
+    }
+
+    if (!result.isConfirmed) {
+      currentFlowContext.value = null;
+      return;
+    }
+
     // Mapa de etapas para modais
     const stepMap: Record<string, () => void> = {
       REUNIAO: async () => {
@@ -174,7 +231,17 @@ async function onAgendaEventClick(ev: any) {
       CONTRATO: () => {
         showContratoModal.value = true;
       },
-      CRIACAO_EMPRESA: () => {
+      CRIACAO_EMPRESA: async () => {
+        // Buscar dados da empresa temporária do fluxo
+        try {
+          const flowData = await http(`/api/flows/${ev.flowId}`);
+          if (flowData?.empresa) {
+            empresaTemporariaData.value = flowData.empresa;
+            console.log('📋 Empresa temporária carregada para edição:', flowData.empresa);
+          }
+        } catch (e: any) {
+          console.error('Erro ao buscar empresa temporária:', e);
+        }
         showEmpresaModal.value = true;
       },
     };
@@ -242,19 +309,22 @@ async function onContratoSaved(contrato: any) {
   handleCloseContratoModal();
 }
 
-async function onEmpresaSaved(empresa: any) {
+async function onEmpresaSaved(empresa?: any) {
   const instance = getCurrentInstance();
   const $notify = instance?.appContext.config.globalProperties.$notify;
 
-  if (currentFlowContext.value?.flowId) {
+  if (currentFlowContext.value?.flowId && empresa?.id) {
     try {
-      // Vincular empresa ao fluxo (atualizar empresaId)
-      await http(`/api/flows/${currentFlowContext.value.flowId}`, {
-        method: 'PATCH',
-        body: JSON.stringify({ empresaId: empresa.id }),
+      console.log('🏢 Empresa atualizada, finalizando fluxo...', {
+        flowId: currentFlowContext.value.flowId,
+        empresaId: empresa.id
       });
-      await advanceFlow(currentFlowContext.value.flowId);
-      $notify?.success?.('Empresa criada! Fluxo concluído com sucesso! 🎉');
+
+      // Avançar o fluxo (a empresa temporária já foi editada)
+      const result = await advanceFlow(currentFlowContext.value.flowId);
+      console.log('✅ Fluxo avançado:', result);
+
+      $notify?.success?.('Empresa atualizada! Fluxo concluído com sucesso! 🎉');
 
       // Aguardar um pouco para garantir que o backend processou
       setTimeout(() => {
@@ -262,10 +332,12 @@ async function onEmpresaSaved(empresa: any) {
         agendaRef.value?.loadEvents();
       }, 500);
     } catch (e: any) {
-      $notify?.error?.(e?.message || 'Erro ao vincular empresa');
+      console.error('❌ Erro ao finalizar fluxo:', e);
+      $notify?.error?.(e?.message || 'Erro ao finalizar fluxo');
     }
   }
   showEmpresaModal.value = false;
+  empresaTemporariaData.value = null;
   currentFlowContext.value = null;
 }
 

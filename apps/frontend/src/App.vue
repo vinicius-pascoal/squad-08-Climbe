@@ -72,7 +72,10 @@ watchEffect(() => {
           <ThemeSwitch />
         </div>
         <div class="">
-          <img src="/img/usuario.svg" alt="Avatar" class="w-10 h-10 rounded-full ml-4" />
+          <RouterLink to="/Perfilusuario" class="block">
+            <img src="/img/usuario.svg" alt="Avatar"
+              class="w-10 h-10 rounded-full ml-4 cursor-pointer hover:opacity-80 transition-opacity" />
+          </RouterLink>
         </div>
       </div>
       <RouterView />

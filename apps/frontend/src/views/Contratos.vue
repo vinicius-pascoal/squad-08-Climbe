@@ -50,7 +50,7 @@
         <tr v-else v-for="contract in contracts" :key="contract.id"
           class="bg-brand-f0f0f0 dark:bg-gray-800 rounded-lg shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] hover:bg-gray-50 dark:hover:bg-gray-700">
           <Contratocard :icon="contract.icon" :company="contract.company" :proposal="contract.proposal"
-            :validity="contract.validity" :status="contract.status" />
+            :validity="contract.validity" :status="contract.status" @open-contract="openContract(contract)" />
         </tr>
       </tbody>
 
@@ -58,17 +58,22 @@
   </div>
   <PopupCreatContract v-if="showModal" @close="toggleModal" @open-new="openNovoContrato" />
   <ModalNovoContrato v-if="showNewContractModal" @close="() => (showNewContractModal = false)" />
+  <ModalViewContrato v-if="showViewContractModal && selectedContract" :contract="selectedContract"
+    @close="closeViewContract" @approve="handleApprove" @reject="handleReject" />
 </template>
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import Contratocard from '../components/Contratocard.vue';
 import PopupCreatContract from '../components/PopupCreatContract.vue';
 import ModalNovoContrato from '../components/modals/ModalNovoContrato.vue';
-import { listContratos, type ContratoResponse } from '../services/contract';
+import ModalViewContrato from '../components/modals/ModalViewContrato.vue';
+import { listContratos, aprovarContrato, recusarContrato, type ContratoResponse } from '../services/contract';
 import { getCurrentInstance } from 'vue';
 
 const showModal = ref(false);
 const showNewContractModal = ref(false);
+const showViewContractModal = ref(false);
+const selectedContract = ref<any>(null);
 const contracts = ref<any[]>([]);
 const loading = ref(false);
 
@@ -85,6 +90,80 @@ function openNovoContrato() {
   showModal.value = false;
   showNewContractModal.value = true;
 }
+
+const openContract = (contract: any) => {
+  selectedContract.value = contract;
+  showViewContractModal.value = true;
+};
+
+const closeViewContract = () => {
+  showViewContractModal.value = false;
+  selectedContract.value = null;
+};
+
+const handleApprove = async (contractId: string) => {
+  const Swal = (await import('sweetalert2')).default;
+
+  try {
+    await aprovarContrato(contractId);
+
+    await Swal.fire({
+      icon: 'success',
+      title: 'Contrato Aprovado!',
+      text: `O contrato ${contractId} foi aprovado com sucesso.`,
+      timer: 2000,
+      showConfirmButton: false,
+    });
+
+    // Atualiza o status localmente
+    const index = contracts.value.findIndex(c => c.id === contractId);
+    if (index !== -1) {
+      contracts.value[index].status = 'Aprovado';
+    }
+
+    closeViewContract();
+    loadContratos(); // Recarrega a lista
+  } catch (error: any) {
+    console.error('Erro ao aprovar contrato:', error);
+    await Swal.fire({
+      icon: 'error',
+      title: 'Erro',
+      text: error?.message || 'Erro ao aprovar contrato. Tente novamente.',
+    });
+  }
+};
+
+const handleReject = async (contractId: string) => {
+  const Swal = (await import('sweetalert2')).default;
+
+  try {
+    await recusarContrato(contractId);
+
+    await Swal.fire({
+      icon: 'success',
+      title: 'Contrato Recusado!',
+      text: `O contrato ${contractId} foi recusado.`,
+      timer: 2000,
+      showConfirmButton: false,
+    });
+
+    // Atualiza o status localmente
+    const index = contracts.value.findIndex(c => c.id === contractId);
+    if (index !== -1) {
+      contracts.value[index].status = 'Rescindido';
+    }
+
+    closeViewContract();
+    loadContratos(); // Recarrega a lista
+  } catch (error: any) {
+    console.error('Erro ao recusar contrato:', error);
+    await Swal.fire({
+      icon: 'error',
+      title: 'Erro',
+      text: error?.message || 'Erro ao recusar contrato. Tente novamente.',
+    });
+  }
+};
 
 const formatDate = (date: Date | string) => {
   const d = new Date(date);

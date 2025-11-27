@@ -39,4 +39,11 @@ export const usuarioRepo = {
       orderBy: { id: 'asc' },
     });
   },
+
+  async updatePassword(id: number, senhaHash: string) {
+    return prisma.usuario.update({
+      where: { id },
+      data: { senhaHash },
+    });
+  },
 };

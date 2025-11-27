@@ -291,15 +291,16 @@ model Auditoria {
 
 // Fluxo de contrato: entidade principal
 model ContractFlow {
-  id          Int      @id @default(autoincrement()) @map("id_fluxo")
-  nome        String?  @db.VarChar(255)
-  empresaId   Int?     @map("empresa_id")
-  iniciadorId Int      @map("iniciador_id")
-  status      String?  @db.VarChar(50)
-  createdAt   DateTime @default(now()) @map("criado_em")
-  updatedAt   DateTime @updatedAt @map("atualizado_em")
-  propostaId  Int?     @map("proposta_id")
-  contratoId  String?  @map("contrato_id")
+  id            Int      @id @default(autoincrement()) @map("id_fluxo")
+  nome          String?  @db.VarChar(255)
+  empresaId     Int?     @map("empresa_id")
+  iniciadorId   Int      @map("iniciador_id")
+  status        String?  @db.VarChar(50)
+  createdAt     DateTime @default(now()) @map("criado_em")
+  updatedAt     DateTime @updatedAt @map("atualizado_em")
+  propostaId    Int?     @map("proposta_id")
+  contratoId    String?  @map("contrato_id")
+  driveFolderId String?  @map("drive_folder_id") @db.VarChar(255)
 
   empresa       Empresa?           @relation(fields: [empresaId], references: [id])
   iniciador     Usuario            @relation("ContractFlowIniciador", fields: [iniciadorId], references: [id])

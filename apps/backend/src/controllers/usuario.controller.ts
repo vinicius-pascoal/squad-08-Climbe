@@ -27,6 +27,11 @@ export const usuarioController = {
     if (!found) return res.status(404).json({ error: 'Não encontrado' });
     res.json(found);
   },
+  async update(req: Request, res: Response) {
+    const id = Number(req.params.id);
+    const updated = await usuarioService.update(id, req.body);
+    return enviarResposta(res, 200, updated);
+  },
   async remove(req: Request, res: Response) {
     const id = Number(req.params.id);
     await usuarioService.delete(id);

@@ -30,5 +30,43 @@ export const authController = {
     };
 
     return enviarResposta(res, 200, result);
+  },
+  async changePassword(req: Request, res: Response) {
+    const userId = req.userId; // Vem do middleware de autenticação
+    const { currentPassword, newPassword } = req.body;
+
+    if (!userId) {
+      return enviarResposta(res, 401, { message: 'Não autenticado' });
+    }
+
+    const result = await authService.changePassword(userId, currentPassword, newPassword);
+
+    // Armazena informações customizadas para auditoria
+    req.auditoriaData = {
+      acao: 'Alteração de Senha',
+      entidade: 'Usuario',
+      entidadeId: userId,
+      descricao: `Senha alterada pelo usuário ID: ${userId}`
+    };
+
+    return enviarResposta(res, 200, result);
+  },
+  async refresh(req: Request, res: Response) {
+    const userId = req.userId;
+    if (!userId) {
+      return enviarResposta(res, 401, { message: 'Não autenticado' });
+    }
+
+    const result = await authService.refreshToken(userId);
+
+    // Armazena informações customizadas para auditoria
+    req.auditoriaData = {
+      acao: 'Refresh Token',
+      entidade: 'Usuario',
+      entidadeId: userId,
+      descricao: `Token renovado para usuário ID: ${userId}`
+    };
+
+    return enviarResposta(res, 200, result);
   }
 };

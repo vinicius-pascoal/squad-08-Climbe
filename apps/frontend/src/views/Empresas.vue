@@ -77,7 +77,7 @@
           </div>
         </nav>
 
-        <button v-if="currentUser && (currentUser.value?.cargoNome === 'Admin')"
+        <button v-if="canCreateCompany"
           class="w-full rounded-xl border border-indigo-300 bg-indigo-50 px-3 py-3 text-left font-medium text-indigo-700 shadow hover:bg-indigo-100"
           @click="onCreate">
           Cadastrar Empresa
@@ -194,7 +194,8 @@
   </div>
 
   <CompanyWizard v-model:open="wizardOpen" api-url="/api/empresas" @saved="handleSaved" />
-  <ModalIniciarFluxo v-if="fluxoOpen" :empresa-id="fluxoEmpresaId" @close="fluxoOpen = false" @started="onFlowStarted" />
+  <ModalIniciarFluxo v-if="fluxoOpen" :empresa-id="fluxoEmpresaId" @close="fluxoOpen = false"
+    @started="onFlowStarted" />
 
   <!-- Modal avançar etapa -->
   <div v-if="advanceOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
@@ -229,7 +230,7 @@ import { onMounted, ref, computed, watch, getCurrentInstance } from 'vue'
 import CompanyWizard from '../components/modals/company-wizard/CompanyWizard.vue'
 import ModalIniciarFluxo from '../components/modals/ModalIniciarFluxo.vue'
 import { http } from '../lib/http'
-import { currentUser } from '../services/auth'
+import { currentUser, hasPermission } from '../services/auth'
 import { listMyFlows, advanceFlow } from '../services/flow'
 
 type Status = 'Ativa' | 'Pendente' | 'Inativa'
@@ -290,6 +291,14 @@ const visiblePages = computed(() => {
       ? { key: `e-${i}`, isEllipsis: true as const, num: -1, label: '…' }
       : { key: `p-${p}`, isEllipsis: false as const, num: p as number, label: String(p) },
   )
+})
+
+const canCreateCompany = computed(() => {
+  try {
+    return hasPermission('Empresas — Criar') || currentUser.value?.cargoNome === 'Admin'
+  } catch (e) {
+    return false
+  }
 })
 
 function statusClasses(status: Status) {

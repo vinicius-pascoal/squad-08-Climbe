@@ -1,12 +1,13 @@
 <script>
 import Card from '../components/cardUsers.vue';
 import ModalCadastroUsuario from '../components/modals/ModalCadastroUsuario.vue';
+import ModalEditarUsuario from '../components/modals/ModalEditarUsuario.vue';
 import { http } from '../lib/http';
 import { hasPermission as hasPerm, currentUser } from '../services/auth';
 
 export default {
   name: 'GestaoUsuario',
-  components: { Card, ModalCadastroUsuario },
+  components: { Card, ModalCadastroUsuario, ModalEditarUsuario },
 
   data() {
     return {
@@ -24,6 +25,8 @@ export default {
       page: 1,
       pageSize: 5,
       showCreateModal: false,
+      showEditModal: false,
+      selectedUser: null,
 
       statusLoading: {}, // { [userId]: boolean }
     };
@@ -117,6 +120,18 @@ export default {
 
     openCadastro() { this.showCreateModal = true; },
 
+    openEdit(user) {
+      this.selectedUser = user;
+      this.showEditModal = true;
+    },
+
+    async handleUserUpdated() {
+      this.showEditModal = false;
+      this.selectedUser = null;
+      await this.fetchUsers();
+      this.$notify?.success('Usuário atualizado com sucesso!');
+    },
+
     handleClickOutside(e) {
       const dropdown = this.$refs.filtersDropdown;
       const button = this.$refs.filtersBtn;
@@ -195,7 +210,7 @@ export default {
 
       <input v-if="hasPermission('Usuários — Criar') || isAdmin() || hasPermission('Usuários — Aceitar/Aprovar')"
         type="button" value="Cadastrar usuário" @click="openCadastro"
-        class="cadastro shadow-md bg-brand-cad8fd dark:bg-brand-0e9a97 border border-brand-3b67d0 dark:border-brand-0e9989 text-white rounded-lg px-4 py-2 hover:bg-brand-93c5fd dark:hover:bg-brand-0e9989 cursor-pointer ml-16 transition" />
+        class="cadastro shadow-md bg-brand-cad8fd dark:bg-brand-0e9a97 border border-brand-3b67d0 dark:border-brand-0e9989 text-brand-3b67d0 font-bold rounded-lg px-4 py-2 hover:bg-brand-93c5fd dark:hover:bg-brand-0e9989 cursor-pointer ml-16 transition" />
       <input v-else disabled type="button" value="Cadastrar usuário"
         class="cadastro shadow-md bg-brand-e0e0e0 dark:bg-brand-3e4343 text-white rounded-lg px-4 py-2 ml-16 opacity-60 cursor-not-allowed" />
     </div>
@@ -267,8 +282,9 @@ export default {
                 :email="u.email || '—'" :cargo="cargoName(u)" :permisao="getPermissao(u)"
                 :status="mapSituacao(u.situacao)" :updating="Boolean(statusLoading[u.id])" :cargos="cargos"
                 :canApprove="hasPermission('Usuários — Aceitar/Aprovar')"
+                :canEdit="hasPermission('Usuários — Editar') || isAdmin()"
                 :canRemove="hasPermission('Usuários — Remover') || isAdmin()" @change-status="onChangeStatus"
-                @removed="onUserRemoved" />
+                @edit="openEdit(u)" @removed="onUserRemoved" />
             </tbody>
           </table>
         </div>
@@ -300,6 +316,8 @@ export default {
       </div>
     </div>
     <ModalCadastroUsuario v-if="showCreateModal" @close="showCreateModal = false" />
+    <ModalEditarUsuario v-if="showEditModal" :user="selectedUser" :cargos="cargos" @close="showEditModal = false"
+      @updated="handleUserUpdated" />
   </div>
 </template>
 

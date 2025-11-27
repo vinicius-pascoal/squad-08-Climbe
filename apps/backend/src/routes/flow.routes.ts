@@ -54,6 +54,9 @@ flowRouter.post(
 // Listar meus fluxos
 flowRouter.get('/', flowController.list);
 
+// Cancelar fluxo (DEVE vir antes de /:id para não conflitar)
+flowRouter.patch('/:id/cancel', registrarAuditoria('ContractFlow', 'Cancelar'), flowController.cancel);
+
 // Atualizar fluxo (ex: empresaId)
 flowRouter.patch('/:id', registrarAuditoria('ContractFlow', 'Atualizar'), flowController.updateFlow);
 

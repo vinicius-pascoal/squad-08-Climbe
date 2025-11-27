@@ -21,6 +21,28 @@ contratoRouter.post(
   contratoController.register
 );
 
+// Rotas específicas DEVEM vir antes das rotas genéricas /:id
+contratoRouter.patch(
+  '/:id/aprovar',
+  requireAuth,
+  capturarDadosOriginais(async (req) => {
+    return await contratoService.findById(req.params.id);
+  }),
+  registrarAuditoria('Contrato', 'Aprovar'),
+  contratoController.aprovar
+);
+
+contratoRouter.patch(
+  '/:id/recusar',
+  requireAuth,
+  capturarDadosOriginais(async (req) => {
+    return await contratoService.findById(req.params.id);
+  }),
+  registrarAuditoria('Contrato', 'Recusar'),
+  contratoController.recusar
+);
+
+// Rotas genéricas /:id vêm depois
 contratoRouter.get('/:id', requireAuth, requirePermission('Contratos — Visualizar'), contratoController.getById);
 
 contratoRouter.put(

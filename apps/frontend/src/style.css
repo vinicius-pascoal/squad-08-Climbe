@@ -432,3 +432,144 @@ body,
 .dark .fotoperfil {
   border-color: var(--border) !important;
 }
+
+/* ============================================
+   Z-INDEX HIERARCHY
+   ============================================
+   Camadas (do menor para o maior):
+   1. Base content: 0-9
+   2. Dropdowns/Tooltips: 10-99
+   3. Fixed headers/sidebars: 100-999
+   4. Overlays/Backdrops: 1000-1999
+   5. Modals: 2000-2999
+   6. Loading indicators: 3000-3999
+   7. Notifications/Toasts: 4000-4999
+   8. SweetAlert/Critical alerts: 5000+
+   ============================================ */
+
+/* Base content */
+.calendar-content {
+  z-index: 1 !important;
+}
+
+/* Dropdowns and tooltips */
+.dropdown-menu,
+.tooltip {
+  z-index: 50 !important;
+}
+
+/* Fixed elements */
+.fixed-header,
+.fixed-sidebar {
+  z-index: 100 !important;
+}
+
+/* Modal overlays/backdrops */
+.modal-backdrop,
+.overlay {
+  z-index: 1000 !important;
+}
+
+/* Modal containers */
+.modal-container,
+.popup-container {
+  z-index: 2000 !important;
+}
+
+/* Modals específicos */
+.add-event-modal {
+  z-index: 2100 !important;
+}
+
+.view-contract-modal {
+  z-index: 2200 !important;
+}
+
+.create-contract-modal {
+  z-index: 2300 !important;
+}
+
+.create-proposta-modal {
+  z-index: 2400 !important;
+}
+
+.create-tarefa-modal {
+  z-index: 2500 !important;
+}
+
+.cadastro-usuario-modal {
+  z-index: 2600 !important;
+}
+
+/* Loading indicators */
+.climb-loader,
+.loading-overlay {
+  z-index: 3000 !important;
+}
+
+.loading-spinner {
+  z-index: 3010 !important;
+}
+
+/* Notifications */
+.toast-notification,
+.notification {
+  z-index: 4000 !important;
+}
+
+/* SweetAlert and critical alerts */
+.swal2-container {
+  z-index: 5000 !important;
+}
+
+.swal2-popup {
+  z-index: 5001 !important;
+}
+
+/* Override para garantir que SweetAlert fique acima de tudo */
+body.swal2-shown>[aria-hidden="true"] {
+  filter: blur(10px);
+}
+
+/* ============================================
+   OVERRIDES ESPECÍFICOS PARA COMPONENTES
+   ============================================ */
+
+/* ClimbLoader - Loading indicator */
+.climb-loader .loader-overlay {
+  z-index: 3000 !important;
+}
+
+.climb-loader .loader-card {
+  z-index: 3010 !important;
+}
+
+.climb-loader .spinner {
+  z-index: 3010 !important;
+}
+
+.climb-loader .logo {
+  z-index: 3005 !important;
+}
+
+/* Todos os modais - garantir que fiquem acima de overlays mas abaixo de loading */
+.modal-overlay,
+[class*="modal-overlay"] {
+  z-index: 2000 !important;
+}
+
+/* Modal containers */
+.modal-content,
+.modal-container,
+[class*="modal-content"],
+[class*="modal-container"] {
+  z-index: 2001 !important;
+}
+
+/* Garantir que dropdowns dentro de modais funcionem */
+.modal-overlay select,
+.modal-overlay .dropdown,
+.modal-content select,
+.modal-content .dropdown {
+  z-index: 2100 !important;
+}

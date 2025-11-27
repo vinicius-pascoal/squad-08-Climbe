@@ -39,10 +39,21 @@
                 class="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-black dark:text-gray-200" />
             </div>
 
-            <div class="flex flex-col">
+            <div v-if="!flowId" class="flex flex-col">
               <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">ID da Proposta</label>
               <input type="number" v-model.number="formData.propostaId" placeholder="Ex: 12345"
                 class="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-black dark:text-gray-200" />
+            </div>
+            <div v-else class="flex flex-col">
+              <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">ID da Proposta</label>
+              <div
+                class="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-sm bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Será obtido automaticamente do fluxo
+              </div>
             </div>
 
             <div class="flex flex-col">
@@ -95,7 +106,7 @@
               Cancelar
             </button>
             <button type="submit" :disabled="loading"
-              class="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+              class="px-8 py-2.5 bg-cyan-500 hover:bg-cyan-700 text-white font-semibold rounded-lg shadow-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
               <span v-if="loading">
                 <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -117,6 +128,11 @@
 import { ref, getCurrentInstance } from 'vue';
 import { createcontrato } from '../../services/contract';
 import Swal from 'sweetalert2';
+
+const props = defineProps<{
+  flowId?: number;
+}>();
+
 const emit = defineEmits<{
   (e: 'close'): void;
   (e: 'saved', contrato: any): void;
@@ -150,7 +166,12 @@ const handleSubmit = async () => {
   loading.value = true;
   try {
     if (!formData.value.id || !formData.value.nome || formData.value.valor <= 0 || !formData.value.dataInicio || !formData.value.dataFim) {
-      await Swal.fire({ icon: 'warning', title: 'Atenção', text: 'Preencha todos os campos obrigatórios e informe um valor maior que zero' });
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Atenção',
+        text: 'Preencha todos os campos obrigatórios e informe um valor maior que zero',
+        customClass: { container: 'swal-high-z' }
+      });
       loading.value = false;
       return;
     }
@@ -158,7 +179,12 @@ const handleSubmit = async () => {
     const dataInicio = new Date(formData.value.dataInicio);
     const dataFim = new Date(formData.value.dataFim);
     if (dataFim < dataInicio) {
-      await Swal.fire({ icon: 'warning', title: 'Atenção', text: 'A data de vencimento deve ser posterior à data de início' });
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Atenção',
+        text: 'A data de vencimento deve ser posterior à data de início',
+        customClass: { container: 'swal-high-z' }
+      });
       loading.value = false;
       return;
     }
@@ -171,20 +197,41 @@ const handleSubmit = async () => {
       dataFim: convertToISO(formData.value.dataFim),
     };
 
-    if (formData.value.propostaId && formData.value.propostaId > 0) payload.propostaId = formData.value.propostaId;
+    // Se veio de um flow, adiciona o flowId para buscar a propostaId automaticamente
+    if (props.flowId) {
+      payload.flowId = props.flowId;
+      console.log('📋 Criando contrato com flowId:', props.flowId);
+      // Não envia propostaId manualmente quando vem de flow, será buscado automaticamente no backend
+    } else {
+      // Só envia propostaId manualmente se NÃO veio de um flow
+      if (formData.value.propostaId && formData.value.propostaId > 0) {
+        payload.propostaId = formData.value.propostaId;
+      }
+    }
     if (formData.value.status && formData.value.status.trim()) payload.status = formData.value.status.trim();
     if (formData.value.envolvidos && formData.value.envolvidos.trim()) payload.envolvidos = formData.value.envolvidos.trim();
     if (formData.value.descricao && formData.value.descricao.trim()) payload.descricao = formData.value.descricao.trim();
 
     const contrato = await createcontrato(payload);
 
-    await Swal.fire({ icon: 'success', title: 'Sucesso!', text: 'Contrato criado com sucesso!', confirmButtonText: 'OK' });
+    await Swal.fire({
+      icon: 'success',
+      title: 'Sucesso!',
+      text: 'Contrato criado com sucesso!',
+      confirmButtonText: 'OK',
+      customClass: { container: 'swal-high-z' }
+    });
 
     emit('saved', contrato);
     emit('close');
   } catch (error: any) {
     console.error('Erro ao criar contrato:', error);
-    await Swal.fire({ icon: 'error', title: 'Erro', text: error?.message || 'Erro ao criar contrato. Tente novamente.' });
+    await Swal.fire({
+      icon: 'error',
+      title: 'Erro',
+      text: error?.message || 'Erro ao criar contrato. Tente novamente.',
+      customClass: { container: 'swal-high-z' }
+    });
   } finally {
     loading.value = false;
   }
@@ -199,7 +246,7 @@ const handleSubmit = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 60
+  z-index: 1100
 }
 
 .modal-content {
@@ -208,5 +255,10 @@ const handleSubmit = async () => {
   padding: 1.5rem;
   width: 95%;
   max-width: 900px
+}
+
+/* SweetAlert z-index override */
+:deep(.swal-high-z) {
+  z-index: 10100 !important;
 }
 </style>

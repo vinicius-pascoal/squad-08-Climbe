@@ -37,13 +37,20 @@
         </div>
 
         <button type="button"
-          class="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 active:scale-[.99] dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
-          @click="onExport">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+          class="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 active:scale-[.99] disabled:opacity-50 disabled:cursor-not-allowed dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
+          :disabled="exporting || loading" @click="onExport">
+          <svg v-if="!exporting" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24"
+            fill="currentColor">
             <path d="M5 20h14a1 1 0 001-1v-5h-2v4H6v-4H4v5a1 1 0 001 1z"></path>
             <path d="M11 4h2v8h3l-4 4-4-4h3z"></path>
           </svg>
-          Exportar Excel
+          <svg v-else class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+            </path>
+          </svg>
+          {{ exporting ? 'Exportando...' : 'Exportar Excel' }}
         </button>
       </div>
 
@@ -71,7 +78,7 @@
               <tr v-for="log in items" :key="log.id"
                 class="rounded-xl bg-white shadow ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
                 <td class="rounded-l-xl px-4 py-3 text-slate-700 dark:text-slate-300">{{ formatDateTime(log.dataCriacao)
-                  }}</td>
+                }}</td>
                 <td class="px-4 py-3 text-slate-700 dark:text-slate-300">{{ log.usuario?.nome || 'Sistema' }}</td>
                 <td class="px-4 py-3 text-slate-700 dark:text-slate-300">{{ log.entidade }} {{ log.entidadeId ?
                   `#${log.entidadeId}` :
@@ -230,13 +237,16 @@ function goTo(nextIndex: number) {
   fetchData()
 }
 
+const exporting = ref(false)
+
 async function onExport() {
   try {
-    loading.value = true
+    exporting.value = true
 
     const params: any = {
-      page: page.index,
-      limit: page.size
+      // Exporta todos os registros filtrados, não apenas a página atual
+      page: 1,
+      limit: 10000 // Limite alto para pegar todos os registros
     }
 
     if (query.entity) {
@@ -257,11 +267,13 @@ async function onExport() {
     const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/auditorias/export/excel?${queryString}`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
       }
     })
 
     if (!response.ok) {
+      const errorText = await response.text()
+      console.error('Erro na resposta:', errorText)
       throw new Error('Erro ao exportar planilha')
     }
 
@@ -269,16 +281,26 @@ async function onExport() {
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `auditoria_${new Date().toISOString().split('T')[0]}.xlsx`
+
+    // Nome do arquivo com data e filtros aplicados
+    let fileName = `auditoria_${new Date().toISOString().split('T')[0]}`
+    if (query.entity) fileName += `_${query.entity}`
+    if (query.startDate || query.endDate) {
+      fileName += `_periodo`
+      if (query.startDate) fileName += `_${query.startDate}`
+      if (query.endDate) fileName += `_${query.endDate}`
+    }
+    a.download = `${fileName}.xlsx`
+
     document.body.appendChild(a)
     a.click()
     window.URL.revokeObjectURL(url)
     document.body.removeChild(a)
   } catch (err) {
     console.error('[Auditoria] onExport error:', err)
-    alert('Erro ao exportar planilha')
+    alert('Erro ao exportar planilha. Verifique sua conexão e tente novamente.')
   } finally {
-    loading.value = false
+    exporting.value = false
   }
 }
 

@@ -6,7 +6,10 @@ export const tarefaController = {
     // allow propostaId in body (may come as string), coerce to number if present
     const input = { ...req.body } as any
     if (input.propostaId) input.propostaId = Number(input.propostaId)
+
+    console.log('[TarefaController] Criando tarefa com input:', input)
     const tarefa = await tarefaService.create(input);
+    console.log('[TarefaController] Tarefa criada:', tarefa)
     res.status(201).json(tarefa);
   },
 

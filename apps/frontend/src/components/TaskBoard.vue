@@ -25,39 +25,45 @@
               <span :class="['px-3 py-0.5 rounded-full text-xs font-semibold', tagClass(t.tag)]">{{ t.tag }}</span>
               <span class="text-slate-400">⋮⋮</span>
             </div>
-            <div class="text-sm font-semibold leading-snug mb-2">{{ t.title }}</div>
-            <div class="flex items-center gap-3 text-xs text-slate-500">
-              <span class="inline-flex items-center gap-1">
-                <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M8 7h8M7 12h10M10 17h4" />
+            <div class="text-sm font-semibold leading-snug mb-3">{{ t.title }}</div>
+
+            <div v-if="t.responsavel"
+              class="flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 px-2 py-1 rounded-md w-fit"
+              :title="t.responsavel">
+              <div
+                class="w-5 h-5 rounded-full bg-emerald-200 dark:bg-emerald-700 flex items-center justify-center text-[10px] font-semibold text-emerald-800 dark:text-emerald-100">
+                {{ t.responsavel.charAt(0).toUpperCase() }}
+              </div>
+              <span class="text-[11px] font-medium truncate max-w-[120px]">{{ t.responsavel.split(' ')[0] }}</span>
+            </div>
+
+            <div class="space-y-2">
+              <div class="flex items-center gap-2 text-xs text-slate-500">
+                <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <path d="M16 2v4M8 2v4M3 10h18" />
                 </svg>
-                {{ t.date }}
-              </span>
-              <span class="inline-flex items-center gap-1">
-                <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M12 6v12m6-6H6" />
-                </svg>
-                {{ t.points }}
-              </span>
+                <span>{{ t.date }}</span>
+              </div>
             </div>
           </div>
-
-          <button v-if="col.key !== 'done'" class="mt-2 text-xs text-slate-500 hover:text-emerald-600"
-            @click="addCard(col.key)">
-            + Adicionar Card
-          </button>
         </div>
       </div>
 
-      <div class="bg-white rounded-2xl shadow p-3">
-        <h3 class="font-semibold mb-2">Progresso</h3>
+      <div
+        class="bg-white dark:bg-brand-0a0a0a rounded-2xl shadow p-3 border border-brand-e5e7eb dark:border-brand-0e9989">
+        <h3 class="font-semibold mb-2 text-brand-000 dark:text-white">Progresso</h3>
+        <div v-if="groups.length === 0" class="text-xs text-brand-5f6060 dark:text-brand-e5e7eb py-2">
+          Nenhuma tarefa vinculada
+        </div>
         <div v-for="g in groups" :key="g.label" class="mb-3">
-          <div class="flex justify-between text-xs mb-1">
+          <div class="flex justify-between text-xs mb-1 text-brand-000 dark:text-white">
             <span>{{ g.label }}</span>
             <span>{{ g.done }}/{{ g.total }}</span>
           </div>
-          <div class="h-1.5 bg-slate-200 rounded-full overflow-hidden">
-            <div class="h-full bg-emerald-500" :style="{ width: ((g.done / g.total) * 100) + '%' }"></div>
+          <div class="h-1.5 bg-slate-200 dark:bg-brand-5f6060 rounded-full overflow-hidden">
+            <div class="h-full transition-all"
+              :style="{ width: `${(g.done / g.total) * 100}%`, backgroundColor: g.color }"></div>
           </div>
         </div>
       </div>
@@ -66,7 +72,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive, ref, getCurrentInstance, watch } from 'vue'
+import { updateTarefa } from '../services/tarefa'
+
+const _ins = getCurrentInstance()
+const notify = _ins?.appContext.config.globalProperties.$notify as any
 
 type StatusKey = 'todo' | 'doing' | 'review' | 'done'
 
@@ -77,6 +87,7 @@ type Task = {
   status: StatusKey
   points: number
   date: string
+  responsavel?: string
 }
 
 const columns: { key: StatusKey; title: string }[] = [
@@ -105,6 +116,14 @@ const query = ref('')
 const draggingId = ref<string | null>(null)
 const dropping = ref<StatusKey | null>(null)
 
+// Atualizar state quando props mudarem
+watch(() => props.tasksData, (newTasks) => {
+  if (newTasks && newTasks.length) {
+    state.tasks = newTasks.slice()
+    console.log('Tarefas atualizadas:', state.tasks)
+  }
+}, { immediate: true, deep: true })
+
 function filteredBy(status: StatusKey) {
   const q = query.value.trim().toLowerCase()
   return state.tasks.filter((t: Task) => t.status === status && (!q || t.title.toLowerCase().includes(q)))
@@ -122,24 +141,78 @@ function onDragLeave() {
   dropping.value = null
 }
 
-function onDrop(target: StatusKey) {
-  if (!draggingId.value) return
-  const task = state.tasks.find((t: Task) => t.id === draggingId.value)
-  if (task) task.status = target
-  draggingId.value = null
-  dropping.value = null
+// Mapeia StatusKey para valores que o backend aceita
+function mapStatusToBackend(status: StatusKey): string {
+  const statusMap: Record<StatusKey, string> = {
+    'todo': 'A_FAZER',
+    'doing': 'EM_ANDAMENTO',
+    'review': 'REVISAO',
+    'done': 'CONCLUIDA'
+  }
+  return statusMap[status]
 }
 
-function addCard(status: StatusKey) {
-  const id = 't' + Math.random().toString(36).slice(2, 8)
-  state.tasks.push({ id, title: 'Novo card', tag: 'Desenvolvimento', status, points: 1, date: '24 nov' })
+async function onDrop(target: StatusKey) {
+  if (!draggingId.value) return
+  const task = state.tasks.find((t: Task) => t.id === draggingId.value)
+  if (!task) {
+    draggingId.value = null
+    dropping.value = null
+    return
+  }
+
+  const oldStatus = task.status
+  task.status = target // Atualiza visualmente primeiro
+  draggingId.value = null
+  dropping.value = null
+
+  try {
+    // Salva no backend
+    const backendStatus = mapStatusToBackend(target)
+    await updateTarefa(Number(task.id), { status: backendStatus })
+    console.log(`Tarefa #${task.id} atualizada para status: ${backendStatus}`)
+    notify?.success('Status da tarefa atualizado')
+  } catch (error) {
+    console.error('Erro ao atualizar status da tarefa:', error)
+    // Reverte em caso de erro
+    task.status = oldStatus
+    notify?.error('Erro ao atualizar o status da tarefa')
+  }
+}
+
+const categoryColors: Record<string, string> = {
+  'Marketing': '#f43f5e',       // rose-500
+  'UI Design': '#10b981',       // emerald-500
+  'Vendas': '#8b5cf6',          // violet-500
+  'Documentação': '#3b82f6',    // blue-500
+  'Desenvolvimento': '#f59e0b', // amber-500
+  'Infraestrutura': '#a855f7',  // purple-500
+  'QA': '#eab308',              // yellow-500
+  'Design': '#14b8a6',          // teal-500
+  'Backend': '#6366f1',         // indigo-500
+  'Frontend': '#06b6d4',        // cyan-500
+  'default': '#6b7280'          // gray-500 para categorias não mapeadas
 }
 
 const groups = computed(() => {
-  const total = (tag: Task['tag']) => state.tasks.filter((t: Task) => t.tag === tag).length
-  const done = (tag: Task['tag']) => state.tasks.filter((t: Task) => t.tag === tag && t.status === 'done').length
-  const tags: Task['tag'][] = ['Desenvolvimento', 'Vendas', 'UI Design', 'Documentação', 'Marketing']
-  return tags.map(label => ({ label, total: total(label), done: done(label) }))
+  // Obter apenas as categorias que existem nas tarefas atuais
+  const existingTags = [...new Set(state.tasks.map((t: Task) => t.tag))]
+
+  const total = (tag: string) => state.tasks.filter((t: Task) => t.tag === tag).length
+  const done = (tag: string) => state.tasks.filter((t: Task) => t.tag === tag && t.status === 'done').length
+
+  const result = existingTags
+    .filter(tag => total(tag) > 0) // Apenas categorias com tarefas
+    .map(label => ({
+      label,
+      total: total(label),
+      done: done(label),
+      color: categoryColors[label] || categoryColors['default']
+    }))
+    .sort((a, b) => b.total - a.total) // Ordenar por total de tarefas (decrescente)
+
+  console.log('Groups com cores:', result)
+  return result
 })
 
 function tagClass(tag: Task['tag']) {

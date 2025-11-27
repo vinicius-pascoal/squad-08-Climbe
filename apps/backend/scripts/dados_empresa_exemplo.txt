@@ -1,0 +1,140 @@
+===========================================
+  DADOS PARA CADASTRO DE EMPRESA - EXEMPLO
+===========================================
+
+📋 INFORMAÇÕES BÁSICAS
+-----------------------
+Razão Social: Tech Solutions Inovação Ltda
+Nome Fantasia: TechSolutions
+CNPJ: 11.222.333/0001-81
+
+📍 ENDEREÇO
+-----------
+Logradouro: Avenida Paulista
+Número: 1578
+Bairro: Bela Vista
+Cidade: São Paulo
+UF: SP
+CEP: 01310-200
+
+📞 CONTATO
+----------
+Telefone: (11) 3456-7890
+Email: contato@techsolutions.com.br
+
+👤 REPRESENTANTE LEGAL
+----------------------
+CPF do Representante: 111.444.777-35
+Contato do Representante: (11) 98765-4321
+
+===========================================
+
+💡 INSTRUÇÕES DE USO:
+
+1. Para usar via API (POST /api/empresas):
+   Copie o JSON abaixo:
+
+{
+  "razaoSocial": "Tech Solutions Inovação Ltda",
+  "nomeFantasia": "TechSolutions",
+  "cnpj": "11.222.333/0001-81",
+  "logradouro": "Avenida Paulista",
+  "numero": "1578",
+  "bairro": "Bela Vista",
+  "cidade": "São Paulo",
+  "uf": "SP",
+  "cep": "01310-200",
+  "telefone": "(11) 3456-7890",
+  "email": "contato@techsolutions.com.br",
+  "representanteCpf": "111.444.777-35",
+  "representanteContato": "(11) 98765-4321"
+}
+
+2. Para testar via cURL (PowerShell):
+   Copie o comando abaixo:
+
+$headers = @{
+    "Content-Type" = "application/json"
+    "Authorization" = "Bearer SEU_TOKEN_AQUI"
+}
+
+$body = @{
+    razaoSocial = "Tech Solutions Inovação Ltda"
+    nomeFantasia = "TechSolutions"
+    cnpj = "11.222.333/0001-81"
+    logradouro = "Avenida Paulista"
+    numero = "1578"
+    bairro = "Bela Vista"
+    cidade = "São Paulo"
+    uf = "SP"
+    cep = "01310-200"
+    telefone = "(11) 3456-7890"
+    email = "contato@techsolutions.com.br"
+    representanteCpf = "111.444.777-35"
+    representanteContato = "(11) 98765-4321"
+} | ConvertTo-Json
+
+Invoke-RestMethod -Uri "http://localhost:3000/api/empresas" -Method POST -Headers $headers -Body $body
+
+3. Para cadastrar via interface web:
+   - Acesse a página de empresas
+   - Clique em "Cadastrar empresa"
+   - Preencha os campos com as informações acima
+
+===========================================
+
+📦 EXEMPLOS ADICIONAIS:
+
+EMPRESA 2:
+{
+  "razaoSocial": "Comercial Santos e Silva Ltda",
+  "nomeFantasia": "Santos & Silva",
+  "cnpj": "34.567.890/0001-55",
+  "logradouro": "Rua das Flores",
+  "numero": "456",
+  "bairro": "Centro",
+  "cidade": "Rio de Janeiro",
+  "uf": "RJ",
+  "cep": "20040-030",
+  "telefone": "(21) 2345-6789",
+  "email": "contato@santosesilva.com.br",
+  "representanteCpf": "234.567.890-49",
+  "representanteContato": "(21) 99876-5432"
+}
+
+EMPRESA 3:
+{
+  "razaoSocial": "Indústria Metal Brasil S.A.",
+  "nomeFantasia": "Metal Brasil",
+  "cnpj": "07.526.557/0001-00",
+  "logradouro": "Rodovia dos Bandeirantes",
+  "numero": "KM 23",
+  "bairro": "Distrito Industrial",
+  "cidade": "Campinas",
+  "uf": "SP",
+  "cep": "13050-000",
+  "telefone": "(19) 3789-0123",
+  "email": "contato@metalbrasil.ind.br",
+  "representanteCpf": "345.678.901-88",
+  "representanteContato": "(19) 98123-4567"
+}
+
+EMPRESA 4:
+{
+  "razaoSocial": "Digital Ventures Tecnologia Ltda",
+  "nomeFantasia": "Digital Ventures",
+  "cnpj": "12.345.678/0001-95",
+  "logradouro": "Rua dos Inovadores",
+  "numero": "789",
+  "complemento": "Sala 501",
+  "bairro": "Jardim Europa",
+  "cidade": "São Paulo",
+  "uf": "SP",
+  "cep": "01452-000",
+  "telefone": "(11) 4567-8901",
+  "email": "contato@digitalventures.com.br",
+  "representanteCpf": "456.789.012-49",
+  "representanteContato": "(11) 99234-5678"
+}
+
+===========================================
