@@ -102,13 +102,13 @@ const handleClose = () => {
   <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
     @click.self="handleClose">
     <div
-      class="bg-white dark:bg-brand-0a0a0a rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-brand-e5e7eb dark:border-brand-0e9989 m-4">
+      class="bg-[var(--panel)] rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-[var(--border)] m-4">
       <!-- Header -->
       <div
-        class="sticky top-0 bg-brand-f0f4ff dark:bg-brand-0e9a97 px-6 py-4 border-b border-brand-e5e7eb dark:border-brand-0e9989 flex items-center justify-between">
-        <h2 class="text-2xl font-bold text-brand-000 dark:text-white">Editar Usuário</h2>
+        class="sticky top-0 bg-[var(--card)] px-6 py-4 border-b border-[var(--border)] flex items-center justify-between">
+        <h2 class="text-2xl font-bold text-[var(--text)]">Editar Usuário</h2>
         <button @click="handleClose"
-          class="w-8 h-8 flex items-center justify-center rounded-lg text-brand-5f6060 dark:text-white hover:bg-brand-e5e7eb dark:hover:bg-brand-0e9989 transition">
+          class="w-8 h-8 flex items-center justify-center rounded-lg text-[var(--muted)] hover:bg-[var(--bg)] transition">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -120,29 +120,29 @@ const handleClose = () => {
         <form @submit.prevent="handleSubmit" class="space-y-6">
           <!-- Nome Completo -->
           <div>
-            <label class="block text-sm font-medium text-brand-5f6060 dark:text-brand-e5e7eb mb-2">
+            <label class="block text-sm font-medium text-[var(--muted)] mb-2">
               Nome Completo *
             </label>
             <input v-model="form.nomeCompleto" type="text" required
-              class="w-full px-4 py-2 rounded-lg border border-brand-e5e7eb dark:border-brand-0e9989 bg-brand-f6f7f8 dark:bg-brand-0e9989 text-brand-000 dark:text-white placeholder-brand-5f6060 dark:placeholder-brand-e5e7eb focus:ring-2 focus:ring-brand-14b8a6 dark:focus:ring-brand-0e9a97 outline-none transition" />
+              class="w-full px-4 py-2 rounded-lg border border-[var(--border)] bg-[var(--card)] text-[var(--text)] placeholder-[var(--muted)] focus:ring-2 focus:ring-[var(--accent)] outline-none transition" />
           </div>
 
           <!-- Email -->
           <div>
-            <label class="block text-sm font-medium text-brand-5f6060 dark:text-brand-e5e7eb mb-2">
+            <label class="block text-sm font-medium text-[var(--muted)] mb-2">
               Email *
             </label>
             <input v-model="form.email" type="email" required
-              class="w-full px-4 py-2 rounded-lg border border-brand-e5e7eb dark:border-brand-0e9989 bg-brand-f6f7f8 dark:bg-brand-0e9989 text-brand-000 dark:text-white placeholder-brand-5f6060 dark:placeholder-brand-e5e7eb focus:ring-2 focus:ring-brand-14b8a6 dark:focus:ring-brand-0e9a97 outline-none transition" />
+              class="w-full px-4 py-2 rounded-lg border border-[var(--border)] bg-[var(--card)] text-[var(--text)] placeholder-[var(--muted)] focus:ring-2 focus:ring-[var(--accent)] outline-none transition" />
           </div>
 
           <!-- Cargo -->
           <div>
-            <label class="block text-sm font-medium text-brand-5f6060 dark:text-brand-e5e7eb mb-2">
+            <label class="block text-sm font-medium text-[var(--muted)] mb-2">
               Cargo
             </label>
             <select v-model="form.cargoId"
-              class="w-full px-4 py-2 rounded-lg border border-brand-e5e7eb dark:border-brand-0e9989 bg-brand-f6f7f8 dark:bg-brand-0e9989 text-brand-000 dark:text-white focus:ring-2 focus:ring-brand-14b8a6 dark:focus:ring-brand-0e9a97 outline-none transition">
+              class="w-full px-4 py-2 rounded-lg border border-[var(--border)] bg-[var(--card)] text-[var(--text)] focus:ring-2 focus:ring-[var(--accent)] outline-none transition">
               <option :value="null">Selecione um cargo</option>
               <option v-for="cargo in cargos" :key="cargo.id" :value="cargo.id">
                 {{ cargo.nomeCargo }}
@@ -152,11 +152,11 @@ const handleClose = () => {
 
           <!-- Status -->
           <div>
-            <label class="block text-sm font-medium text-brand-5f6060 dark:text-brand-e5e7eb mb-2">
+            <label class="block text-sm font-medium text-[var(--muted)] mb-2">
               Status
             </label>
             <select v-model="form.situacao"
-              class="w-full px-4 py-2 rounded-lg border border-brand-e5e7eb dark:border-brand-0e9989 bg-brand-f6f7f8 dark:bg-brand-0e9989 text-brand-000 dark:text-white focus:ring-2 focus:ring-brand-14b8a6 dark:focus:ring-brand-0e9a97 outline-none transition">
+              class="w-full px-4 py-2 rounded-lg border border-[var(--border)] bg-[var(--card)] text-[var(--text)] focus:ring-2 focus:ring-[var(--accent)] outline-none transition">
               <option v-for="option in statusOptions" :key="option.value" :value="option.value">
                 {{ option.label }}
               </option>
@@ -164,47 +164,47 @@ const handleClose = () => {
           </div>
 
           <!-- Seção de Alteração de Senha -->
-          <div class="pt-4 border-t border-brand-e5e7eb dark:border-brand-0e9989">
-            <h3 class="text-lg font-semibold text-brand-000 dark:text-white mb-4">
+          <div class="pt-4 border-t border-[var(--border)]">
+            <h3 class="text-lg font-semibold text-[var(--text)] mb-4">
               Alterar Senha
             </h3>
-            <p class="text-xs text-brand-5f6060 dark:text-brand-e5e7eb mb-4">
+            <p class="text-xs text-[var(--muted)] mb-4">
               Deixe em branco para manter a senha atual
             </p>
 
             <!-- Nova Senha -->
             <div class="mb-4">
-              <label class="block text-sm font-medium text-brand-5f6060 dark:text-brand-e5e7eb mb-2">
+              <label class="block text-sm font-medium text-[var(--muted)] mb-2">
                 Nova Senha
               </label>
               <input v-model="form.senha" type="password" autocomplete="new-password"
-                class="w-full px-4 py-2 rounded-lg border border-brand-e5e7eb dark:border-brand-0e9989 bg-brand-f6f7f8 dark:bg-brand-0e9989 text-brand-000 dark:text-white placeholder-brand-5f6060 dark:placeholder-brand-e5e7eb focus:ring-2 focus:ring-brand-14b8a6 dark:focus:ring-brand-0e9a97 outline-none transition"
+                class="w-full px-4 py-2 rounded-lg border border-[var(--border)] bg-[var(--card)] text-[var(--text)] placeholder-[var(--muted)] focus:ring-2 focus:ring-[var(--accent)] outline-none transition"
                 placeholder="Mínimo 8 caracteres" />
             </div>
 
             <!-- Confirmar Senha -->
             <div>
-              <label class="block text-sm font-medium text-brand-5f6060 dark:text-brand-e5e7eb mb-2">
+              <label class="block text-sm font-medium text-[var(--muted)] mb-2">
                 Confirmar Nova Senha
               </label>
               <input v-model="form.confirmarSenha" type="password" autocomplete="new-password"
-                class="w-full px-4 py-2 rounded-lg border border-brand-e5e7eb dark:border-brand-0e9989 bg-brand-f6f7f8 dark:bg-brand-0e9989 text-brand-000 dark:text-white placeholder-brand-5f6060 dark:placeholder-brand-e5e7eb focus:ring-2 focus:ring-brand-14b8a6 dark:focus:ring-brand-0e9a97 outline-none transition"
+                class="w-full px-4 py-2 rounded-lg border border-[var(--border)] bg-[var(--card)] text-[var(--text)] placeholder-[var(--muted)] focus:ring-2 focus:ring-[var(--accent)] outline-none transition"
                 placeholder="Confirme a nova senha" />
             </div>
           </div>
 
           <!-- Permissões (apenas visualização) -->
           <div v-if="permissoes.length > 0">
-            <label class="block text-sm font-medium text-brand-5f6060 dark:text-brand-e5e7eb mb-2">
+            <label class="block text-sm font-medium text-[var(--muted)] mb-2">
               Permissões Atuais
             </label>
             <div class="flex flex-wrap gap-2">
               <span v-for="(perm, idx) in permissoes" :key="idx"
-                class="px-3 py-1 rounded-full text-xs font-medium bg-brand-cad8fd dark:bg-brand-14b8a6 text-brand-3b67d0 dark:text-white">
+                class="px-3 py-1 rounded-full text-xs font-medium bg-[var(--accent)] text-white">
                 {{ perm.nome || perm.descricao }}
               </span>
             </div>
-            <p class="text-xs text-brand-5f6060 dark:text-brand-e5e7eb mt-2">
+            <p class="text-xs text-[var(--muted)] mt-2">
               As permissões são gerenciadas através do cargo atribuído
             </p>
           </div>
@@ -216,13 +216,13 @@ const handleClose = () => {
           </div>
 
           <!-- Actions -->
-          <div class="flex items-center justify-end gap-3 pt-4 border-t border-brand-e5e7eb dark:border-brand-0e9989">
+          <div class="flex items-center justify-end gap-3 pt-4 border-t border-[var(--border)]">
             <button type="button" @click="handleClose" :disabled="loading"
-              class="px-6 py-2 rounded-lg border border-brand-e5e7eb dark:border-brand-0e9989 text-brand-5f6060 dark:text-white hover:bg-brand-f6f7f8 dark:hover:bg-brand-0e9989 disabled:opacity-50 disabled:cursor-not-allowed transition">
+              class="px-6 py-2 rounded-lg border border-[var(--border)] text-[var(--text)] hover:bg-[var(--card)] disabled:opacity-50 disabled:cursor-not-allowed transition">
               Cancelar
             </button>
             <button type="submit" :disabled="loading"
-              class="px-6 py-2 rounded-lg bg-brand-cad8fd dark:bg-brand-14b8a6 border border-brand-3b67d0 dark:border-brand-0e9989 text-brand-3b67d0 dark:text-white font-semibold hover:bg-brand-93c5fd dark:hover:bg-brand-16c3af disabled:opacity-50 disabled:cursor-not-allowed transition">
+              class="px-6 py-2 rounded-lg bg-[var(--accent)] text-white font-semibold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition">
               {{ loading ? 'Salvando...' : 'Salvar Alterações' }}
             </button>
           </div>

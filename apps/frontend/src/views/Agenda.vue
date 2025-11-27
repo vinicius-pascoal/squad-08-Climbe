@@ -1,18 +1,17 @@
 <template>
   <section class="text-brand-000 dark:text-white">
     <div class="mx-auto w-full max-w-7xl px-4 pt-6 pb-3 grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4">
-      <div
-        class="bg-white dark:bg-brand-0a0a0a rounded-2xl p-5 shadow-lg border border-transparent dark:border-brand-0e9989 transition-colors">
+      <div class="bg-white rounded-2xl p-5 shadow-lg border border-transparent transition-colors dark:agenda-card">
         <p class="text-sm font-semibold tracking-wide text-brand-5f6060 dark:text-brand-e5e7eb">Contratos que&nbsp;
           vencem esse mês</p>
         <div class="text-5xl font-bold mt-2 leading-none text-brand-000 dark:text-white">4</div>
       </div>
 
       <div
-        class="bg-white dark:bg-brand-0a0a0a rounded-2xl p-4 md:px-6 md:py-4 flex items-center gap-4 shadow-lg border border-transparent dark:border-brand-0e9989 transition-colors">
+        class="bg-white rounded-2xl p-4 md:px-6 md:py-4 flex items-center gap-4 shadow-lg border border-transparent transition-colors dark:agenda-card">
         <div class="size-20 rounded-full grid place-items-center"
           :style="{ background: `conic-gradient(#B8DFD8 0 ${completedPct}%, #E1C9BF ${completedPct}% 100%)` }">
-          <div class="size-12 bg-white dark:bg-brand-0a0a0a rounded-full transition-colors"></div>
+          <div class="size-12 bg-white rounded-full transition-colors dark:agenda-card-inner"></div>
         </div>
         <div class="flex-1">
           <p class="text-sm font-semibold text-brand-000 dark:text-white">Tarefas Concluídas</p>
@@ -33,7 +32,7 @@
       <div class="flex items-center justify-end">
         <input v-if="hasPerm('Reuniões — Agendar') || (currentUser && currentUser.value?.cargoNome === 'Admin')"
           type="button" value="Cadastrar reunião" @click="goToAgendarReuniao"
-          class="cadastro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-brand-cad8fd dark:bg-brand-14b8a6 border border-brand-3b67d0 dark:border-brand-0e9989 text-brand-3b67d0 dark:text-white font-bold rounded-lg px-4 py-2 hover:bg-brand-93c5fd dark:hover:bg-brand-16c3af cursor-pointer ml-16 transition" />
+          class="cadastro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-brand-cad8fd  border border-brand-3b67d0 text-brand-3b67d0  font-bold rounded-lg px-4 py-2 hover:bg-brand-93c5fd cursor-pointer ml-16 transition" />
         <input v-else disabled type="button" value="Cadastrar reunião"
           class="cadastro rounded-lg bg-brand-e0e0e0 dark:bg-brand-3e4343 text-white px-4 py-2 ml-16 opacity-60 cursor-not-allowed" />
       </div>
@@ -50,9 +49,9 @@
 
     </div>
     <div
-      class="bg-white dark:bg-brand-0a0a0a rounded-xl mx-auto w-full max-w-7xl p-4 shadow-lg border border-transparent dark:border-brand-0e9989 transition-colors">
+      class="bg-white rounded-xl mx-auto w-full max-w-7xl p-4 shadow-lg border border-transparent transition-colors dark:agenda-card">
       <div
-        class="bg-white dark:bg-brand-0a0a0a rounded-t-[22px] px-4 pt-4 pb-0 flex items-center gap-6 transition-colors">
+        class="bg-white rounded-t-[22px] px-4 pt-4 pb-0 flex items-center gap-6 transition-colors dark:agenda-card-header">
 
         <div class="flex items-center gap-2 w-full">
           <div class="text-[28px] font-extrabold mr-4 text-brand-000 dark:text-white">{{ monthTitle }}</div>

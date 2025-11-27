@@ -158,8 +158,8 @@ watch(() => route.path, () => nextTick().then(measureHeader))
 
 /* dark mode */
 :deep(.dark) .sidebar {
-  /* Dark sidebar gradient using theme variables */
-  background: linear-gradient(180deg, var(--sidebar, #1E2436) 0%, var(--sidebarSecondary, #485780) 100%) !important;
+  /* Dark sidebar gradient using same style as main background */
+  background: linear-gradient(180deg, #45588E 0%, #2E3C64 17.71%, #2A3659 29.02%, #273352 45.9%, #252F4C 62.86%, #242D48 72.58%, #222B44 83.67%) !important;
   color: var(--text) !important;
 }
 

@@ -1,6 +1,6 @@
 <template>
   <div class=" ">
-    <h1 class="font-bold mb-10 text-4xl">Gestão de Empresas</h1>
+    <h1 class="font-bold mb-10 text-4xl dark:text-[var(--text)]">Gestão de Empresas</h1>
     <div class="mx-auto grid grid-cols-1 gap-6 lg:grid-cols-[280px,1fr]">
       <aside class="space-y-4">
         <div class="rounded-2xl bg-white p-4 shadow">
@@ -78,12 +78,12 @@
         </nav>
 
         <button v-if="canCreateCompany"
-          class="w-full rounded-xl border border-indigo-300 bg-indigo-50 px-3 py-3 text-left font-medium text-indigo-700 shadow hover:bg-indigo-100"
+          class="w-full rounded-xl border border-indigo-300 bg-indigo-50 px-3 py-3 text-left font-medium text-indigo-700 shadow hover:bg-indigo-100 dark:bg-indigo-50 dark:border-indigo-300 dark:text-indigo-700 dark:hover:bg-indigo-100"
           @click="onCreate">
           Cadastrar Empresa
         </button>
         <button v-else disabled
-          class="w-full rounded-xl border border-gray-200 bg-gray-100 px-3 py-3 text-left text-gray-500">Sem
+          class="w-full rounded-xl border border-gray-200 bg-gray-100 px-3 py-3 text-left text-gray-500 dark:bg-gray-100 dark:border-gray-200 dark:text-gray-500">Sem
           permissão</button>
       </aside>
 
