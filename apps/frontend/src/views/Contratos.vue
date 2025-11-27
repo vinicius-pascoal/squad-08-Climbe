@@ -1,24 +1,28 @@
 <template>
-  <div class="gap-x-4 ">
-    <input type="search" placeholder="pesquisar"
-      class="pesquisar shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] border bg-brand-e1e5e5 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 rounded-lg px-4 py-2 w-[624px] mt-4 mb-6 placeholder-black dark:placeholder-gray-300" />
+  <div class="flex items-center gap-4 mb-6">
+    <input type="search" placeholder="pesquisar" v-model="searchTerm"
+      class="pesquisar shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] border bg-brand-e1e5e5 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 rounded-lg px-4 py-2 w-[624px] placeholder-black dark:placeholder-gray-300" />
     <input type="button" value="Criar contratos"
-      class="cadastro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] border border-brand-3b67d0 dark:border-cyan-700 bg-brand-cad8fd dark:bg-cyan-900 text-brand-2551b2 dark:text-cyan-200 rounded-lg px-4 py-2 hover:cursor-pointer"
+      class="cadastro shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] bg-brand-cad8fd border border-brand-3b67d0 text-brand-3b67d0 font-bold rounded-lg px-4 py-2 hover:bg-brand-93c5fd cursor-pointer ml-16 transition dark:bg-brand-cad8fd dark:border-brand-3b67d0 dark:text-brand-3b67d0 dark:hover:bg-brand-93c5fd"
       @click="toggleModal" />
   </div>
 
-  <div class="flex gap-x-4 w-full mb-6">
-  </div>
-  <div class="flex gap-x-4 w-full">
-    <input type="button" value="Empresa"
-      class="seta shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] border bg-brand-e1e5e5 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 rounded-lg px-4 py-2 w-[184px] h-[39px] mt-4 mb-6 text-brand-5f6060 dark:text-gray-200" />
-    <input type="button" value="Todos os status"
-      class="seta shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] border bg-brand-e1e5e5 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 rounded-lg px-4 py-2 w-[184px] h-[39px] mt-4 mb-6 text-brand-5f6060 dark:text-gray-200" />
-    <input type="button" value="Vencimento"
-      class="seta shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] border bg-brand-e1e5e5 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 rounded-lg px-4 py-2 w-[184px] h-[39px] mt-4 mb-6 text-brand-5f6060 dark:text-gray-200" />
-    <div class="w-full grid justify-items-end">
-      <input type="button" value="Exportar"
-        class="exportar shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] border bg-brand-e1e5e5 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 rounded-lg px-4 py-2 w-[184px] h-[39px] mt-4 mb-6 text-brand-5f6060 dark:text-gray-200 justify-items-end" />
+  <div class="flex gap-4 mb-6">
+    <div class="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 dark:filter-pill">
+      <span class="text-slate-600 text-sm dark:text-white">Status</span>
+      <span class="text-slate-400 dark:text-white">▾</span>
+      <select class="pill-select" v-model="selectedStatus">
+        <option value="">Todos</option>
+        <option value="Aprovado">Aprovado</option>
+        <option value="Em revisão">Em revisão</option>
+        <option value="Rescindido">Rescindido</option>
+      </select>
+    </div>
+
+    <div class="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 dark:filter-pill">
+      <span class="text-slate-600 text-sm dark:text-white">Vencimento</span>
+      <span class="text-slate-400 dark:text-white">▾</span>
+      <input type="date" class="pill-input" v-model="dataVencimento">
     </div>
   </div>
   <div class="h-fit w-9/10 p-6 rounded-lg bg-white dark:bg-gray-900 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]">
@@ -42,12 +46,12 @@
             Carregando contratos...
           </td>
         </tr>
-        <tr v-else-if="contracts.length === 0">
+        <tr v-else-if="filteredContracts.length === 0">
           <td colspan="5" class="p-4 text-center text-gray-500 dark:text-gray-400">
             Nenhum contrato encontrado
           </td>
         </tr>
-        <tr v-else v-for="contract in contracts" :key="contract.id"
+        <tr v-else v-for="contract in filteredContracts" :key="contract.id"
           class="bg-brand-f0f0f0 dark:bg-gray-800 rounded-lg shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] hover:bg-gray-50 dark:hover:bg-gray-700">
           <Contratocard :icon="contract.icon" :company="contract.company" :proposal="contract.proposal"
             :validity="contract.validity" :status="contract.status" @open-contract="openContract(contract)" />
@@ -62,12 +66,13 @@
     @close="closeViewContract" @approve="handleApprove" @reject="handleReject" />
 </template>
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import Contratocard from '../components/Contratocard.vue';
 import PopupCreatContract from '../components/PopupCreatContract.vue';
 import ModalNovoContrato from '../components/modals/ModalNovoContrato.vue';
 import ModalViewContrato from '../components/modals/ModalViewContrato.vue';
 import { listContratos, aprovarContrato, recusarContrato, type ContratoResponse } from '../services/contract';
+import { listEmpresas, type EmpresaResponse } from '../services/empresa';
 import { getCurrentInstance } from 'vue';
 
 const showModal = ref(false);
@@ -75,7 +80,13 @@ const showNewContractModal = ref(false);
 const showViewContractModal = ref(false);
 const selectedContract = ref<any>(null);
 const contracts = ref<any[]>([]);
+const empresas = ref<EmpresaResponse[]>([]);
 const loading = ref(false);
+
+// Variáveis reativas para os filtros
+const searchTerm = ref('');
+const selectedStatus = ref('');
+const dataVencimento = ref('');
 
 const toggleModal = () => {
   showModal.value = !showModal.value;
@@ -181,6 +192,7 @@ const loadContratos = async () => {
       company: contrato.nome,
       proposal: `#${String(contrato.propostaId).padStart(5, '0')}`,
       validity: formatDate(contrato.dataFim),
+      validityRaw: contrato.dataFim,
       status: contrato.status,
       icon: '/icones/pingu.svg', // Pode ajustar conforme necessário
     }));
@@ -191,6 +203,53 @@ const loadContratos = async () => {
     loading.value = false;
   }
 };
+
+const loadEmpresas = async () => {
+  try {
+    empresas.value = await listEmpresas();
+  } catch (error: any) {
+    console.error('Erro ao carregar empresas:', error);
+    notify?.error(error?.message || 'Erro ao carregar empresas');
+  }
+};
+
+// Computed property para filtrar contratos
+const filteredContracts = computed(() => {
+  let filtered = [...contracts.value];
+
+  // Filtro de pesquisa por texto
+  if (searchTerm.value) {
+    const term = searchTerm.value.toLowerCase();
+    filtered = filtered.filter(contract =>
+      contract.company.toLowerCase().includes(term) ||
+      contract.proposal.toLowerCase().includes(term) ||
+      (contract.status && contract.status.toLowerCase().includes(term))
+    );
+  }
+
+  // Filtro por status
+  if (selectedStatus.value) {
+    filtered = filtered.filter(contract =>
+      contract.status === selectedStatus.value
+    );
+  }
+
+  // Filtro por data de vencimento
+  if (dataVencimento.value) {
+    filtered = filtered.filter(contract => {
+      const contractDate = new Date(contract.validityRaw);
+      const filterDate = new Date(dataVencimento.value);
+
+      // Comparar apenas a data (ignorar hora)
+      contractDate.setHours(0, 0, 0, 0);
+      filterDate.setHours(0, 0, 0, 0);
+
+      return contractDate.getTime() === filterDate.getTime();
+    });
+  }
+
+  return filtered;
+});
 
 onMounted(() => {
   loadContratos();
@@ -280,5 +339,28 @@ const contracts = ref([
   background-repeat: no-repeat;
   background-position: 15px center;
   padding-left: 45px;
+}
+
+.pill-input,
+.pill-select {
+  border-radius: 0.5rem;
+  border: 1px solid #cbd5e1;
+  background-color: white;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  outline: none;
+}
+
+.pill-input:focus,
+.pill-select:focus {
+  outline: 2px solid #0ea5e9;
+  outline-offset: 2px;
+}
+
+:deep(.dark) .pill-input,
+:deep(.dark) .pill-select {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-color: #485780 !important;
+  color: white !important;
 }
 </style>

@@ -408,7 +408,7 @@ body,
 }
 
 /* Botões genéricos no modo escuro */
-.dark button:not(.btn-cancelar):not(.btn-agendar):not(.bg-indigo-50) {
+.dark button:not(.btn-cancelar):not(.btn-agendar):not(.bg-indigo-50):not(.bg-brand-cad8fd) {
   color: var(--text);
 }
 
@@ -421,6 +421,19 @@ body,
 
 .dark button.bg-indigo-50:hover {
   background-color: #e0e7ff !important;
+}
+
+/* Exceção: manter estilo original dos botões azuis (cadastrar usuário) */
+.dark input.bg-brand-cad8fd,
+.dark button.bg-brand-cad8fd {
+  background-color: #cad8fd !important;
+  color: #3b67d0 !important;
+  border-color: #3b67d0 !important;
+}
+
+.dark input.bg-brand-cad8fd:hover,
+.dark button.bg-brand-cad8fd:hover {
+  background-color: #93c5fd !important;
 }
 
 /* Chips e tags no modo escuro */
