@@ -25,7 +25,8 @@
               @keydown.enter="login"
               class="w-full h-15 px-4 py-3 mb-6 rounded-lg border text-xl border-gray-300 bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-primary" />
 
-            <p v-if="error" class=" text-red-500 mb-2 text-xl font-bold ">{{ error }}</p>
+            <p v-if="error" class="text-red-500 mb-2 text-xl font-bold">{{ error }}</p>
+            <p v-if="success" class="text-green-400 mb-2 text-xl font-bold">{{ success }}</p>
 
             <div class="flex items-center justify-between w-full mb-4 gap-2">
               <button @click="login" :disabled="loading"
@@ -81,11 +82,13 @@ function focusPassword() {
   passwordInput.value?.focus();
 }
 const error = ref<string | null>(null);
+const success = ref<string | null>(null);
 const loading = ref(false);
 const googleHref = (import.meta.env.VITE_API_BASE || '') + '/login';
 
 async function login() {
   error.value = null;
+  success.value = null;
   loading.value = true;
   try {
     const res = await loginApi({ username: email.value, password: password.value });
@@ -109,6 +112,25 @@ const fullText = "A melhor empresa precisa dos melhores orientadores";
 const typedText = ref("");
 
 onMounted(() => {
+  // Verifica se há parâmetros de status do OAuth
+  const params = new URLSearchParams(window.location.search);
+  const status = params.get('status');
+  const isNewUser = params.get('isNewUser') === 'true';
+  const userEmail = params.get('email');
+
+  if (status === 'pending') {
+    if (isNewUser) {
+      success.value = "Pedido de acesso enviado com sucesso! Aguarde aprovação de um administrador.";
+    } else {
+      error.value = "Seu cadastro está pendente de aprovação.";
+    }
+    // Limpa os parâmetros da URL
+    window.history.replaceState({}, document.title, window.location.pathname);
+  } else if (status === 'deactivated') {
+    error.value = "Sua conta foi desativada. Entre em contato com o administrador.";
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+
   let index = 0;
   const typingInterval = setInterval(() => {
     if (index < fullText.length) {
