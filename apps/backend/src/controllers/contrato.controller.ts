@@ -27,20 +27,29 @@ export const contratoController = {
         });
       }
 
-      // Se propostaId não fornecido, buscar do flow se houver flowId no body
+      // Buscar propostaId do flow se flowId fornecido
       let finalPropostaId = validatedData.propostaId;
-      if (!finalPropostaId && req.body.flowId) {
+      let flowId = req.body.flowId ? Number(req.body.flowId) : null;
+
+      if (flowId) {
         try {
           const flow = await prisma.contractFlow.findUnique({
-            where: { id: Number(req.body.flowId) },
+            where: { id: flowId },
             select: { propostaId: true }
           });
+
           if (flow?.propostaId) {
             finalPropostaId = flow.propostaId;
-            console.log(`✅ PropostaId ${finalPropostaId} obtido do flow ${req.body.flowId}`);
+            console.log(`✅ PropostaId ${finalPropostaId} obtido do flow ${flowId}`);
+          } else {
+            console.warn(`⚠️ Flow ${flowId} não possui propostaId vinculado`);
           }
         } catch (err) {
-          console.warn('⚠️ Erro ao buscar propostaId do flow:', err);
+          console.error('❌ Erro ao buscar propostaId do flow:', err);
+          return res.status(500).json({
+            message: "Erro ao buscar dados do fluxo",
+            error: err instanceof Error ? err.message : 'Erro desconhecido'
+          });
         }
       }
 
@@ -51,15 +60,16 @@ export const contratoController = {
       console.log('✅ Contrato criado:', created);
 
       // Se veio de um flow, vincular o contrato ao flow
-      if (req.body.flowId) {
+      if (flowId) {
         try {
           await prisma.contractFlow.update({
-            where: { id: Number(req.body.flowId) },
+            where: { id: flowId },
             data: { contratoId: created.id }
           });
-          console.log(`✅ Contrato ${created.id} vinculado ao flow ${req.body.flowId}`);
+          console.log(`✅ Contrato ${created.id} vinculado ao flow ${flowId}`);
         } catch (err) {
-          console.warn('⚠️ Erro ao vincular contrato ao flow:', err);
+          console.error('❌ Erro ao vincular contrato ao flow:', err);
+          // Não falhar a criação se o vínculo falhar
         }
       }
 
@@ -145,7 +155,9 @@ export const contratoController = {
   // APROVAR
   async aprovar(req: Request, res: Response) {
     try {
+      console.log('🔔 [contratoController.aprovar] Requisição recebida');
       const id: string = req.params.id;
+      console.log('🔔 [contratoController.aprovar] ID do contrato:', id);
       const existing = await contratoService.findById(id);
 
       if (!existing) {
@@ -158,32 +170,39 @@ export const contratoController = {
 
       // Buscar o flow associado ao contrato e avançar a etapa
       try {
+        console.log(`🔍 Buscando flow para contrato ${id}...`);
         const flow = await prisma.contractFlow.findFirst({
           where: { contratoId: id },
           include: { steps: { orderBy: { id: 'asc' } } }
         });
 
         if (flow) {
-          console.log(`📋 Flow encontrado para contrato ${id}:`, flow.id);
-          console.log(`📋 Steps do flow:`, flow.steps.map(s => ({ id: s.id, type: s.type, status: s.status })));
+          console.log(`📋 Flow encontrado:`, {
+            flowId: flow.id,
+            status: flow.status,
+            steps: flow.steps.map(s => ({ id: s.id, type: s.type, status: s.status }))
+          });
 
           // Verificar se há uma etapa CONTRATO pendente
           const contratoStep = flow.steps.find(s => s.type === 'CONTRATO' && s.status === 'PENDENTE');
 
           if (contratoStep) {
-            console.log(`📋 Avançando etapa CONTRATO do flow ${flow.id}...`);
+            console.log(`✅ Etapa CONTRATO PENDENTE encontrada (id: ${contratoStep.id}), avançando flow ${flow.id}...`);
+
+            // Avançar a etapa do fluxo
             const result = await flowService.advance(flow.id);
-            console.log(`✅ Etapa do flow ${flow.id} avançada:`, result);
+            console.log(`✅ Flow ${flow.id} avançado com sucesso:`, result);
           } else {
             console.log(`⚠️ Etapa CONTRATO não está PENDENTE no flow ${flow.id}`);
+            console.log(`⚠️ Status das etapas:`, flow.steps.map(s => `${s.type}: ${s.status}`).join(', '));
           }
         } else {
           console.log(`⚠️ Nenhum flow encontrado para contrato ${id}`);
         }
       } catch (flowError: any) {
-        console.error('⚠️ Erro ao avançar flow:', flowError);
-        console.error('Stack:', flowError.stack);
+        console.error('❌ Erro ao avançar flow:', flowError);
         // Não falha a aprovação se houver erro no flow
+        // Mas loga o erro completo para debug
       }
 
       req.auditoriaData = {

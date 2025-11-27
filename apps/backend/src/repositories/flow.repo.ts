@@ -114,18 +114,28 @@ export const flowRepo = {
   },
 
   async advance(flowId: number, nextScheduledAt?: Date) {
+    console.log(`🔄 [flowRepo.advance] Iniciando avanço do flow ${flowId}`);
     const flow = await prisma.contractFlow.findUnique({ where: { id: flowId }, include: { steps: true } });
-    if (!flow) throw new Error('Fluxo não encontrado');
+    if (!flow) {
+      console.error(`❌ [flowRepo.advance] Fluxo ${flowId} não encontrado`);
+      throw new Error('Fluxo não encontrado');
+    }
 
+    console.log(`📋 [flowRepo.advance] Flow ${flowId} encontrado, status: ${flow.status}`);
     const ordered: any[] = ['REUNIAO', 'PROPOSTA', 'CONTRATO', 'CRIACAO_EMPRESA'];
     const steps = flow.steps.sort((a: any, b: any) => ordered.indexOf(a.type) - ordered.indexOf(b.type));
+    console.log(`📋 [flowRepo.advance] Steps ordenadas:`, steps.map(s => ({ type: s.type, status: s.status })));
+
     const current = steps.find((s: any) => s.status === 'PENDENTE');
+    console.log(`📋 [flowRepo.advance] Etapa PENDENTE atual:`, current ? { type: current.type, id: current.id } : 'Nenhuma');
 
     return prisma.$transaction(async (tx: any) => {
       if (!current) {
+        console.error(`❌ [flowRepo.advance] Nenhuma etapa pendente encontrada no flow ${flowId}`);
         throw new Error('Nenhuma etapa pendente encontrada');
       }
 
+      console.log(`✅ [flowRepo.advance] Marcando etapa ${current.type} como CONCLUIDO`);
       // Marcar etapa atual como concluída
       await tx.contractFlowStep.update({
         where: { id: current.id },
@@ -134,19 +144,27 @@ export const flowRepo = {
 
       // Encontrar próxima etapa
       const curIdx = ordered.indexOf(current.type as any);
+      console.log(`📋 [flowRepo.advance] Índice da etapa atual (${current.type}): ${curIdx}`);
+
       if (curIdx >= 0 && curIdx < ordered.length - 1) {
         const nextType = ordered[curIdx + 1];
+        console.log(`📋 [flowRepo.advance] Próxima etapa será: ${nextType}`);
 
         // Encontrar a etapa NAO_INICIADO e ativar
         const nextStep = steps.find((s: any) => s.type === nextType);
         if (nextStep) {
+          console.log(`✅ [flowRepo.advance] Ativando etapa ${nextType} (id: ${nextStep.id})`);
           const updated = await tx.contractFlowStep.update({
             where: { id: nextStep.id },
             data: { status: 'PENDENTE', scheduledAt: nextScheduledAt ?? null },
           });
+          console.log(`✅ [flowRepo.advance] Etapa ${nextType} ativada com sucesso`);
           return updated;
+        } else {
+          console.warn(`⚠️ [flowRepo.advance] Próxima etapa ${nextType} não encontrada`);
         }
       } else {
+        console.log(`🏁 [flowRepo.advance] Última etapa concluída, marcando flow como CONCLUIDO`);
         // Última etapa concluída - marcar fluxo como concluído
         await tx.contractFlow.update({ where: { id: flowId }, data: { status: 'CONCLUIDO' } });
         return { done: true };

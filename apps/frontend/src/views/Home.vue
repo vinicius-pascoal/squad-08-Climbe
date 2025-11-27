@@ -28,7 +28,8 @@
 
     <!-- Modals for quick creation (opened by role buttons) -->
     <ModalCreateProposta v-if="showPropostaModal" @close="handleClosePropostaModal" @saved="onPropostaSaved" />
-    <ModalNovoContrato v-if="showContratoModal" @close="handleCloseContratoModal" @saved="onContratoSaved" />
+    <ModalNovoContrato v-if="showContratoModal" :flowId="currentFlowContext?.flowId" @close="handleCloseContratoModal"
+      @saved="onContratoSaved" />
     <ModalCadastroUsuario v-if="showCadastroModal" @close="showCadastroModal = false" />
 
     <!-- Fluxo -->

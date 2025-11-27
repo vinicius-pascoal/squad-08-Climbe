@@ -35,7 +35,7 @@ export function listContratos() {
 }
 
 export function getContratoById(id: string) {
-	return http<ContratoResponse>(`/api/contratos/${id}`, {
+	return http<ContratoResponse>(`/api/contratos/${encodeURIComponent(id)}`, {
 		method: 'GET',
 	});
 }
@@ -48,14 +48,14 @@ export function createcontrato(input: contratoInput) {
 }
 
 export function aprovarContrato(id: string) {
-	return http<ContratoResponse>(`/api/contratos/${id}/aprovar`, {
+	return http<ContratoResponse>(`/api/contratos/${encodeURIComponent(id)}/aprovar`, {
 		method: 'PATCH',
 		body: JSON.stringify({ status: 'Aprovado' }),
 	});
 }
 
 export function recusarContrato(id: string) {
-	return http<ContratoResponse>(`/api/contratos/${id}/recusar`, {
+	return http<ContratoResponse>(`/api/contratos/${encodeURIComponent(id)}/recusar`, {
 		method: 'PATCH',
 		body: JSON.stringify({ status: 'Rescindido' }),
 	});

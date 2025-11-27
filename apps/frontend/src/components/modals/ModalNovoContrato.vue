@@ -201,9 +201,13 @@ const handleSubmit = async () => {
     if (props.flowId) {
       payload.flowId = props.flowId;
       console.log('📋 Criando contrato com flowId:', props.flowId);
+      // Não envia propostaId manualmente quando vem de flow, será buscado automaticamente no backend
+    } else {
+      // Só envia propostaId manualmente se NÃO veio de um flow
+      if (formData.value.propostaId && formData.value.propostaId > 0) {
+        payload.propostaId = formData.value.propostaId;
+      }
     }
-
-    if (formData.value.propostaId && formData.value.propostaId > 0) payload.propostaId = formData.value.propostaId;
     if (formData.value.status && formData.value.status.trim()) payload.status = formData.value.status.trim();
     if (formData.value.envolvidos && formData.value.envolvidos.trim()) payload.envolvidos = formData.value.envolvidos.trim();
     if (formData.value.descricao && formData.value.descricao.trim()) payload.descricao = formData.value.descricao.trim();
