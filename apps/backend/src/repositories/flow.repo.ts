@@ -186,7 +186,72 @@ export const flowRepo = {
   },
 
   async updateEmpresa(flowId: number, empresaId: number) {
-    return prisma.contractFlow.update({ where: { id: flowId }, data: { empresaId } });
+    return prisma.$transaction(async (tx: any) => {
+      // 1. Buscar o fluxo para obter informações da empresa temporária
+      const flow = await tx.contractFlow.findUnique({
+        where: { id: flowId },
+        include: {
+          empresa: true,
+        },
+      });
+
+      if (!flow) {
+        throw new Error(`Fluxo com ID ${flowId} não encontrado`);
+      }
+
+      const empresaTemporariaId = flow.empresaId;
+      const isTemporaryCompany = flow.empresa?.cnpj === '00000000000000';
+
+      console.log('[flowRepo.updateEmpresa] Atualizando fluxo:', {
+        flowId,
+        empresaTemporariaId,
+        novaEmpresaId: empresaId,
+        isTemporaryCompany,
+      });
+
+      // 2. Atualizar o fluxo com a nova empresa
+      const updatedFlow = await tx.contractFlow.update({
+        where: { id: flowId },
+        data: { empresaId },
+        include: {
+          empresa: true,
+          steps: true,
+          proposta: true,
+        },
+      });
+
+      // 3. Se havia uma empresa temporária, atualizar proposta e reunião
+      if (isTemporaryCompany && empresaTemporariaId) {
+        console.log('[flowRepo.updateEmpresa] Substituindo empresa temporária em entidades relacionadas...');
+
+        // 3.1. Atualizar a proposta vinculada ao fluxo (se existir)
+        if (flow.propostaId) {
+          await tx.proposta.update({
+            where: { id: flow.propostaId },
+            data: { empresaId },
+          });
+          console.log('[flowRepo.updateEmpresa] Proposta atualizada:', flow.propostaId);
+        }
+
+        // 3.2. Atualizar as reuniões da empresa temporária
+        const reunioesAtualizadas = await tx.reuniao.updateMany({
+          where: { empresaId: empresaTemporariaId },
+          data: { empresaId },
+        });
+        console.log('[flowRepo.updateEmpresa] Reuniões atualizadas:', reunioesAtualizadas.count);
+
+        // 3.3. Deletar a empresa temporária do sistema
+        await tx.empresa.delete({
+          where: { id: empresaTemporariaId },
+        });
+        console.log('[flowRepo.updateEmpresa] Empresa temporária deletada:', empresaTemporariaId);
+      }
+
+      return updatedFlow;
+    }, {
+      maxWait: 10000,
+      timeout: 15000,
+    });
   },
 
   async updateDriveFolderId(flowId: number, driveFolderId: string) {

@@ -304,12 +304,21 @@ async function onEmpresaSaved(empresa?: any) {
 
   if (currentFlowContext.value?.flowId && empresa?.id) {
     try {
+      console.log('🏢 Empresa criada, atualizando fluxo...', {
+        flowId: currentFlowContext.value.flowId,
+        empresaId: empresa.id
+      });
+
       // Vincular empresa ao fluxo (atualizar empresaId)
       await http(`/api/flows/${currentFlowContext.value.flowId}`, {
         method: 'PATCH',
         body: JSON.stringify({ empresaId: empresa.id }),
       });
-      await advanceFlow(currentFlowContext.value.flowId);
+      console.log('✅ Empresa vinculada ao fluxo, avançando fluxo...');
+
+      const result = await advanceFlow(currentFlowContext.value.flowId);
+      console.log('✅ Fluxo avançado:', result);
+
       $notify?.success?.('Empresa criada! Fluxo concluído com sucesso! 🎉');
 
       // Aguardar um pouco para garantir que o backend processou
@@ -318,6 +327,7 @@ async function onEmpresaSaved(empresa?: any) {
         agendaRef.value?.loadEvents();
       }, 500);
     } catch (e: any) {
+      console.error('❌ Erro ao finalizar fluxo:', e);
       $notify?.error?.(e?.message || 'Erro ao vincular empresa');
     }
   }
