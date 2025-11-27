@@ -568,17 +568,6 @@ body,
 }
 
 /* CadastroUsuario - Botões de ação */
-.dark .bg-brand-c7d6fa {
-  background-color: rgba(37, 210, 212, 0.2) !important;
-}
-
-.dark .border-brand-4167c0 {
-  border-color: var(--accent) !important;
-}
-
-.dark .text-brand-2b5ddf {
-  color: var(--accent) !important;
-}
 
 .dark .bg-brand-f9cdcb {
   background-color: rgba(239, 68, 68, 0.2) !important;

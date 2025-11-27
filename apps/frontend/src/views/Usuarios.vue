@@ -199,85 +199,85 @@ export default {
 
 <template>
   <div class="gestaousuario ml-16 relative usuarios ">
-    <h1 class="font-bold text-[40px] titulo text-brand-000 dark:text-white">Gestão de Usuário</h1>
+    <h1 class="font-bold text-[40px] titulo text-[var(--text)]">Gestão de Usuário</h1>
 
     <div class="flex items-center gap-4 mt-4 mb-6">
       <input v-model="searchTerm" type="search" placeholder="pesquisar por nome/email"
-        class="email shadow-md border bg-brand-e1e5e5 dark:bg-brand-0e9a97 dark:border-brand-0e9989 rounded-lg px-4 py-2 w-[80vh] text-brand-5f6060 dark:text-white placeholder-brand-5f6060 dark:placeholder-brand-e5e7eb focus:ring-2 focus:ring-primary dark:focus:ring-primary outline-none" />
+        class="email shadow-md border bg-[var(--card)] border-[var(--border)] rounded-lg px-4 py-2 w-[80vh] text-[var(--text)] placeholder-[var(--muted)] focus:ring-2 focus:ring-[var(--accent)] outline-none" />
 
       <input ref="filtersBtn" type="button" value="Filtros" @click="toggleFilters"
-        class="filtro shadow-md bg-brand-e1e5e5 dark:bg-brand-0e9a97 text-brand-5f6060 dark:text-white border border-brand-e5e7eb dark:border-brand-0e9989 rounded-lg px-4 py-2 hover:bg-brand-f6f7f8 dark:hover:bg-brand-0e9989 cursor-pointer transition" />
+        class="filtro shadow-md bg-[var(--card)] text-[var(--text)] border border-[var(--border)] rounded-lg px-4 py-2 hover:bg-[var(--panel)] cursor-pointer transition" />
 
       <input v-if="hasPermission('Usuários — Criar') || isAdmin() || hasPermission('Usuários — Aceitar/Aprovar')"
         type="button" value="Cadastrar usuário" @click="openCadastro"
-        class="cadastro shadow-md bg-brand-cad8fd border border-brand-3b67d0 text-brand-3b67d0 font-bold rounded-lg px-4 py-2 hover:bg-brand-93c5fd cursor-pointer ml-16 transition dark:bg-brand-cad8fd dark:border-brand-3b67d0 dark:text-brand-3b67d0 dark:hover:bg-brand-93c5fd" />
+        class="cadastro shadow-md bg-brand-cad8fd border border-brand-3b67d0 text-brand-3b67d0 font-bold rounded-lg px-4 py-2 hover:bg-brand-93c5fd cursor-pointer ml-16 transition" />
       <input v-else disabled type="button" value="Cadastrar usuário"
-        class="cadastro shadow-md bg-brand-e0e0e0 text-white rounded-lg px-4 py-2 ml-16 opacity-60 cursor-not-allowed dark:bg-brand-e0e0e0 dark:text-white" />
+        class="cadastro shadow-md bg-gray-300 text-white rounded-lg px-4 py-2 ml-16 opacity-60 cursor-not-allowed" />
     </div>
 
     <div v-if="showFilters" ref="filtersDropdown"
-      class="absolute z-50 mt-2 bg-white dark:bg-brand-0e9a97 rounded-lg shadow-xl border border-brand-e5e7eb dark:border-brand-0e9989 w-[320px] p-4"
+      class="absolute z-50 mt-2 bg-[var(--panel)] rounded-lg shadow-xl border border-[var(--border)] w-[320px] p-4"
       style="top: 90px;">
-      <h3 class="text-brand-5f6060 dark:text-white font-semibold mb-3">Filtrar por</h3>
+      <h3 class="text-[var(--text)] font-semibold mb-3">Filtrar por</h3>
 
-      <label class="block text-sm text-brand-5f6060 dark:text-brand-e5e7eb mb-1">Status</label>
+      <label class="block text-sm text-[var(--muted)] mb-1">Status</label>
       <select v-model="filters.status"
-        class="w-full mb-3 rounded-lg border border-brand-e5e7eb dark:border-brand-0e9989 bg-brand-f6f7f8 dark:bg-brand-0e9989 px-3 py-2 text-brand-5f6060 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary">
+        class="w-full mb-3 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]">
         <option value="">Todos</option>
         <option value="ativo">Ativo</option>
         <option value="pendente">Pendente</option>
         <option value="desativado">Desativado</option>
       </select>
 
-      <label class="block text-sm text-brand-5f6060 dark:text-brand-e5e7eb mb-1">Cargo</label>
+      <label class="block text-sm text-[var(--muted)] mb-1">Cargo</label>
       <select v-model="filters.cargoId"
-        class="w-full mb-4 rounded-lg border border-brand-e5e7eb dark:border-brand-0e9989 bg-brand-f6f7f8 dark:bg-brand-0e9989 px-3 py-2 text-brand-5f6060 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary">
+        class="w-full mb-4 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]">
         <option value="">Todos</option>
         <option v-for="c in cargos" :key="c.id" :value="c.id">{{ c.nomeCargo }}</option>
       </select>
 
       <div class="flex items-center justify-end gap-2">
         <button @click="clearFilters"
-          class="px-4 py-2 rounded-lg border border-brand-e5e7eb dark:border-brand-0e9989 text-brand-5f6060 dark:text-white hover:bg-brand-f6f7f8 dark:hover:bg-brand-0e9989 transition">Limpar</button>
+          class="px-4 py-2 rounded-lg border border-[var(--border)] text-[var(--text)] hover:bg-[var(--card)] transition">Limpar</button>
         <button @click="applyFilters"
-          class="px-4 py-2 rounded-lg bg-brand-cad8fd dark:bg-brand-14b8a6 text-white hover:bg-brand-93c5fd dark:hover:bg-brand-16c3af transition">
+          class="px-4 py-2 rounded-lg bg-[var(--accent)] text-white hover:opacity-90 transition">
           Aplicar
         </button>
       </div>
     </div>
 
-    <div class="p-6 bg-white dark:bg-brand-0a0a0a rounded-lg shadow-lg">
-      <div v-if="loading" class="py-8 text-center text-brand-5f6060 dark:text-brand-e5e7eb">Carregando usuários...</div>
-      <div v-else-if="error" class="py-8 text-center text-brand-d32f2f dark:text-brand-ef4444">{{ error }}</div>
+    <div class="p-6 bg-[var(--panel)] rounded-lg shadow-lg">
+      <div v-if="loading" class="py-8 text-center text-[var(--muted)]">Carregando usuários...</div>
+      <div v-else-if="error" class="py-8 text-center text-red-500">{{ error }}</div>
 
       <div v-else>
         <div class="overflow-x-auto">
-          <table class="w-full bg-white dark:bg-brand-0a0a0a rounded-lg overflow-hidden">
-            <thead class="bg-brand-f0f4ff dark:bg-brand-0e9a97">
+          <table class="w-full bg-[var(--panel)] rounded-lg overflow-hidden">
+            <thead class="bg-[var(--card)]">
               <tr>
                 <th
-                  class="py-4 px-6 text-left text-sm font-semibold text-brand-5f6060 dark:text-white border-r border-brand-e5e7eb dark:border-brand-0e9989">
+                  class="py-4 px-6 text-left text-sm font-semibold text-[var(--text)] border-r border-[var(--border)]">
                   Nome
                 </th>
                 <th
-                  class="py-4 px-6 text-left text-sm font-semibold text-brand-5f6060 dark:text-white border-r border-brand-e5e7eb dark:border-brand-0e9989">
+                  class="py-4 px-6 text-left text-sm font-semibold text-[var(--text)] border-r border-[var(--border)]">
                   Cargo
                 </th>
                 <th
-                  class="py-4 px-6 text-left text-sm font-semibold text-brand-5f6060 dark:text-white border-r border-brand-e5e7eb dark:border-brand-0e9989">
+                  class="py-4 px-6 text-left text-sm font-semibold text-[var(--text)] border-r border-[var(--border)]">
                   Email
                 </th>
                 <th
-                  class="py-4 px-6 text-center text-sm font-semibold text-brand-5f6060 dark:text-white border-r border-brand-e5e7eb dark:border-brand-0e9989">
+                  class="py-4 px-6 text-center text-sm font-semibold text-[var(--text)] border-r border-[var(--border)]">
                   Permissões
                 </th>
-                <th class="py-4 px-6 text-center text-sm font-semibold text-brand-5f6060 dark:text-white">
+                <th class="py-4 px-6 text-center text-sm font-semibold text-[var(--text)]">
                   Status
                 </th>
               </tr>
             </thead>
 
-            <tbody class="divide-y divide-brand-e5e7eb dark:divide-brand-3e4343">
+            <tbody class="divide-y divide-[var(--border)]">
               <Card v-for="u in paginatedUsers" :key="u.id" :userId="u.id" :name="u.nomeCompleto || '—'"
                 :email="u.email || '—'" :cargo="cargoName(u)" :permisao="getPermissao(u)"
                 :status="mapSituacao(u.situacao)" :updating="Boolean(statusLoading[u.id])" :cargos="cargos"
@@ -289,26 +289,25 @@ export default {
           </table>
         </div>
 
-        <div v-if="!paginatedUsers.length && !loading"
-          class="py-8 text-center text-brand-5f6060 dark:text-brand-e5e7eb">
+        <div v-if="!paginatedUsers.length && !loading" class="py-8 text-center text-[var(--muted)]">
           Nenhum usuário encontrado.
         </div>
 
-        <div class="flex items-center justify-between mt-6 pt-4 border-t border-brand-e5e7eb dark:border-brand-3e4343">
-          <span class="text-sm text-brand-5f6060 dark:text-brand-e5e7eb">
+        <div class="flex items-center justify-between mt-6 pt-4 border-t border-[var(--border)]">
+          <span class="text-sm text-[var(--muted)]">
             Mostrando {{ (page - 1) * pageSize + 1 }} a {{ Math.min(page * pageSize, filteredUsers.length) }} de {{
               filteredUsers.length }} usuário(s)
           </span>
           <div class="flex items-center gap-2">
             <button @click="prevPage" :disabled="page === 1"
-              class="px-4 py-2 rounded-lg border border-brand-e5e7eb dark:border-brand-3e4343 bg-white dark:bg-brand-0e9a97 text-brand-5f6060 dark:text-white hover:bg-brand-f6f7f8 dark:hover:bg-brand-0e9989 disabled:opacity-50 disabled:cursor-not-allowed transition">
+              class="px-4 py-2 rounded-lg border border-[var(--border)] bg-[var(--card)] text-[var(--text)] hover:bg-[var(--panel)] disabled:opacity-50 disabled:cursor-not-allowed transition">
               Anterior
             </button>
-            <span class="px-4 py-2 text-sm font-medium text-brand-5f6060 dark:text-brand-e5e7eb">
+            <span class="px-4 py-2 text-sm font-medium text-[var(--text)]">
               Página {{ page }} de {{ totalPages }}
             </span>
             <button @click="nextPage" :disabled="page === totalPages"
-              class="px-4 py-2 rounded-lg border border-brand-e5e7eb dark:border-brand-3e4343 bg-white dark:bg-brand-0e9a97 text-brand-5f6060 dark:text-white hover:bg-brand-f6f7f8 dark:hover:bg-brand-0e9989 disabled:opacity-50 disabled:cursor-not-allowed transition">
+              class="px-4 py-2 rounded-lg border border-[var(--border)] bg-[var(--card)] text-[var(--text)] hover:bg-[var(--panel)] disabled:opacity-50 disabled:cursor-not-allowed transition">
               Próxima
             </button>
           </div>
