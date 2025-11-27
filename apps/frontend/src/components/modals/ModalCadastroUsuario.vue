@@ -154,4 +154,32 @@ onMounted(() => carregarCargos());
   width: 95%;
   max-width: 900px
 }
+
+.dark .modal-content {
+  background: linear-gradient(244.47deg, #2F3C60 3.97%, #222A3F 24.52%, #1F263A 50.41%, #1F2638 70.95%);
+  border: 1px solid #485780;
+  box-shadow: 0px 4px 4px 0px #00000040;
+  color: var(--text);
+}
+
+.dark .modal-content h2,
+.dark .modal-content p,
+.dark .modal-content label {
+  color: var(--text);
+}
+
+.dark .modal-content input,
+.dark .modal-content select {
+  background-color: #57648E;
+  border-color: #485780;
+  color: var(--text);
+}
+
+.dark .modal-content input::placeholder {
+  color: var(--muted);
+}
+
+.dark .modal-content button:not(.btn-secondary) {
+  color: var(--text);
+}
 </style>

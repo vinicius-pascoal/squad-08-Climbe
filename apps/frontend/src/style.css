@@ -84,8 +84,7 @@ body,
 
 /* fundo geral*/
 .dark .bg-gray-100 {
-  background: #45588E;
-  background: linear-gradient(28deg, rgba(69, 88, 142, 1) 0%, rgba(35, 44, 67, 1) 51%, rgba(40, 51, 84, 1) 100%);
+  background: linear-gradient(45deg, #45588E 0%, #2E3C64 17.71%, #2A3659 29.02%, #273352 45.9%, #252F4C 62.86%, #242D48 72.58%, #222B44 83.67%);
 }
 
 /* fundo geral B*/
@@ -181,14 +180,16 @@ body,
 }
 
 .dark .widget-card {
-  background: #0C111C;
-  background: linear-gradient(28deg, rgba(12, 17, 28, 1) 0%, rgba(64, 77, 112, 1) 100%);
+  background: linear-gradient(244.47deg, #2F3C60 3.97%, #222A3F 24.52%, #1F263A 50.41%, #1F2638 70.95%);
+  border: 1px solid #485780;
+  box-shadow: 0px 4px 4px 0px #00000040;
   color: var(--text) !important;
 }
 
 .dark .card {
-  background: #0C111C;
-  background: linear-gradient(28deg, rgba(12, 17, 28, 1) 0%, rgba(64, 77, 112, 1) 100%);
+  background: linear-gradient(244.47deg, #2F3C60 3.97%, #222A3F 24.52%, #1F263A 50.41%, #1F2638 70.95%);
+  border: 1px solid #485780;
+  box-shadow: 0px 4px 4px 0px #00000040;
   color: var(--text) !important;
 }
 
@@ -201,8 +202,9 @@ body,
 }
 
 .dark .meeting-history {
-  background: #0C111C;
-  background: linear-gradient(28deg, rgba(12, 17, 28, 1) 0%, rgba(64, 77, 112, 1) 100%);
+  background: linear-gradient(244.47deg, #2F3C60 3.97%, #222A3F 24.52%, #1F263A 50.41%, #1F2638 70.95%);
+  border: 1px solid #485780;
+  box-shadow: 0px 4px 4px 0px #00000040;
   color: var(--text) !important;
 }
 
@@ -211,8 +213,9 @@ body,
 }
 
 .dark .latest-actions {
-  background: #0C111C;
-  background: linear-gradient(28deg, rgba(12, 17, 28, 1) 0%, rgba(64, 77, 112, 1) 100%);
+  background: linear-gradient(244.47deg, #2F3C60 3.97%, #222A3F 24.52%, #1F263A 50.41%, #1F2638 70.95%);
+  border: 1px solid #485780;
+  box-shadow: 0px 4px 4px 0px #00000040;
   color: var(--text) !important;
 }
 
@@ -236,6 +239,113 @@ body,
 
 .dark .calendarioSemanal {
   background-color: var(--card) !important;
+  color: var(--text) !important;
+}
+
+/* Agenda cards no modo escuro */
+.dark .agenda-card {
+  background: linear-gradient(244.47deg, #2F3C60 3.97%, #222A3F 24.52%, #1F263A 50.41%, #1F2638 70.95%) !important;
+  border: 1px solid #485780 !important;
+  box-shadow: 0px 4px 4px 0px #00000040 !important;
+}
+
+.dark .agenda-card-inner {
+  background: linear-gradient(244.47deg, #2F3C60 3.97%, #222A3F 24.52%, #1F263A 50.41%, #1F2638 70.95%) !important;
+}
+
+.dark .agenda-card-header {
+  background: transparent !important;
+}
+
+/* Weekly Calendar no modo escuro */
+.dark .calendar-weekly {
+  background: #57648E !important;
+  border: 1px solid #485780 !important;
+  box-shadow: 0px 4px 4px 0px #00000040 !important;
+}
+
+.dark .calendar-day-badge {
+  background: linear-gradient(244.47deg, #2F3C60 3.97%, #222A3F 24.52%, #1F263A 50.41%, #1F2638 70.95%) !important;
+  border: 1px solid #485780 !important;
+  color: var(--text) !important;
+}
+
+.dark .calendar-column {
+  background: #57648E !important;
+}
+
+/* Monthly Calendar no modo escuro */
+.dark .monthly-cell {
+  background: #57648E !important;
+  border: 1px solid #485780 !important;
+  box-shadow: 0px 4px 4px 0px #00000040 !important;
+}
+
+.dark .monthly-event {
+  background: rgba(72, 87, 128, 0.4) !important;
+}
+
+.dark .monthly-event:hover {
+  background: rgba(72, 87, 128, 0.6) !important;
+}
+
+/* Modais no modo escuro */
+.dark .modal-overlay {
+  background: rgba(0, 0, 0, 0.6) !important;
+}
+
+.dark .modal-content {
+  background: linear-gradient(244.47deg, #2F3C60 3.97%, #222A3F 24.52%, #1F263A 50.41%, #1F2638 70.95%) !important;
+  border: 1px solid #485780 !important;
+  box-shadow: 0px 4px 4px 0px #00000040 !important;
+  color: var(--text) !important;
+}
+
+.dark .modal-content h2,
+.dark .modal-content h3,
+.dark .modal-content p,
+.dark .modal-content label {
+  color: var(--text) !important;
+}
+
+.dark .modal-content input:not([type="checkbox"]):not([type="radio"]),
+.dark .modal-content select,
+.dark .modal-content textarea {
+  background-color: #57648E !important;
+  border-color: #485780 !important;
+  color: var(--text) !important;
+}
+
+.dark .modal-content input::placeholder,
+.dark .modal-content textarea::placeholder {
+  color: var(--muted) !important;
+}
+
+.dark .modal-content .bg-white {
+  background: linear-gradient(244.47deg, #2F3C60 3.97%, #222A3F 24.52%, #1F263A 50.41%, #1F2638 70.95%) !important;
+}
+
+.dark .modal-content .bg-slate-50,
+.dark .modal-content .bg-gray-50,
+.dark .modal-content .bg-sky-50 {
+  background-color: rgba(87, 100, 142, 0.3) !important;
+}
+
+.dark .modal-content .border-slate-200,
+.dark .modal-content .border-gray-200,
+.dark .modal-content .border-gray-300,
+.dark .modal-content .border-sky-200 {
+  border-color: #485780 !important;
+}
+
+.dark .modal-content .text-slate-500,
+.dark .modal-content .text-gray-500 {
+  color: var(--muted) !important;
+}
+
+.dark .modal-content .text-slate-800,
+.dark .modal-content .text-gray-800,
+.dark .modal-content .text-gray-900 {
   color: var(--text) !important;
 }
 

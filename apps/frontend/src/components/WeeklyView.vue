@@ -1,22 +1,22 @@
 <template>
   <div
-    class="bg-brand-f0f0f0 dark:bg-brand-0e9a97 rounded-xl w-full p-4 md:p-6 shadow-lg h-fit calendarioSemanal transition-colors">
+    class="bg-brand-f0f0f0 rounded-xl w-full p-4 md:p-6 shadow-lg h-fit calendarioSemanal transition-colors dark:calendar-weekly">
     <div
       class="gridTabela items-end text-center text-sm font-semibold text-brand-5f6060 dark:text-brand-e5e7eb mb-2 mx-auto">
       <div v-for="d in weekDays" :key="d.date" class="pb-1">
         <div class="uppercase tracking-wide">{{ d.label }}</div>
         <div
-          class="mt-2 inline-flex items-center justify-center bg-white dark:bg-brand-0e9989 shadow px-4 py-1 rounded-xl border border-brand-e5e7eb dark:border-brand-0e9989 text-brand-000 dark:text-white transition-colors">
+          class="mt-2 inline-flex items-center justify-center bg-white shadow px-4 py-1 rounded-xl border border-brand-e5e7eb text-brand-000 transition-colors dark:calendar-day-badge">
           {{ d.date }}
         </div>
       </div>
     </div>
     <div class="gridTabela">
 
-      <div v-for="day in 7" :key="day" class="border-l border-brand-e5e7eb dark:border-brand-0e9989">
-        <div class="relative bg-white dark:bg-brand-0a0a0a transition-colors" :style="{
+      <div v-for="day in 7" :key="day" class="border-l border-brand-e5e7eb dark:border-brand-485780">
+        <div class="relative bg-white transition-colors dark:calendar-column" :style="{
           height: colHeight + 'px',
-          backgroundImage: isDark ? 'linear-gradient(to bottom, rgba(14, 153, 151, 0.3) 1px, transparent 1px)' : 'linear-gradient(to bottom, rgba(226,232,240,0.7) 1px, transparent 1px)',
+          backgroundImage: isDark ? 'linear-gradient(to bottom, rgba(72, 87, 128, 0.3) 1px, transparent 1px)' : 'linear-gradient(to bottom, rgba(226,232,240,0.7) 1px, transparent 1px)',
           backgroundSize: '100% ' + pxPerHour + 'px'
         }">
           <div v-for="e in shapedEvents.filter(ev => ev.dayIndex === (day - 1))" :key="e.id"

@@ -7,11 +7,11 @@
 
     <div class="grid grid-cols-7 gap-2">
       <div v-for="cell in cells" :key="cell.key"
-        class="min-h-24 p-2 border border-brand-e5e7eb dark:border-brand-0e9989 rounded-lg bg-white dark:bg-brand-0a0a0a transition-colors">
+        class="min-h-24 p-2 border border-brand-e5e7eb rounded-lg bg-white transition-colors dark:monthly-cell">
         <div class="text-sm font-semibold mb-1 text-brand-000 dark:text-white">{{ cell.label }}</div>
         <ul class="space-y-1">
           <li v-for="ev in cell.events" :key="ev.id"
-            class="text-xs p-1 rounded bg-brand-f6f7f8 dark:bg-brand-0e9989 hover:bg-brand-e5e7eb dark:hover:bg-brand-0e9a97 cursor-pointer transition-colors"
+            class="text-xs p-1 rounded bg-brand-f6f7f8 hover:bg-brand-e5e7eb cursor-pointer transition-colors dark:monthly-event"
             @click="$emit('event-click', ev)">
             <div class="truncate font-medium text-brand-000 dark:text-white">{{ ev.summary || ev.title }}</div>
             <div class="text-[11px] text-brand-5f6060 dark:text-brand-e5e7eb">{{ ev.timeLabel }}</div>
