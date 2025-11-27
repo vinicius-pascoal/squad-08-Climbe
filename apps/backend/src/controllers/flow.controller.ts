@@ -27,7 +27,8 @@ export const flowController = {
   async advance(req: Request, res: Response) {
     const id = Number(req.params.id);
     const when = req.body?.scheduledAt ? new Date(req.body.scheduledAt) : undefined;
-    const result = await flowService.advance(id, when);
+    const googleToken = extractGoogleAccessToken(req);
+    const result = await flowService.advance(id, when, googleToken);
     return enviarResposta(res, 200, result);
   },
 
@@ -78,6 +79,12 @@ export const flowController = {
     const id = Number(req.params.id);
     const found = await flowRepo.findById(id);
     if (!found) return res.status(404).json({ error: 'Fluxo não encontrado' });
+
+    // Se houver driveFolderId, incluir o link da pasta
+    if (found.driveFolderId) {
+      (found as any).driveFolderUrl = `https://drive.google.com/drive/folders/${found.driveFolderId}`;
+    }
+
     return res.status(200).json(found);
   },
 };

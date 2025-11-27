@@ -106,3 +106,70 @@ export async function getFileTextById(auth: OAuth2Client, fileId: string): Promi
 		throw err; // outros erros
 	}
 }
+
+export async function createFolder(
+	auth: OAuth2Client,
+	folderName: string,
+	parentFolderId?: string
+): Promise<string | null> {
+	const drive = google.drive({ version: 'v3', auth });
+
+	try {
+		const requestBody: any = {
+			name: folderName,
+			mimeType: 'application/vnd.google-apps.folder',
+		};
+
+		if (parentFolderId) {
+			requestBody.parents = [parentFolderId];
+		} else if (process.env.DRIVE_FOLDERID) {
+			requestBody.parents = [process.env.DRIVE_FOLDERID];
+		}
+
+		const res = await drive.files.create({
+			requestBody,
+			fields: 'id,webViewLink',
+		});
+
+		const folderId = res.data.id as string | undefined;
+		const webViewLink = res.data.webViewLink as string | undefined;
+		console.log('Pasta criada com ID:', folderId, 'link:', webViewLink);
+		return folderId ?? null;
+	} catch (e) {
+		console.error('Erro criando pasta no Drive:', e);
+		throw e;
+	}
+}
+
+export async function addPermissionToFolder(
+	auth: OAuth2Client,
+	folderId: string,
+	emailAddress: string,
+	role: 'reader' | 'writer' | 'commenter' = 'writer'
+): Promise<boolean> {
+	const drive = google.drive({ version: 'v3', auth });
+
+	try {
+		await drive.permissions.create({
+			fileId: folderId,
+			requestBody: {
+				type: 'user',
+				role,
+				emailAddress,
+			},
+			supportsAllDrives: true,
+			sendNotificationEmail: false,
+		});
+
+		console.log(`Permissão '${role}' adicionada para ${emailAddress} na pasta ${folderId}`);
+		return true;
+	} catch (e: any) {
+		console.error('Erro adicionando permissão no Drive:', e);
+		// Se o usuário já tem permissão, não falhar
+		if (e.code === 409) {
+			console.log('Usuário já possui permissão na pasta');
+			return true;
+		}
+		throw e;
+	}
+}

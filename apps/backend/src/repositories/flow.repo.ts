@@ -164,4 +164,8 @@ export const flowRepo = {
   async updateEmpresa(flowId: number, empresaId: number) {
     return prisma.contractFlow.update({ where: { id: flowId }, data: { empresaId } });
   },
+
+  async updateDriveFolderId(flowId: number, driveFolderId: string) {
+    return prisma.contractFlow.update({ where: { id: flowId }, data: { driveFolderId } });
+  },
 };

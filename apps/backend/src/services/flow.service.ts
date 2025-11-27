@@ -2,6 +2,8 @@ import { flowRepo } from '../repositories/flow.repo';
 import { usuarioRepo } from '../repositories/usuario.repo';
 import { sendTemplate } from './email.service';
 import { createGoogleEvent } from './google.service';
+import { createFolder, addPermissionToFolder } from '../middlewares/drive';
+import { OAuth2Client } from 'google-auth-library';
 
 const STEP_LABEL: Record<string, string> = {
   REUNIAO: 'Reunião',
@@ -79,8 +81,12 @@ export const flowService = {
     return created;
   },
 
-  async advance(flowId: number, nextScheduledAt?: Date) {
+  async advance(flowId: number, nextScheduledAt?: Date, googleAccessToken?: string | null) {
     const createdOrDone = await flowRepo.advance(flowId, nextScheduledAt);
+
+    // Verificar se o fluxo foi concluído
+    const isDone = (createdOrDone as any)?.done === true;
+
     // Buscar participantes para notificar
     try {
       const flow = await flowRepo.findById(flowId);
@@ -93,6 +99,43 @@ export const flowService = {
             empresa: flow.empresa?.nomeFantasia || flow.empresa?.razaoSocial,
             quando: step.scheduledAt || null,
           });
+        }
+      }
+
+      // Se o fluxo foi concluído, criar pasta no Google Drive
+      if (isDone && flow && googleAccessToken) {
+        try {
+          const auth = new OAuth2Client();
+          auth.setCredentials({ access_token: googleAccessToken });
+
+          // Nome da pasta baseado na empresa e ID do fluxo
+          const empresaNome = flow.empresa?.nomeFantasia || flow.empresa?.razaoSocial || 'Empresa';
+          const folderName = `${empresaNome} - Fluxo #${flowId}`;
+
+          // Criar a pasta no Google Drive
+          const folderId = await createFolder(auth, folderName);
+
+          if (folderId) {
+            // Adicionar permissões para todos os participantes
+            const participantEmails: string[] = (flow.participantes || [])
+              .map((p: any) => p.usuario?.email)
+              .filter(Boolean);
+
+            for (const email of participantEmails) {
+              try {
+                await addPermissionToFolder(auth, folderId, email, 'writer');
+              } catch (err) {
+                console.warn(`[flowService.advance] Erro ao adicionar permissão para ${email}:`, err);
+              }
+            }
+
+            // Salvar o ID da pasta no fluxo
+            await flowRepo.updateDriveFolderId(flowId, folderId);
+            console.log(`[flowService.advance] Pasta do Drive criada com sucesso: ${folderId}`);
+          }
+        } catch (err) {
+          console.error('[flowService.advance] Erro ao criar pasta no Drive:', err);
+          // Não falhar o fluxo se a criação da pasta falhar
         }
       }
     } catch (e) {
