@@ -46,3 +46,17 @@ export function createcontrato(input: contratoInput) {
 		body: JSON.stringify({ ...input }),
 	});
 }
+
+export function aprovarContrato(id: string) {
+	return http<ContratoResponse>(`/api/contratos/${id}/aprovar`, {
+		method: 'PATCH',
+		body: JSON.stringify({ status: 'Aprovado' }),
+	});
+}
+
+export function recusarContrato(id: string) {
+	return http<ContratoResponse>(`/api/contratos/${id}/recusar`, {
+		method: 'PATCH',
+		body: JSON.stringify({ status: 'Rescindido' }),
+	});
+}

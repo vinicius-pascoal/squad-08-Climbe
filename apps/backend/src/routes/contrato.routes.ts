@@ -45,3 +45,25 @@ contratoRouter.delete(
   registrarAuditoria('Contrato', 'Deletar'),
   contratoController.remove
 );
+
+contratoRouter.patch(
+  '/:id/aprovar',
+  requireAuth,
+  requirePermission('Contratos — Editar'),
+  capturarDadosOriginais(async (req) => {
+    return await contratoService.findById(req.params.id);
+  }),
+  registrarAuditoria('Contrato', 'Aprovar'),
+  contratoController.aprovar
+);
+
+contratoRouter.patch(
+  '/:id/recusar',
+  requireAuth,
+  requirePermission('Contratos — Editar'),
+  capturarDadosOriginais(async (req) => {
+    return await contratoService.findById(req.params.id);
+  }),
+  registrarAuditoria('Contrato', 'Recusar'),
+  contratoController.recusar
+);

@@ -70,8 +70,9 @@ import CompanyWizard from '../components/modals/company-wizard/CompanyWizard.vue
 
 // Serviços
 import calendarApi, { listCalendarEvents, listUserEvents, addCalendarEvent } from '../services/calendar';
-import { advanceFlow, linkProposta, linkContrato } from '../services/flow';
+import { advanceFlow, linkProposta, linkContrato, cancelFlow } from '../services/flow';
 import { http } from '../lib/http';
+import Swal from 'sweetalert2';
 
 // --- ESTADO DO WIDGET DE CALENDÁRIO ---
 const selectedDate = ref<Date>(new Date());
@@ -149,6 +150,60 @@ async function onAgendaEventClick(ev: any) {
 
     const instance = getCurrentInstance();
     const $notify = instance?.appContext.config.globalProperties.$notify;
+
+    // Mostrar opções do fluxo
+    const result = await Swal.fire({
+      title: 'Fluxo de Contrato',
+      text: `Etapa atual: ${ev.stepType}`,
+      icon: 'info',
+      showCancelButton: true,
+      showDenyButton: true,
+      confirmButtonText: 'Continuar Etapa',
+      denyButtonText: 'Cancelar Fluxo',
+      cancelButtonText: 'Fechar',
+      customClass: {
+        container: 'swal-high-z'
+      }
+    });
+
+    if (result.isDenied) {
+      // Cancelar fluxo
+      const confirmCancel = await Swal.fire({
+        title: 'Cancelar Fluxo?',
+        text: 'Tem certeza que deseja cancelar este fluxo? Esta ação não pode ser desfeita.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sim, cancelar',
+        cancelButtonText: 'Não',
+        confirmButtonColor: '#d33',
+        customClass: {
+          container: 'swal-high-z'
+        }
+      });
+
+      if (confirmCancel.isConfirmed && currentFlowContext.value?.flowId) {
+        try {
+          showLoading();
+          await cancelFlow(currentFlowContext.value.flowId);
+          hideLoading();
+          $notify?.success?.('Fluxo cancelado com sucesso!');
+          setTimeout(() => {
+            loadAllUserEvents();
+            agendaRef.value?.loadEvents();
+            currentFlowContext.value = null;
+          }, 500);
+        } catch (e: any) {
+          hideLoading();
+          $notify?.error?.(e?.message || 'Erro ao cancelar fluxo');
+        }
+      }
+      return;
+    }
+
+    if (!result.isConfirmed) {
+      currentFlowContext.value = null;
+      return;
+    }
 
     // Mapa de etapas para modais
     const stepMap: Record<string, () => void> = {
@@ -242,11 +297,11 @@ async function onContratoSaved(contrato: any) {
   handleCloseContratoModal();
 }
 
-async function onEmpresaSaved(empresa: any) {
+async function onEmpresaSaved(empresa?: any) {
   const instance = getCurrentInstance();
   const $notify = instance?.appContext.config.globalProperties.$notify;
 
-  if (currentFlowContext.value?.flowId) {
+  if (currentFlowContext.value?.flowId && empresa?.id) {
     try {
       // Vincular empresa ao fluxo (atualizar empresaId)
       await http(`/api/flows/${currentFlowContext.value.flowId}`, {

@@ -79,6 +79,9 @@ export const flowRepo = {
       }
 
       return flow;
+    }, {
+      maxWait: 10000, // Espera até 10s para iniciar a transação
+      timeout: 15000, // Timeout de 15s para completar a transação
     });
   },
 
@@ -150,6 +153,9 @@ export const flowRepo = {
       }
 
       return { done: true };
+    }, {
+      maxWait: 10000,
+      timeout: 15000,
     });
   },
 
@@ -167,5 +173,45 @@ export const flowRepo = {
 
   async updateDriveFolderId(flowId: number, driveFolderId: string) {
     return prisma.contractFlow.update({ where: { id: flowId }, data: { driveFolderId } });
+  },
+
+  async cancelFlow(flowId: number) {
+    try {
+      return await prisma.$transaction(async (tx: any) => {
+        // Verificar se o fluxo existe
+        const existingFlow = await tx.contractFlow.findUnique({
+          where: { id: flowId },
+          include: { steps: true },
+        });
+
+        if (!existingFlow) {
+          throw new Error(`Fluxo com ID ${flowId} não encontrado`);
+        }
+
+        // Atualizar o status do fluxo para CANCELADO
+        const flow = await tx.contractFlow.update({
+          where: { id: flowId },
+          data: { status: 'CANCELADO' },
+          include: { steps: true },
+        });
+
+        // Cancelar todas as etapas pendentes ou não iniciadas
+        const pendingSteps = flow.steps.filter((s: any) => s.status === 'PENDENTE' || s.status === 'NAO_INICIADO');
+        for (const step of pendingSteps) {
+          await tx.contractFlowStep.update({
+            where: { id: step.id },
+            data: { status: 'CANCELADO' },
+          });
+        }
+
+        return flow;
+      }, {
+        maxWait: 10000,
+        timeout: 15000,
+      });
+    } catch (error: any) {
+      console.error('[flowRepo.cancelFlow] Erro ao cancelar fluxo:', error);
+      throw error;
+    }
   },
 };

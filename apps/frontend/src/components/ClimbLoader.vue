@@ -1,5 +1,5 @@
 <template>
-  <div class="climb-loader fixed inset-0 z-[9999] flex items-center justify-center" role="status" aria-live="polite">
+  <div class="climb-loader fixed inset-0 z-[10000] flex items-center justify-center" role="status" aria-live="polite">
     <div class="overlay-bg" aria-hidden="true"></div>
 
     <div class="loader-card">

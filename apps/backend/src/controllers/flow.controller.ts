@@ -87,4 +87,15 @@ export const flowController = {
 
     return res.status(200).json(found);
   },
+
+  async cancel(req: Request, res: Response) {
+    try {
+      const id = Number(req.params.id);
+      const result = await flowService.cancel(id);
+      return enviarResposta(res, 200, result);
+    } catch (error: any) {
+      console.error('[flowController.cancel] Erro ao cancelar fluxo:', error);
+      return res.status(500).json({ error: error.message || 'Erro ao cancelar fluxo' });
+    }
+  },
 };

@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import { contratoService } from "../services/contrato.service";
 import { contratoSchema } from "../dtos/contrato.dto";
 import { enviarResposta } from "../middlewares/auditoria";
+import { flowService } from "../services/flow.service";
+import { prisma } from "../utils/prisma";
 
 export const contratoController = {
   // POST
@@ -25,8 +27,41 @@ export const contratoController = {
         });
       }
 
-      const created = await contratoService.create(validatedData);
+      // Se propostaId não fornecido, buscar do flow se houver flowId no body
+      let finalPropostaId = validatedData.propostaId;
+      if (!finalPropostaId && req.body.flowId) {
+        try {
+          const flow = await prisma.contractFlow.findUnique({
+            where: { id: Number(req.body.flowId) },
+            select: { propostaId: true }
+          });
+          if (flow?.propostaId) {
+            finalPropostaId = flow.propostaId;
+            console.log(`✅ PropostaId ${finalPropostaId} obtido do flow ${req.body.flowId}`);
+          }
+        } catch (err) {
+          console.warn('⚠️ Erro ao buscar propostaId do flow:', err);
+        }
+      }
+
+      const created = await contratoService.create({
+        ...validatedData,
+        propostaId: finalPropostaId
+      });
       console.log('✅ Contrato criado:', created);
+
+      // Se veio de um flow, vincular o contrato ao flow
+      if (req.body.flowId) {
+        try {
+          await prisma.contractFlow.update({
+            where: { id: Number(req.body.flowId) },
+            data: { contratoId: created.id }
+          });
+          console.log(`✅ Contrato ${created.id} vinculado ao flow ${req.body.flowId}`);
+        } catch (err) {
+          console.warn('⚠️ Erro ao vincular contrato ao flow:', err);
+        }
+      }
 
       return enviarResposta(res, 201, {
         success: true,
@@ -105,5 +140,105 @@ export const contratoController = {
     await contratoService.remove(id);
     res.locals.entidadeId = id;
     res.status(204).send();
+  },
+
+  // APROVAR
+  async aprovar(req: Request, res: Response) {
+    try {
+      const id: string = req.params.id;
+      const existing = await contratoService.findById(id);
+
+      if (!existing) {
+        return res.status(404).json({
+          message: `Contrato com ID ${id} não encontrado`,
+        });
+      }
+
+      const updated = await contratoService.update(id, { status: 'Aprovado' });
+
+      // Buscar o flow associado ao contrato e avançar a etapa
+      try {
+        const flow = await prisma.contractFlow.findFirst({
+          where: { contratoId: id },
+          include: { steps: { orderBy: { id: 'asc' } } }
+        });
+
+        if (flow) {
+          console.log(`📋 Flow encontrado para contrato ${id}:`, flow.id);
+          console.log(`📋 Steps do flow:`, flow.steps.map(s => ({ id: s.id, type: s.type, status: s.status })));
+
+          // Verificar se há uma etapa CONTRATO pendente
+          const contratoStep = flow.steps.find(s => s.type === 'CONTRATO' && s.status === 'PENDENTE');
+
+          if (contratoStep) {
+            console.log(`📋 Avançando etapa CONTRATO do flow ${flow.id}...`);
+            const result = await flowService.advance(flow.id);
+            console.log(`✅ Etapa do flow ${flow.id} avançada:`, result);
+          } else {
+            console.log(`⚠️ Etapa CONTRATO não está PENDENTE no flow ${flow.id}`);
+          }
+        } else {
+          console.log(`⚠️ Nenhum flow encontrado para contrato ${id}`);
+        }
+      } catch (flowError: any) {
+        console.error('⚠️ Erro ao avançar flow:', flowError);
+        console.error('Stack:', flowError.stack);
+        // Não falha a aprovação se houver erro no flow
+      }
+
+      req.auditoriaData = {
+        acao: 'Aprovar',
+        entidade: 'Contrato',
+        entidadeId: id,
+        descricao: `Contrato ${id} aprovado`
+      };
+
+      return enviarResposta(res, 200, {
+        success: true,
+        message: 'Contrato aprovado com sucesso',
+        data: updated,
+      });
+    } catch (error: any) {
+      console.error('Erro ao aprovar contrato:', error);
+      return res.status(500).json({
+        message: "Erro ao aprovar contrato",
+        error: error.message
+      });
+    }
+  },
+
+  // RECUSAR
+  async recusar(req: Request, res: Response) {
+    try {
+      const id: string = req.params.id;
+      const existing = await contratoService.findById(id);
+
+      if (!existing) {
+        return res.status(404).json({
+          message: `Contrato com ID ${id} não encontrado`,
+        });
+      }
+
+      const updated = await contratoService.update(id, { status: 'Rescindido' });
+
+      req.auditoriaData = {
+        acao: 'Recusar',
+        entidade: 'Contrato',
+        entidadeId: id,
+        descricao: `Contrato ${id} recusado`
+      };
+
+      return enviarResposta(res, 200, {
+        success: true,
+        message: 'Contrato recusado com sucesso',
+        data: updated,
+      });
+    } catch (error: any) {
+      console.error('Erro ao recusar contrato:', error);
+      return res.status(500).json({
+        message: "Erro ao recusar contrato",
+        error: error.message
+      });
+    }
   },
 };

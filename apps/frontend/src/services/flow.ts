@@ -42,5 +42,11 @@ export async function linkContrato(flowId: number, contratoId: string) {
   });
 }
 
-const flowApi = { startFlow, advanceFlow, listMyFlows, scheduleStep, linkProposta, linkContrato };
+export async function cancelFlow(flowId: number) {
+  return http(`/api/flows/${flowId}/cancel`, {
+    method: 'PATCH',
+  });
+}
+
+const flowApi = { startFlow, advanceFlow, listMyFlows, scheduleStep, linkProposta, linkContrato, cancelFlow };
 export default flowApi;

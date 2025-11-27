@@ -159,4 +159,49 @@ export const flowService = {
   async updateEmpresa(flowId: number, empresaId: number) {
     return flowRepo.updateEmpresa(flowId, empresaId);
   },
+
+  async cancel(flowId: number) {
+    try {
+      console.log('[flowService.cancel] Iniciando cancelamento do fluxo:', flowId);
+
+      const flow = await flowRepo.findById(flowId);
+      if (!flow) {
+        console.error('[flowService.cancel] Fluxo não encontrado:', flowId);
+        throw new Error('Fluxo não encontrado');
+      }
+
+      console.log('[flowService.cancel] Fluxo encontrado, status atual:', flow.status);
+
+      if (flow.status === 'CANCELADO') {
+        throw new Error('Fluxo já está cancelado');
+      }
+
+      if (flow.status === 'CONCLUIDO') {
+        throw new Error('Não é possível cancelar um fluxo concluído');
+      }
+
+      console.log('[flowService.cancel] Chamando flowRepo.cancelFlow...');
+      const result = await flowRepo.cancelFlow(flowId);
+      console.log('[flowService.cancel] Fluxo cancelado com sucesso');
+
+      // Notificar participantes sobre o cancelamento
+      try {
+        const emails: string[] = (flow.participantes || []).map((p: any) => p.usuario?.email).filter(Boolean);
+        if (emails.length) {
+          await sendTemplate(emails, 'fluxo-contrato-step', {
+            etapa: 'Cancelado',
+            empresa: flow.empresa?.nomeFantasia || flow.empresa?.razaoSocial,
+            quando: null,
+          });
+        }
+      } catch (e) {
+        console.warn('[flowService.cancel] Falha ao enviar e-mail', e);
+      }
+
+      return result;
+    } catch (error: any) {
+      console.error('[flowService.cancel] Erro ao cancelar fluxo:', error);
+      throw error;
+    }
+  },
 };
