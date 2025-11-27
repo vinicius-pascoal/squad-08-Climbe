@@ -208,7 +208,7 @@ export const contratoController = {
       req.auditoriaData = {
         acao: 'Aprovar',
         entidade: 'Contrato',
-        entidadeId: id,
+        entidadeId: id, // aceita string ou number
         descricao: `Contrato ${id} aprovado`
       };
 
@@ -243,7 +243,7 @@ export const contratoController = {
       req.auditoriaData = {
         acao: 'Recusar',
         entidade: 'Contrato',
-        entidadeId: id,
+        entidadeId: id, // aceita string ou number
         descricao: `Contrato ${id} recusado`
       };
 

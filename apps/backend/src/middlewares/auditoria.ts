@@ -5,10 +5,11 @@ import { auditoriaService } from '../services/auditoria.service';
 declare global {
   namespace Express {
     interface Request {
+      userId?: number;
       auditoriaData?: {
         acao: string;
         entidade: string;
-        entidadeId?: number;
+        entidadeId?: string | number;
         descricao?: string;
         dadosAntes?: any;
       };
