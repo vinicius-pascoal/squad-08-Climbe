@@ -408,8 +408,19 @@ body,
 }
 
 /* Botões genéricos no modo escuro */
-.dark button:not(.btn-cancelar):not(.btn-agendar) {
+.dark button:not(.btn-cancelar):not(.btn-agendar):not(.bg-indigo-50) {
   color: var(--text);
+}
+
+/* Exceção: manter estilo original dos botões índigo */
+.dark button.bg-indigo-50 {
+  background-color: #eef2ff !important;
+  color: #4338ca !important;
+  border-color: #c7d2fe !important;
+}
+
+.dark button.bg-indigo-50:hover {
+  background-color: #e0e7ff !important;
 }
 
 /* Chips e tags no modo escuro */

@@ -78,12 +78,12 @@
         </nav>
 
         <button v-if="canCreateCompany"
-          class="w-full rounded-xl border border-indigo-300 bg-indigo-50 px-3 py-3 text-left font-medium text-indigo-700 shadow hover:bg-indigo-100"
+          class="w-full rounded-xl border border-indigo-300 bg-indigo-50 px-3 py-3 text-left font-medium text-indigo-700 shadow hover:bg-indigo-100 dark:bg-indigo-50 dark:border-indigo-300 dark:text-indigo-700 dark:hover:bg-indigo-100"
           @click="onCreate">
           Cadastrar Empresa
         </button>
         <button v-else disabled
-          class="w-full rounded-xl border border-gray-200 bg-gray-100 px-3 py-3 text-left text-gray-500">Sem
+          class="w-full rounded-xl border border-gray-200 bg-gray-100 px-3 py-3 text-left text-gray-500 dark:bg-gray-100 dark:border-gray-200 dark:text-gray-500">Sem
           permissão</button>
       </aside>
 
