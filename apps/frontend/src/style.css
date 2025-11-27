@@ -349,6 +349,36 @@ body,
   color: var(--text) !important;
 }
 
+/* Propostas - Filtros no modo escuro */
+.dark .pill-input,
+.dark .pill-select {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-color: #485780 !important;
+  color: var(--text) !important;
+}
+
+.dark input[type="date"] {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-color: #485780 !important;
+  color: var(--text) !important;
+  color-scheme: dark;
+}
+
+.dark input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
+
+.dark .inline-flex {
+  background-color: rgba(87, 100, 142, 0.5) !important;
+  border-color: #485780 !important;
+}
+
+.dark .inline-flex .text-slate-600,
+.dark .inline-flex .text-slate-400 {
+  color: var(--text) !important;
+}
+
 .dark .taskboard .busca {
   background: none !important;
   color: var(--text) !important;
