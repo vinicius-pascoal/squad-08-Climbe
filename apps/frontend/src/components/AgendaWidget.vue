@@ -25,7 +25,7 @@
             </p>
             <p v-if="ev.description" class="text-xs text-slate-600 mt-1 line-clamp-2">{{ ev.description }}</p>
           </div>
-          <span v-if="ev.source === 'flow'" class="text-xs font-semibold text-sidebar">Fluxo</span>
+          <span v-if="ev.source === 'flow'" class="text-xs font-semibold text-sidebar">Jornada</span>
         </div>
       </button>
     </div>

@@ -153,15 +153,15 @@ async function onAgendaEventClick(ev: any) {
     const instance = getCurrentInstance();
     const $notify = instance?.appContext.config.globalProperties.$notify;
 
-    // Mostrar opções do fluxo
+    // Mostrar opções da jornada
     const result = await Swal.fire({
-      title: 'Fluxo de Contrato',
+      title: 'Jornada de Contrato',
       text: `Etapa atual: ${ev.stepType}`,
       icon: 'info',
       showCancelButton: true,
       showDenyButton: true,
       confirmButtonText: 'Continuar Etapa',
-      denyButtonText: 'Cancelar Fluxo',
+      denyButtonText: 'Cancelar Jornada',
       cancelButtonText: 'Fechar',
       customClass: {
         container: 'swal-high-z'
@@ -169,10 +169,10 @@ async function onAgendaEventClick(ev: any) {
     });
 
     if (result.isDenied) {
-      // Cancelar fluxo
+      // Cancelar jornada
       const confirmCancel = await Swal.fire({
-        title: 'Cancelar Fluxo?',
-        text: 'Tem certeza que deseja cancelar este fluxo? Esta ação não pode ser desfeita.',
+        title: 'Cancelar Jornada?',
+        text: 'Tem certeza que deseja cancelar esta jornada? Esta ação não pode ser desfeita.',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Sim, cancelar',
@@ -188,7 +188,7 @@ async function onAgendaEventClick(ev: any) {
           showLoading();
           await cancelFlow(currentFlowContext.value.flowId);
           hideLoading();
-          $notify?.success?.('Fluxo cancelado com sucesso!');
+          $notify?.success?.('Jornada cancelada com sucesso!');
           setTimeout(() => {
             loadAllUserEvents();
             agendaRef.value?.loadEvents();
@@ -196,7 +196,7 @@ async function onAgendaEventClick(ev: any) {
           }, 500);
         } catch (e: any) {
           hideLoading();
-          $notify?.error?.(e?.message || 'Erro ao cancelar fluxo');
+          $notify?.error?.(e?.message || 'Erro ao cancelar jornada');
         }
       }
       return;
@@ -221,7 +221,7 @@ async function onAgendaEventClick(ev: any) {
               agendaRef.value?.loadEvents();
             }, 500);
           } catch (e: any) {
-            $notify?.error?.(e?.message || 'Erro ao avançar fluxo');
+            $notify?.error?.(e?.message || 'Erro ao avançar jornada');
           }
         }
       },
@@ -320,11 +320,11 @@ async function onEmpresaSaved(empresa?: any) {
         empresaId: empresa.id
       });
 
-      // Avançar o fluxo (a empresa temporária já foi editada)
+      // Avançar a jornada (a empresa temporária já foi editada)
       const result = await advanceFlow(currentFlowContext.value.flowId);
-      console.log('✅ Fluxo avançado:', result);
+      console.log('✅ Jornada avançada:', result);
 
-      $notify?.success?.('Empresa atualizada! Fluxo concluído com sucesso! 🎉');
+      $notify?.success?.('Empresa atualizada! Jornada concluída com sucesso! 🎉');
 
       // Aguardar um pouco para garantir que o backend processou
       setTimeout(() => {
@@ -332,8 +332,8 @@ async function onEmpresaSaved(empresa?: any) {
         agendaRef.value?.loadEvents();
       }, 500);
     } catch (e: any) {
-      console.error('❌ Erro ao finalizar fluxo:', e);
-      $notify?.error?.(e?.message || 'Erro ao finalizar fluxo');
+      console.error('❌ Erro ao finalizar jornada:', e);
+      $notify?.error?.(e?.message || 'Erro ao finalizar jornada');
     }
   }
   showEmpresaModal.value = false;

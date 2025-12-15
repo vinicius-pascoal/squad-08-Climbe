@@ -146,9 +146,6 @@
                   <span :class="statusClasses(c.status)">{{ c.status }}</span>
                 </td>
                 <td class="px-3 py-3 text-center space-x-2">
-                  <button @click="openFluxo(c.id)"
-                    class="rounded-lg border border-slate-300 px-3 py-1.5 text-xs hover:bg-slate-50">Iniciar
-                    fluxo</button>
                   <button v-if="activeFlowFor(c.id)" @click="openAdvance(activeFlowFor(c.id)!.id, c.id)"
                     class="rounded-lg border border-emerald-300 px-3 py-1.5 text-xs text-emerald-700 hover:bg-emerald-50">Avançar
                     etapa</button>

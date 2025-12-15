@@ -24,7 +24,7 @@
       <button @click="props.openIniciarFluxo?.()"
         class="flex flex-col items-center justify-center p-4 bg-white dark:bg-gray-700 shadow-sm dark:shadow-transparent rounded-lg text-indigo-700 dark:text-indigo-200 transition-colors w-full text-center">
         <span class="mb-2">🔄</span>
-        <span class="text-sm font-semibold">Iniciar Fluxo</span>
+        <span class="text-sm font-semibold">Iniciar Jornada</span>
       </button>
       <button @click="props.openCadastroUsuario?.()"
         class="flex flex-col items-center justify-center p-4 bg-white dark:bg-gray-700 shadow-sm dark:shadow-transparent rounded-lg text-indigo-700 dark:text-indigo-200 transition-colors w-full text-center"><span

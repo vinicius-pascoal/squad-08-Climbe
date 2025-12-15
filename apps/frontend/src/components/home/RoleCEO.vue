@@ -100,7 +100,7 @@
   <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow dark:shadow-none actions-widget w-full h-full">
     <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">Ações Rápidas</h3>
     <div class="space-y-3">
-      <!-- Iniciar Fluxo -->
+      <!-- Iniciar Jornada -->
       <button v-if="props.openIniciarFluxo" @click="props.openIniciarFluxo()"
         class="w-full p-5 bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 text-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-200 hover:scale-[1.02] flex items-center gap-4">
         <div class="p-3 bg-white/20 rounded-lg">
@@ -110,7 +110,7 @@
           </svg>
         </div>
         <div class="text-left flex-1">
-          <p class="font-bold text-base">Iniciar Fluxo de Contrato</p>
+          <p class="font-bold text-base">Iniciar Jornada de Contrato</p>
           <p class="text-sm opacity-90 mt-1">Inicie um novo processo de cadastro de empresa</p>
         </div>
         <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">

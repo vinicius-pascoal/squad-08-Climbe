@@ -10,8 +10,8 @@
 
         <div>
           <label class="block">
-            <span class="mb-1 block text-xs font-medium text-slate-600">Nome do fluxo</span>
-            <input type="text" v-model="form.nome" placeholder="Ex: Fluxo Empresa XYZ"
+            <span class="mb-1 block text-xs font-medium text-slate-600">Nome da jornada</span>
+            <input type="text" v-model="form.nome" placeholder="Ex: Jornada Empresa XYZ"
               class="w-full rounded-lg border border-slate-300 p-2 text-sm focus:border-sidebar focus:outline-none" />
           </label>
         </div>
@@ -197,11 +197,11 @@ async function onSubmit() {
       }
     }
     const flow = await startFlow(payload)
-    notify?.success?.('Fluxo iniciado, reunião criada e participantes notificados')
-    emit('started', flow)
+    notify?.success?.('Jornada iniciada, reunião criada e participantes notificados')
+    emit('started')
     emit('close')
   } catch (e: any) {
-    notify?.error?.(e?.message || 'Falha ao iniciar fluxo')
+    notify?.error?.(e?.message || 'Falha ao iniciar jornada')
   } finally {
     submitting.value = false
   }
