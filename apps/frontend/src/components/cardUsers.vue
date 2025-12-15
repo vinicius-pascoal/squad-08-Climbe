@@ -24,7 +24,12 @@ export default {
     canRemove: { type: Boolean, default: false },
   },
   data() {
-    return { open: false, selectedCargoId: '', removing: false };
+    return { 
+      open: false, 
+      selectedCargoId: '', 
+      removing: false,
+      dropdownStyle: {}
+    };
   },
   computed: {
     isDisabled() {
@@ -32,9 +37,19 @@ export default {
     }
   },
   methods: {
-    toggle() {
+    toggle(event) {
       if (this.isDisabled || !this.canApprove) return;
       this.open = !this.open;
+      if (this.open && event?.currentTarget) {
+        this.$nextTick(() => {
+          const rect = event.currentTarget.getBoundingClientRect();
+          this.dropdownStyle = {
+            position: 'fixed',
+            top: `${rect.bottom + 5}px`,
+            right: '20px',
+          };
+        });
+      }
     },
     approve() {
       if (this.isDisabled || !this.canApprove) return;
@@ -74,6 +89,21 @@ export default {
       }
     },
     close() { this.open = false; },
+    handleClickOutside(event) {
+      const dropdown = this.$refs.dropdown;
+      const button = this.$refs.toggleButton;
+      if (this.open && dropdown && button) {
+        if (!dropdown.contains(event.target) && !button.contains(event.target)) {
+          this.open = false;
+        }
+      }
+    }
+  },
+  mounted() {
+    document.addEventListener('click', this.handleClickOutside);
+  },
+  beforeUnmount() {
+    document.removeEventListener('click', this.handleClickOutside);
   },
 };
 </script>
@@ -104,7 +134,7 @@ export default {
 
     <td class="py-4 px-6 relative">
       <div class="flex items-center justify-center gap-3">
-        <button class="inline-flex items-center gap-1 focus:outline-none disabled:opacity-60 hover:scale-105 transition"
+        <button ref="toggleButton" class="inline-flex items-center gap-1 focus:outline-none disabled:opacity-60 hover:scale-105 transition"
           @click.stop="toggle" :disabled="isDisabled" :title="isDisabled ? 'Usuário já está ativo' : 'Aprovar usuário'">
           <StatusPill :status="status" />
           <svg v-if="!isDisabled" class="w-4 h-4 text-brand-5f6060 dark:text-brand-e5e7eb" viewBox="0 0 20 20"
@@ -138,23 +168,26 @@ export default {
           </svg>
         </button>
       </div>
-
-      <div v-if="open"
-        class="absolute top-[56px] right-0 z-50 bg-white dark:bg-brand-0e9a97 border border-brand-e5e7eb dark:border-brand-0e9989 rounded-lg shadow-xl min-w-[260px] p-4">
-        <div class="text-sm text-brand-5f6060 dark:text-white mb-2 font-semibold">Selecionar cargo</div>
-        <select v-model="selectedCargoId"
-          class="w-full mb-3 rounded-lg border border-brand-e5e7eb dark:border-brand-0e9989 bg-brand-f6f7f8 dark:bg-brand-0e9989 px-3 py-2 text-brand-5f6060 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary">
-          <option value="">Selecione</option>
-          <option v-for="c in cargos" :key="c.id" :value="c.id">{{ c.nomeCargo }}</option>
-        </select>
-        <button
-          class="w-full px-4 py-2 rounded-lg bg-brand-cad8fd dark:bg-brand-14b8a6 text-white hover:bg-brand-93c5fd dark:hover:bg-brand-16c3af disabled:opacity-50 disabled:cursor-not-allowed transition font-medium"
-          :disabled="!selectedCargoId" @click.stop="approve">
-          Aprovar e Ativar
-        </button>
-      </div>
     </td>
   </tr>
+
+  <teleport to="body">
+    <div v-if="open" ref="dropdown"
+      class="z-[9999] bg-white dark:bg-brand-0e9a97 border border-brand-e5e7eb dark:border-brand-0e9989 rounded-lg shadow-xl min-w-[260px] p-4"
+      :style="dropdownStyle">
+      <div class="text-sm text-brand-5f6060 dark:text-white mb-2 font-semibold">Selecionar cargo</div>
+      <select v-model="selectedCargoId"
+        class="w-full mb-3 rounded-lg border border-brand-e5e7eb dark:border-brand-0e9989 bg-brand-f6f7f8 dark:bg-brand-0e9989 px-3 py-2 text-brand-5f6060 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary">
+        <option value="">Selecione</option>
+        <option v-for="c in cargos" :key="c.id" :value="c.id">{{ c.nomeCargo }}</option>
+      </select>
+      <button
+        class="w-full px-4 py-2 rounded-lg bg-brand-cad8fd dark:bg-brand-14b8a6 text-white hover:bg-brand-93c5fd dark:hover:bg-brand-16c3af disabled:opacity-50 disabled:cursor-not-allowed transition font-medium"
+        :disabled="!selectedCargoId" @click.stop="approve">
+        Aprovar e Ativar
+      </button>
+    </div>
+  </teleport>
 </template>
 
 <style scoped>
